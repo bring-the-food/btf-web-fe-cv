@@ -216,4 +216,12 @@
   .col-start-center {
     @apply flex flex-col items-center justify-start;
   }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }

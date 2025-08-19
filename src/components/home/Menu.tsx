@@ -33,10 +33,10 @@ const Menu = () => {
       <div className="pt-3">
         <Search value={searchValue} setValue={setSearchValue} />
 
-        <div className="start space-x-3 pt-2 pb-3 mt-2">
+        <div className="start space-x-3 overflow-x-auto no-scrollbar pt-2 pb-3 mt-2 -mr-4 px-4">
           {filter.map((item) => (
             <button
-              className={`px-2 py-1.5 cursor-pointer text-sm ${
+              className={`px-2 py-1.5 cursor-pointer text-sm whitespace-nowrap ${
                 active === item
                   ? "bg-[#FFF0C7] text-[#59201A] rounded-[4px]"
                   : "text-[#98A2B3]"

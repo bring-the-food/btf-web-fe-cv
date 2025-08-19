@@ -30,7 +30,7 @@ export default function RootLayout({
       <body
         className={`${caprasimo.variable} ${jakarta.variable} antialiased bg-gray-100`}
       >
-        <main className="mx-auto max-w-[400px] min-h-screen">
+        <main className="mx-auto max-w-[400px] min-h-screen overflow-hidden">
           <div className="pb-[83px]  bg-white">{children}</div>
 
           <footer className="bg-[#FFF9E9] px-10 pt-10 pb-2 col-start-center">
