@@ -4,7 +4,7 @@ import Image from "next/image";
 import React from "react";
 import Search from "../Search";
 import Food from "../Food";
-// import Topper from "../Topper";
+import Topper from "../Topper";
 
 const filter = ["All", "Combos", "Food", "Soup", "Sides", "Drinks"];
 
@@ -63,7 +63,7 @@ const Menu = () => {
         </div>
       </div>
 
-      {/* <Topper /> */}
+      <Topper />
     </div>
   );
 };
