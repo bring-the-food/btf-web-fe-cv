@@ -1,5 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@plugin "tailwind-clamp" {
+  minsize: 360rem;
+  maxsize: 1024rem;
+}
 
 @custom-variant dark (&:is(.dark *));
 

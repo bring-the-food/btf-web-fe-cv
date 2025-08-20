@@ -17,9 +17,9 @@ const Search = ({ value, setValue }: SearchProps) => {
   };
 
   return (
-    <div className="bg-[#FCFCFD] start space-x-2.5 border-[0.5px] border-[#E9EAEB] px-4 py-3 rounded-[8px]">
+    <div className="start max-w-[32rem] w-full space-x-2.5 border-[0.5px] border-[#E9EAEB] focus-within:border-[#FFC247] transition-colors clamp-[py,3,4,@sm,@lg] clamp-[px,4,5,@sm,@lg] clamp-[rounded,0.5rem,0.625rem,@sm,@lg]">
       <Image
-        className=""
+        className="clamp-[w,0.75rem,1rem,@sm,@lg]"
         src="/svg/search.svg"
         alt="search"
         width={12}
@@ -28,12 +28,24 @@ const Search = ({ value, setValue }: SearchProps) => {
 
       <input
         type="text"
-        className="text-[#98A2B3] font-Geist text-sm leading-[140%] focus:outline-none w-full"
+        className="text-[#414651] font-Geist clamp-[text,sm,base,@sm,@lg] leading-[140%] focus:outline-none w-full caret-[#FFC247]"
         placeholder="Search"
         value={value}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
       />
+
+      {value && (
+        <button className="cursor-pointer" onClick={() => setValue("")}>
+          <Image
+            className="clamp-[w,0.8125rem,1rem,@sm,@lg]"
+            src="/svg/cancel.svg"
+            alt="cancel"
+            width={13.333333969116211}
+            height={13.333333969116211}
+          />
+        </button>
+      )}
     </div>
   );
 };

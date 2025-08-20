@@ -14,12 +14,12 @@ const Orders = () => {
           priority
         />
       
-        <p className="text-center text-sm font-medium mt-3 text-[#98A2B3]">
+        <p className="text-center clamp-[text,sm,base,@sm,@lg] font-medium mt-3 text-[#98A2B3]">
           You currently don&apos;t have <br />
           any active orders.
         </p>
       
-        <Button className="bg-[#FFC247] text-[#59201A] cursor-pointer w-full rounded-[8px] text-sm font-semibold leading-5 py-[18px] mt-4 hover:bg-[#FFC247]/90">
+        <Button className="bg-[#FFC247] text-[#59201A] cursor-pointer w-full rounded-[8px] clamp-[text,sm,base,@sm,@lg] font-semibold leading-5 py-[18px] mt-4 hover:bg-[#FFC247]/90">
           Start a new order
         </Button>
       </div>

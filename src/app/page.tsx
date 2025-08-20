@@ -5,9 +5,9 @@ import Orders from "@/components/home/Orders";
 
 export default function Home() {
   return (
-    <div className="col-start-center px-5 py-10 w-full">
+    <div className="col-start-center clamp-[px,5,12,@sm,@lg] clamp-[py,10,20,@sm,@lg] w-full">
       <Image
-        className="my-3.5"
+        className="clamp-[mb,3.5,8,@sm,@lg] clamp-[w,3.8125rem,8rem,@sm,@lg]"
         src="/svg/logo.svg"
         alt="Bring this food logo"
         width={61}

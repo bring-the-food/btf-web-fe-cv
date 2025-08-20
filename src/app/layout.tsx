@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Caprasimo, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
+import Footer from "@/components/Footer";
 
 const caprasimo = Caprasimo({
   variable: "--font-caprasimo",
@@ -28,99 +27,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${caprasimo.variable} ${jakarta.variable} antialiased bg-gray-100`}
+        className={`${caprasimo.variable} ${jakarta.variable} antialiased bg-white`}
       >
-        <main className="mx-auto max-w-[400px] min-h-screen overflow-hidden">
-          <div className="pb-[83px]  bg-white">{children}</div>
+        <main className="min-h-screen overflow-hidden">
+          <div className="mx-auto max-w-[1024px] pb-[83px] bg-white">
+            {children}
+          </div>
 
-          <footer className="bg-[#FFF9E9] px-10 pt-10 pb-2 col-start-center">
-            <Image
-              src="/svg/logo.svg"
-              alt="Bring this food logo"
-              width={81}
-              height={64}
-              priority
-            />
-
-            <div className="mt-2.5">
-              <h4 className="font-caprasimo text-[32px] leading-[44.8px] text-[#310909] text-center">
-                Get your Food and Groceries ASAP
-              </h4>
-
-              <p className="mt-2 text-center text-[#310909] leading-[19.84px] text-base font-jakart tracking-[0.32px]">
-                Your order is only few clicks away!
-              </p>
-            </div>
-
-            <div className="space-y-4 col-center mt-6 mb-10">
-              <Button className="space-x-2.5 font-medium text-sm leading-[100%] text-[#FFF9E9] font-jakart py-3.5 px-[17px]">
-                <Image
-                  src="/svg/playstore.svg"
-                  alt="playstore"
-                  width={17.305557250976562}
-                  height={18.999780654907227}
-                />
-                <span>Download on Google Play</span>
-              </Button>
-              <Button className="space-x-2.5 font-medium text-sm leading-[100%] text-[#FFF9E9] font-jakart py-3.5 px-[22px]">
-                <Image
-                  src="/svg/iphone.svg"
-                  alt="iphone"
-                  width={17.305557250976562}
-                  height={18.999780654907227}
-                />
-                <span>Download on App Store</span>
-              </Button>
-            </div>
-
-            <div className="space-y-3 mt-6 font-caprasimo">
-              <p className="text-caprasimo text-base leading-[21.12px] tracking-[0.32px] center text-[#310909] space-x-2">
-                <Image src="/svg/call.svg" alt="call" width={20} height={20} />
-                <span>09036908690</span>
-              </p>
-              <p className="text-caprasimo text-base leading-[21.12px] tracking-[0.32px] center text-[#310909] space-x-2">
-                <Image src="/svg/mail.svg" alt="mail" width={20} height={20} />
-                <span>info@bringthisfood.com</span>
-              </p>
-            </div>
-
-            <div className="my-10">
-              <h6 className="text-[#5E251E] text-sm leading-[17.92px] font-semibold tracking-[0.42px] font-jakart text-center">
-                Follow Us
-              </h6>
-
-              <div className="center space-x-2 mt-5">
-                <div className="bg-[#310909] size-10 rounded-full center">
-                  <Image
-                    src="/svg/instagram.svg"
-                    alt="instagram"
-                    width={20}
-                    height={20}
-                  />
-                </div>
-                <div className="bg-[#310909] size-10 rounded-full center">
-                  <Image
-                    src="/svg/facebook.svg"
-                    alt="facebook"
-                    width={20}
-                    height={20}
-                  />
-                </div>
-                <div className="bg-[#310909] size-10 rounded-full center">
-                  <Image src="/svg/x.svg" alt="x" width={20} height={20} />
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-5 py-5">
-              <p className="text-[#310909] text-sm leading-[17.92px] tracking-[0.42px] font-jakart text-center">
-                Powered by <span className="font-semibold ">Bringthisfood</span>
-              </p>
-              <p className="text-[#310909] text-sm leading-[17.92px] tracking-[0.42px] font-jakart text-center">
-                2025 © All rights reserved
-              </p>
-            </div>
-          </footer>
+          <Footer />
         </main>
       </body>
     </html>
