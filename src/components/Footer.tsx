@@ -25,7 +25,7 @@ const Footer = () => {
         </div>
 
         <div className="space-y-4 md:space-y-6 flex flex-col items-center clamp-[mt,6,10,@sm,@lg] clamp-[mb,10,16,@sm,@lg] md:my-0">
-          <Button className="space-x-2.5 font-medium text-sm leading-[100%] text-[#FFF9E9] font-jakart py-3.5 px-[17px]">
+          <Button className="space-x-2.5 font-medium text-sm leading-normal text-[#FFF9E9] font-jakart py-3.5 px-[17px]">
             <Image
               src="/svg/playstore.svg"
               alt="playstore"
@@ -34,7 +34,7 @@ const Footer = () => {
             />
             <span>Download on Google Play</span>
           </Button>
-          <Button className="space-x-2.5 font-medium text-sm leading-[100%] text-[#FFF9E9] font-jakart py-3.5 px-[22px]">
+          <Button className="space-x-2.5 font-medium text-sm leading-normal text-[#FFF9E9] font-jakart py-3.5 px-[22px]">
             <Image
               src="/svg/iphone.svg"
               alt="iphone"
