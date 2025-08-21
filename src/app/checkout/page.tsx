@@ -1,0 +1,154 @@
+import Icon from "@/components/Icon";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import Link from "next/link";
+import React from "react";
+
+const Checkout = () => {
+  return (
+    <div className="col-start-center clamp-[px,5,12,@sm,@lg] clamp-[py,10,20,@sm,@lg] w-full">
+      <Image
+        className="clamp-[mb,3.5,8,@sm,@lg] clamp-[w,3.8125rem,8rem,@sm,@lg]"
+        src="/svg/logo.svg"
+        alt="Bring this food logo"
+        width={61}
+        height={48}
+        priority
+      />
+
+      <div className="w-full">
+        <div className="clamp-[my,1.3125rem,1.5625rem,@sm,@lg] center w-full">
+          <button className="mr-auto">
+            <Icon icon="left" size={16} />
+          </button>
+
+          <h4 className="text-[#1D2939] font-semibold clamp-[text,sm,lg,@sm,@lg] leading-normal text-center mr-auto clamp-[ml,0,-8,@sm,@lg]">
+            Checkout
+          </h4>
+        </div>
+
+        <div className="space-y-5 md:space-y-8">
+          <div className="border border-[#F2F4F7] rounded-[8px] clamp-[p,3.5,5,@sm,@lg] clamp-[pb,4,6,@sm,@lg]">
+            <div className="between">
+              <div className="start">
+                <Image
+                  className="clamp-[w,10,16,@sm,@lg]"
+                  src="/images/logo_placeholder.png"
+                  alt="Placeholder logo"
+                  width={40}
+                  height={40}
+                  priority
+                />
+
+                <div className="clamp-[ml,2,4,@sm,@lg]">
+                  <h6 className="font-semibold clamp-[text,sm,lg,@sm,@lg] leading-normal">
+                    Mola Foods
+                  </h6>
+                  <p className="clamp-[text,xs,sm,@sm,@lg] leading-normal start clamp-[mt,1,2,@sm,@lg] space-x-1">
+                    <span className="text-[#98A2B3]">5 items</span>
+                    <span className="text-[#98A2B3]">| N7,900</span>
+                  </p>
+                </div>
+              </div>
+
+              <Link href={`/`}>
+                <Button className="text-[#A46900] rounded-full clamp-[text,xs,sm,@sm,@lg] font-semibold bg-[#FFF9E9] hover:bg-[#fcf2d8] !clamp-[py,1.5,2,@sm,@lg] !clamp-[px,2,4,@sm,@lg] cursor-pointer space-x-[2px] h-auto">
+                  <Icon
+                    icon="right"
+                    size={12}
+                    className="clamp-[size,3,4,@sm,@lg]"
+                  />
+                  <span>Back to cart</span>
+                </Button>
+              </Link>
+            </div>
+
+            <div className="clamp-[mt,6,8,@sm,@lg] space-y-2">
+              <button className="clamp-[pt,3,5,@sm,@lg] clamp-[pb,4,6,@sm,@lg] start text-left w-full space-x-3">
+                <Icon icon="marker" size={20} />
+
+                <div>
+                  <p className="text-[#1D2939] font-medium clamp-[text,sm,base,@sm,@lg]">
+                    Choose Delivery Location
+                  </p>
+                  <p className="text-[#A46900] font-medium clamp-[text,0.625rem,xs,@sm,@lg] clamp-[mt,1,1.5,@sm,@lg]">
+                    Add Delivery Address
+                  </p>
+                </div>
+              </button>
+              <button className="clamp-[pt,3,5,@sm,@lg] clamp-[pb,4,6,@sm,@lg] start text-left w-full space-x-3">
+                <Icon icon="message" size={20} />
+
+                <div>
+                  <p className="text-[#1D2939] font-medium clamp-[text,sm,base,@sm,@lg]">
+                    07012345678 will be called for pickup
+                  </p>
+                  <p className="text-[#A46900] font-medium clamp-[text,0.625rem,xs,@sm,@lg] clamp-[mt,1,1.5,@sm,@lg]">
+                    Update Phone Number
+                  </p>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div className="text-[#1D2939]">
+            <h4 className="font-semibold clamp-[text,base,lg,@sm,@lg]">
+              Payment Summary
+            </h4>
+
+            <div className="mt-2">
+              <Pallet title="Sub-total (5 items)" value={7900} />
+              <Pallet title="Packs (1 item)" value={300} />
+              <Pallet title="Delivery Fee" value={800} />
+              <Pallet title="Total bill" value={9000} isTotal />
+            </div>
+          </div>
+
+          <div className="center">
+            <Button className="text-[#59201A] hover:bg-[#fdb420] w-full max-w-sm bg-[#FFC247] rounded-[8px] !clamp-[py,1.125rem,1.375rem,@sm,@lg] clamp-[text,sm,base,@sm,@lg] font-semibold leading-5 clamp-[mt,4.4375rem,4.6875rem,@sm,@lg]">
+              Make Payment
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Checkout;
+
+type PalletProps = {
+  title: string;
+  value: number;
+  isTotal?: boolean;
+};
+
+const Pallet = ({ title, value, isTotal }: PalletProps) => {
+  return (
+    <div className="start-start clamp-[py,4,5,@sm,@lg]">
+      <Icon
+        icon={isTotal ? "receipt" : "stars"}
+        size={20}
+        className="clamp-[size,5,6,@sm,@lg]"
+      />
+
+      <div className="clamp-[ml,0.8125rem,1.0625rem,@sm,@lg]">
+        <h6
+          className={`clamp-[text,sm,base,@sm,@lg] leading-normal text-[#1D2939] ${
+            isTotal && "font-semibold"
+          }`}
+        >
+          {title}
+        </h6>
+      </div>
+
+      <p
+        className={`ml-auto end text-[#344054] clamp-[text,sm,base,@sm,@lg] leading-normal ${
+          isTotal && "font-semibold"
+        }`}
+      >
+        N{value}
+      </p>
+    </div>
+  );
+};

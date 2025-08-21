@@ -3,10 +3,11 @@
 import Image from "next/image";
 import React from "react";
 import Search from "../Search";
-import Food from "../Food";
 import Topper from "../Topper";
+import FoodList from "../FoodList";
+import MyCart from "../MyCart";
 
-const filter = ["All", "Combos", "Food", "Soup", "Sides", "Drinks"];
+const filter = ["My Cart", "All", "Combos", "Food", "Soup", "Sides", "Drinks"];
 
 const Menu = () => {
   const [searchValue, setSearchValue] = React.useState("");
@@ -40,27 +41,27 @@ const Menu = () => {
 
           <div className="start space-x-3 overflow-x-auto no-scrollbar pt-2 pb-3 mt-2 clamp-[mr,-6,-8,@sm,@lg] clamp-[pr,4,5,@sm,@lg]">
             {filter.map((item) => (
-              <button
-                className={`cursor-pointer clamp-[text,sm,base,@sm,@lg] clamp-[py,1.5,2,@sm,@lg] clamp-[px,2,3,@sm,@lg] whitespace-nowrap ${
-                  active === item
-                    ? "bg-[#FFF0C7] text-[#59201A] rounded-[4px]"
-                    : "text-[#98A2B3]"
-                }`}
-                key={item}
-                onClick={() => setActive(item)}
-              >
-                {item}
-              </button>
+              <div key={item} className="start">
+                <button
+                  className={`cursor-pointer clamp-[text,sm,base,@sm,@lg] clamp-[py,1.5,2,@sm,@lg] clamp-[px,2,3,@sm,@lg] whitespace-nowrap ${
+                    active === item
+                      ? "bg-[#FFF0C7] text-[#59201A] rounded-[4px]"
+                      : "text-[#98A2B3]"
+                  }`}
+                  // key={item}
+                  onClick={() => setActive(item)}
+                >
+                  {item}
+                </button>
+                {item === "My Cart" && (
+                  <div className="clamp-[h,5,6,@sm,@lg] clamp-[w,0.0625rem,0.5,@sm,@lg] bg-[#F2F4F7]" />
+                )}
+              </div>
             ))}
           </div>
         </div>
 
-        <div className="clamp-[mt,4,8,@sm,@lg] grid md:grid-cols-2 clamp-[gap,4,8,@sm,@lg]">
-          <Food />
-          <Food />
-          <Food />
-          <Food />
-        </div>
+        {active === "My Cart" ? <MyCart /> : <FoodList />}
       </div>
 
       <Topper />

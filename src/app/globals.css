@@ -229,3 +229,7 @@
     scrollbar-width: none;
   }
 }
+
+button {
+  @apply cursor-pointer transition-colors pointer-events-auto;
+}
