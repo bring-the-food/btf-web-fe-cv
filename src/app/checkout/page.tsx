@@ -1,10 +1,24 @@
+"use client";
+
+import { DialogC } from "@/components/Dialog";
+import { DrawerC } from "@/components/Drawer";
 import Icon from "@/components/Icon";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
 const Checkout = () => {
+  const [openModal, setOpenModal] = React.useState(false);
+  const [openDrawer, setOpenDrawer] = React.useState(false);
+  const [phoneNumber, setPhoneNumber] = React.useState("");
+
+  const handlePhoneInput = () => {
+    setOpenModal(false);
+  };
+
   return (
     <div className="col-start-center clamp-[px,5,12,@sm,@lg] clamp-[py,10,20,@sm,@lg] w-full">
       <Image
@@ -64,7 +78,10 @@ const Checkout = () => {
             </div>
 
             <div className="clamp-[mt,6,8,@sm,@lg] space-y-2">
-              <button className="clamp-[pt,3,5,@sm,@lg] clamp-[pb,4,6,@sm,@lg] start text-left w-full space-x-3">
+              <button
+                onClick={() => setOpenDrawer(true)}
+                className="clamp-[pt,3,5,@sm,@lg] clamp-[pb,4,6,@sm,@lg] start text-left w-full space-x-3"
+              >
                 <Icon icon="marker" size={20} />
 
                 <div>
@@ -76,7 +93,10 @@ const Checkout = () => {
                   </p>
                 </div>
               </button>
-              <button className="clamp-[pt,3,5,@sm,@lg] clamp-[pb,4,6,@sm,@lg] start text-left w-full space-x-3">
+              <button
+                onClick={() => setOpenModal(true)}
+                className="clamp-[pt,3,5,@sm,@lg] clamp-[pb,4,6,@sm,@lg] start text-left w-full space-x-3"
+              >
                 <Icon icon="message" size={20} />
 
                 <div>
@@ -111,6 +131,58 @@ const Checkout = () => {
           </div>
         </div>
       </div>
+
+      <DialogC open={openModal} setOpen={setOpenModal}>
+        <div className="grid gap-4 text-[#1D2939] mt-4 text-center px-4">
+          <h3 className="font-semibold leading-normal text-[20px]">
+            Update phone number
+          </h3>
+          <p className="text-[#475467] text-sm leading-5 font-normal">
+            This is the number riders will call to reach you during delivery.
+          </p>
+
+          <div className="grid gap-3 mt-5 mb-6">
+            <Label
+              htmlFor="phone"
+              className="text-sm leading-5 font-semibold text-[#1E2024]"
+            >
+              Phone number<span className="text-[#F6211A]">*</span>
+            </Label>
+            <Input
+              id="phone"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              placeholder="+234 XXXXXXXXXX"
+              className="text-[#1E2024] text-sm leading-5 font-normal tracking-[12%] !px-3 !py-4 !rounded-[8px] h-auto"
+            />
+          </div>
+
+          <Button
+            onClick={handlePhoneInput}
+            className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-[8px] text-[#59201A] text-sm font-semibold leading-5 py-[18px]"
+          >
+            Update
+          </Button>
+        </div>
+      </DialogC>
+
+      <DrawerC open={openDrawer} setOpen={setOpenDrawer}>
+        <div className="grid gap-4 m-5 text-center px-4">
+          <h3 className="font-semibold leading-normal text-[#1E2024] text-[20px]">
+            Add Delivery Address
+          </h3>
+          <p className="text-[#616469] text-sm leading-5 font-normal">
+            Let us know where you hang out. So we can deliver to you.
+          </p>
+
+          <Button
+            onClick={() => setOpenDrawer(false)}
+            className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-[8px] text-[#59201A] text-sm font-semibold leading-5 py-[18px]"
+          >
+            Save Location
+          </Button>
+        </div>
+      </DrawerC>
     </div>
   );
 };
