@@ -28,7 +28,7 @@ const Search = ({ value, setValue }: SearchProps) => {
 
       <input
         type="text"
-        className="text-[#414651] font-Geist clamp-[text,sm,base,@sm,@lg] leading-[140%] focus:outline-none w-full caret-[#FFC247]"
+        className="text-[#414651] font-Geist clamp-[text,sm,base,@sm,@lg] leading-[140%] focus:outline-none w-full caret-[#FFC247] !min-w-[280px]"
         placeholder="Search"
         value={value}
         onChange={handleChange}

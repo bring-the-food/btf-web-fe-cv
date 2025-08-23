@@ -8,15 +8,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 const Checkout = () => {
+  const router = useRouter();
+
   const [openModal, setOpenModal] = React.useState(false);
   const [openDrawer, setOpenDrawer] = React.useState(false);
   const [phoneNumber, setPhoneNumber] = React.useState("");
+  const [isSuccess, setIsSuccess] = React.useState(false);
 
   const handlePhoneInput = () => {
     setOpenModal(false);
+  };
+
+  const handlePayment = () => {
+    window.scrollTo(0, 0);
+    setIsSuccess(true);
   };
 
   return (
@@ -30,107 +39,142 @@ const Checkout = () => {
         priority
       />
 
-      <div className="w-full">
-        <div className="clamp-[my,1.3125rem,1.5625rem,@sm,@lg] center w-full">
-          <button className="mr-auto">
-            <Icon icon="left" size={16} />
-          </button>
+      {!isSuccess ? (
+        <div className="w-full">
+          <div className="clamp-[my,1.3125rem,1.5625rem,@sm,@lg] center w-full">
+            <button
+              className="mr-auto hover:bg-gray-100 p-1 rounded"
+              onClick={() => router.back()}
+            >
+              <Icon icon="left" size={16} />
+            </button>
 
-          <h4 className="text-[#1D2939] font-semibold clamp-[text,sm,lg,@sm,@lg] leading-normal text-center mr-auto clamp-[ml,0,-8,@sm,@lg]">
-            Checkout
-          </h4>
-        </div>
+            <h4 className="text-[#1D2939] font-semibold clamp-[text,sm,lg,@sm,@lg] leading-normal text-center mr-auto clamp-[ml,0,-8,@sm,@lg]">
+              Checkout
+            </h4>
+          </div>
 
-        <div className="space-y-5 md:space-y-8">
-          <div className="border border-[#F2F4F7] rounded-[8px] clamp-[p,3.5,5,@sm,@lg] clamp-[pb,4,6,@sm,@lg]">
-            <div className="between">
-              <div className="start">
-                <Image
-                  className="clamp-[w,10,16,@sm,@lg]"
-                  src="/images/logo_placeholder.png"
-                  alt="Placeholder logo"
-                  width={40}
-                  height={40}
-                  priority
-                />
+          <div className="space-y-5 md:space-y-8">
+            <div className="border border-[#F2F4F7] rounded-[8px] clamp-[p,3.5,5,@sm,@lg] clamp-[pb,4,6,@sm,@lg]">
+              <div className="between">
+                <div className="start">
+                  <Image
+                    className="clamp-[w,10,16,@sm,@lg]"
+                    src="/images/logo_placeholder.png"
+                    alt="Placeholder logo"
+                    width={40}
+                    height={40}
+                    priority
+                  />
 
-                <div className="clamp-[ml,2,4,@sm,@lg]">
-                  <h6 className="font-semibold clamp-[text,sm,lg,@sm,@lg] leading-normal">
-                    Mola Foods
-                  </h6>
-                  <p className="clamp-[text,xs,sm,@sm,@lg] leading-normal start clamp-[mt,1,2,@sm,@lg] space-x-1">
-                    <span className="text-[#98A2B3]">5 items</span>
-                    <span className="text-[#98A2B3]">| N7,900</span>
-                  </p>
+                  <div className="clamp-[ml,2,4,@sm,@lg]">
+                    <h6 className="font-semibold clamp-[text,sm,lg,@sm,@lg] leading-normal">
+                      Mola Foods
+                    </h6>
+                    <p className="clamp-[text,xs,sm,@sm,@lg] leading-normal start clamp-[mt,1,2,@sm,@lg] space-x-1">
+                      <span className="text-[#98A2B3]">5 items</span>
+                      <span className="text-[#98A2B3]">| N7,900</span>
+                    </p>
+                  </div>
                 </div>
+
+                <Link href={`/?tab=cart`}>
+                  <Button className="text-[#A46900] rounded-full clamp-[text,xs,sm,@sm,@lg] font-semibold bg-[#FFF9E9] hover:bg-[#fcf2d8] !clamp-[py,1.5,2,@sm,@lg] !clamp-[px,2,4,@sm,@lg] cursor-pointer space-x-[2px] h-auto">
+                    <Icon
+                      icon="right"
+                      size={12}
+                      className="clamp-[size,3,4,@sm,@lg]"
+                    />
+                    <span>Back to cart</span>
+                  </Button>
+                </Link>
               </div>
 
-              <Link href={`/`}>
-                <Button className="text-[#A46900] rounded-full clamp-[text,xs,sm,@sm,@lg] font-semibold bg-[#FFF9E9] hover:bg-[#fcf2d8] !clamp-[py,1.5,2,@sm,@lg] !clamp-[px,2,4,@sm,@lg] cursor-pointer space-x-[2px] h-auto">
-                  <Icon
-                    icon="right"
-                    size={12}
-                    className="clamp-[size,3,4,@sm,@lg]"
-                  />
-                  <span>Back to cart</span>
-                </Button>
-              </Link>
+              <div className="clamp-[mt,6,8,@sm,@lg] space-y-2">
+                <button
+                  onClick={() => setOpenDrawer(true)}
+                  className="clamp-[pt,3,5,@sm,@lg] clamp-[pb,4,6,@sm,@lg] start text-left w-full space-x-3"
+                >
+                  <Icon icon="marker" size={20} />
+
+                  <div>
+                    <p className="text-[#1D2939] font-medium clamp-[text,sm,base,@sm,@lg]">
+                      Choose Delivery Location
+                    </p>
+                    <p className="text-[#A46900] font-medium clamp-[text,0.625rem,xs,@sm,@lg] clamp-[mt,1,1.5,@sm,@lg]">
+                      Add Delivery Address
+                    </p>
+                  </div>
+                </button>
+                <button
+                  onClick={() => setOpenModal(true)}
+                  className="clamp-[pt,3,5,@sm,@lg] clamp-[pb,4,6,@sm,@lg] start text-left w-full space-x-3"
+                >
+                  <Icon icon="message" size={20} />
+
+                  <div>
+                    <p className="text-[#1D2939] font-medium clamp-[text,sm,base,@sm,@lg]">
+                      07012345678 will be called for pickup
+                    </p>
+                    <p className="text-[#A46900] font-medium clamp-[text,0.625rem,xs,@sm,@lg] clamp-[mt,1,1.5,@sm,@lg]">
+                      Update Phone Number
+                    </p>
+                  </div>
+                </button>
+              </div>
             </div>
 
-            <div className="clamp-[mt,6,8,@sm,@lg] space-y-2">
-              <button
-                onClick={() => setOpenDrawer(true)}
-                className="clamp-[pt,3,5,@sm,@lg] clamp-[pb,4,6,@sm,@lg] start text-left w-full space-x-3"
+            <div className="text-[#1D2939]">
+              <h4 className="font-semibold clamp-[text,base,lg,@sm,@lg]">
+                Payment Summary
+              </h4>
+
+              <div className="mt-2">
+                <Pallet title="Sub-total (5 items)" value={7900} />
+                <Pallet title="Packs (1 item)" value={300} />
+                <Pallet title="Delivery Fee" value={800} />
+                <Pallet title="Total bill" value={9000} isTotal />
+              </div>
+            </div>
+
+            <div className="center">
+              <Button
+                onClick={handlePayment}
+                className="text-[#59201A] hover:bg-[#fdb420] w-full max-w-sm bg-[#FFC247] rounded-[8px] !clamp-[py,1.125rem,1.375rem,@sm,@lg] clamp-[text,sm,base,@sm,@lg] font-semibold leading-5 clamp-[mt,4.4375rem,4.6875rem,@sm,@lg]"
               >
-                <Icon icon="marker" size={20} />
-
-                <div>
-                  <p className="text-[#1D2939] font-medium clamp-[text,sm,base,@sm,@lg]">
-                    Choose Delivery Location
-                  </p>
-                  <p className="text-[#A46900] font-medium clamp-[text,0.625rem,xs,@sm,@lg] clamp-[mt,1,1.5,@sm,@lg]">
-                    Add Delivery Address
-                  </p>
-                </div>
-              </button>
-              <button
-                onClick={() => setOpenModal(true)}
-                className="clamp-[pt,3,5,@sm,@lg] clamp-[pb,4,6,@sm,@lg] start text-left w-full space-x-3"
-              >
-                <Icon icon="message" size={20} />
-
-                <div>
-                  <p className="text-[#1D2939] font-medium clamp-[text,sm,base,@sm,@lg]">
-                    07012345678 will be called for pickup
-                  </p>
-                  <p className="text-[#A46900] font-medium clamp-[text,0.625rem,xs,@sm,@lg] clamp-[mt,1,1.5,@sm,@lg]">
-                    Update Phone Number
-                  </p>
-                </div>
-              </button>
+                Make Payment
+              </Button>
             </div>
-          </div>
-
-          <div className="text-[#1D2939]">
-            <h4 className="font-semibold clamp-[text,base,lg,@sm,@lg]">
-              Payment Summary
-            </h4>
-
-            <div className="mt-2">
-              <Pallet title="Sub-total (5 items)" value={7900} />
-              <Pallet title="Packs (1 item)" value={300} />
-              <Pallet title="Delivery Fee" value={800} />
-              <Pallet title="Total bill" value={9000} isTotal />
-            </div>
-          </div>
-
-          <div className="center">
-            <Button className="text-[#59201A] hover:bg-[#fdb420] w-full max-w-sm bg-[#FFC247] rounded-[8px] !clamp-[py,1.125rem,1.375rem,@sm,@lg] clamp-[text,sm,base,@sm,@lg] font-semibold leading-5 clamp-[mt,4.4375rem,4.6875rem,@sm,@lg]">
-              Make Payment
-            </Button>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="w-full col-center py-[108px]">
+          <Image
+            className="clamp-[w,5rem,12rem,@sm,@lg] scale-125"
+            src="/svg/success.svg"
+            alt="success logo"
+            width={80}
+            height={80}
+          />
+
+          <h6 className="text-[#344054] clamp-[text,xl,3xl,@sm,@lg] leading-normal font-semibold">
+            Payment Successful!
+          </h6>
+          <p className="text-[#717680] clamp-[text,base,xl,@sm,@lg] leading-[24px] clamp-[mt,1.5,3,@sm,@lg] text-center">
+            Your payment of N7,200 is successful. You <br /> can proceed to
+            track your order
+          </p>
+
+          <div className="center w-full">
+            <Link
+              href={`/?tab=orders`}
+              className="text-[#59201A] text-center hover:bg-[#fdb420] w-full max-w-sm bg-[#FFC247] rounded-[8px] !clamp-[py,1.125rem,1.375rem,@sm,@lg] clamp-[text,sm,base,@sm,@lg] font-semibold leading-5 clamp-[mt,4.4375rem,4.6875rem,@sm,@lg]"
+            >
+              Proceed to Order
+            </Link>
+          </div>
+        </div>
+      )}
 
       <DialogC open={openModal} setOpen={setOpenModal}>
         <div className="grid gap-4 text-[#1D2939] mt-4 text-center px-4">
