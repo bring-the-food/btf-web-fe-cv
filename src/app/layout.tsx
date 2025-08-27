@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Caprasimo, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/Footer";
+import { Toaster } from "@/components/ui/sonner";
 
 const caprasimo = Caprasimo({
   variable: "--font-caprasimo",
@@ -33,7 +34,7 @@ export default function RootLayout({
           <div className="mx-auto max-w-[1024px] pb-[83px] bg-white">
             {children}
           </div>
-
+          <Toaster />
           <Footer />
         </main>
       </body>

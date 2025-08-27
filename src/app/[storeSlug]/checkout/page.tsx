@@ -78,6 +78,7 @@ const Checkout = () => {
                   </div>
                 </div>
 
+                {/* /${storeSlug} */}
                 <Link href={`/?tab=cart`}>
                   <Button className="text-[#A46900] rounded-full clamp-[text,xs,sm,@sm,@lg] font-semibold bg-[#FFF9E9] hover:bg-[#fcf2d8] !clamp-[py,1.5,2,@sm,@lg] !clamp-[px,2,4,@sm,@lg] cursor-pointer space-x-[2px] h-auto">
                     <Icon

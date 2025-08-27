@@ -7,7 +7,7 @@ import {
 
 type DialogCProps = {
   open: boolean;
-  setOpen: (open: boolean) => void;
+  setOpen?: (open: boolean) => void;
   hasNoClose?: boolean;
   trigger?: React.ReactNode;
   children?: React.ReactNode;
