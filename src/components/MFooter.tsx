@@ -1,11 +1,12 @@
 import Image from "next/image";
 import React from "react";
 import Icon from "./Icon";
+import Link from "next/link";
 
 const MFooter = () => {
   return (
     <footer>
-      <div className="container_fluid space-y-10 sm:space-y-0 sm:grid sm:grid-cols-3 sm:gap-x-6 sm:gap-y-10 lg:flex lg:flex-row lg:items-start lg:justify-between pb-[52px]">
+      <div className="container_fluid space-y-10 sm:space-y-0 sm:grid sm:grid-cols-3 sm:gap-x-6 sm:gap-y-10 lg:flex lg:flex-row lg:items-start lg:justify-between pt-20 pb-[52px]">
         <div className="sm:col-span-3">
           <Image
             className="clamp-[w,4.8125rem,5.125rem,@sm,@lg]"
@@ -72,8 +73,12 @@ const MFooter = () => {
         <div className="container_fluid col-center sm:!flex-row sm:flex sm:!justify-between py-6 sm:py-3 text-xs sm:text-sm clamp-[leading,0.78rem,1.12rem] tracking-[0.42px] space-y-8 sm:space-y-0">
           <p>2025 © Bring This Food Logistics</p>
           <div className="end space-x-4">
-            <p>Terms of Use</p>
-            <p>Privacy Policy</p>
+            <Link className="hover:underline" href={"/terms-of-use"}>
+              Terms of Use
+            </Link>
+            <Link className="hover:underline" href={"/privacy-policy"}>
+              Privacy Policy
+            </Link>
           </div>
         </div>
       </div>

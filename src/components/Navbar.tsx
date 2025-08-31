@@ -9,6 +9,7 @@ import {
 } from "@heroui/navbar";
 import { Menu, X } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 
 const Navbar = () => {
@@ -45,14 +46,16 @@ const Navbar = () => {
             <ul className="!hidden sm:!flex center space-x-10 text-[#310909] font-medium clamp-[text,base,lg,@sm,@lg] leading-[19.84px] tracking-[0.32px]">
               <li>About</li>
               <li>Contact Us</li>
-              <Image
-                className="clamp-[w,4.8125rem,5.125rem,@sm,@lg]"
-                src="/svg/logo.svg"
-                alt="Bring this food logo"
-                width={77}
-                height={60}
-                priority
-              />
+              <Link href={"/"}>
+                <Image
+                  className="clamp-[w,4.8125rem,5.125rem,@sm,@lg]"
+                  src="/svg/logo.svg"
+                  alt="Bring this food logo"
+                  width={77}
+                  height={60}
+                  priority
+                />
+              </Link>
               <li>Vendors</li>
               <li>Riders</li>
             </ul>
