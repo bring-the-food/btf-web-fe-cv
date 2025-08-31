@@ -1,12 +1,16 @@
 "use client";
 
+import Dialog from "@/components/DialgC";
 import Icon from "@/components/Icon";
 import MFooter from "@/components/MFooter";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import React from "react";
 
 export default function Home() {
+  const [underCModal, setUnderCModal] = React.useState(false);
+
   return (
     // clamp-[px,5,12]
     <main className="bg-[#FFC247] w-full">
@@ -23,7 +27,10 @@ export default function Home() {
           </p>
 
           <div className="clamp-[gap,4,6] clamp-[mt,8,9] grid md:grid-cols-2 w-fit mx-auto">
-            <Button className="!clamp-[py,1.125rem,1.375rem,@sm,lg] !clamp-[px,1rem,1.25rem,@sm,lg] clamp-[text,base,lg] font-medium">
+            <Button
+              onClick={() => setUnderCModal(true)}
+              className="!clamp-[py,1.125rem,1.375rem,@sm,lg] !clamp-[px,1rem,1.25rem,@sm,lg] clamp-[text,base,lg] font-medium"
+            >
               <Icon
                 icon="playstore"
                 h={18.999780654907227}
@@ -31,7 +38,10 @@ export default function Home() {
               />
               Download on Google Play
             </Button>
-            <Button className="!clamp-[py,1.125rem,1.375rem,@sm,lg] !clamp-[px,1rem,1.25rem,@sm,lg] clamp-[text,base,lg] font-medium">
+            <Button
+              onClick={() => setUnderCModal(true)}
+              className="!clamp-[py,1.125rem,1.375rem,@sm,lg] !clamp-[px,1rem,1.25rem,@sm,lg] clamp-[text,base,lg] font-medium"
+            >
               <Icon
                 icon="iphone"
                 h={18.999780654907227}
@@ -56,16 +66,25 @@ export default function Home() {
                   icon="store"
                   desc="Focus on making delicious food. We handle the rest!"
                   title="Vendors"
+                  header="Set Up, Sell More, Stress Less"
+                  descD="Grow with every order and reach more customers."
+                  setUnderCModal={setUnderCModal}
                 />
                 <Pallet
                   icon="order"
                   desc="No more “is there turkey?” Enjoy seamless ordering!"
                   title="Consumers"
+                  header="Get your Food and Groceries ASAP"
+                  descD="Your order is only few clicks away!"
+                  setUnderCModal={setUnderCModal}
                 />
                 <Pallet
                   icon="bike"
                   desc="Own a bike or bikes? Earn more delivering food!"
                   title="Riders"
+                  header="Earn More by Delivering Food"
+                  descD="Deliver steady and earn while at it"
+                  setUnderCModal={setUnderCModal}
                 />
               </div>
             </div>
@@ -140,6 +159,13 @@ export default function Home() {
       </div>
 
       <MFooter />
+
+      <Dialog
+        header={"Applications are under construction"}
+        desc={"Thank you for wanting to join the movement!"}
+        open={underCModal}
+        setOpen={setUnderCModal}
+      />
     </main>
   );
 }
@@ -148,10 +174,16 @@ const Pallet = ({
   icon,
   desc,
   title,
+  header,
+  descD,
+  setUnderCModal,
 }: {
   title: string;
   icon: string;
   desc: string;
+  header: string;
+  descD: string;
+  setUnderCModal?: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   return (
     <div>
@@ -168,7 +200,17 @@ const Pallet = ({
           {desc}
         </p>
 
-        <Icon icon="share_light" size={24} className="clamp-[size,5,6]" />
+        <Dialog
+          trigger={
+            <button>
+              <Icon icon="share_light" size={24} className="clamp-[size,5,6]" />
+            </button>
+          }
+          header={header}
+          desc={descD}
+          isDownload
+          downloadRes={setUnderCModal}
+        />
       </div>
       <h5 className="font-caprasimo lg:leading-[37.12px] tracking-[0.32px] clamp-[text,1.5rem,2rem] clamp-[mt,6,8] text-center">
         {title}
