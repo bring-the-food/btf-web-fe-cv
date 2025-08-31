@@ -1,6 +1,7 @@
 "use client";
 
 import Dialog from "@/components/DialgC";
+import FeaturedVendor from "@/components/FeaturedVendor";
 import Icon from "@/components/Icon";
 import MFooter from "@/components/MFooter";
 import Navbar from "@/components/Navbar";
@@ -10,6 +11,7 @@ import React from "react";
 
 export default function Home() {
   const [underCModal, setUnderCModal] = React.useState(false);
+  const [featuredVendorModal, setFeaturedVendorModal] = React.useState(false);
 
   return (
     // clamp-[px,5,12]
@@ -151,9 +153,16 @@ export default function Home() {
               Get your favorites delivered fast.
             </p>
 
-            <Button className="bg-[#FCF3D9] hover:bg-[#fdeec6] text-[#310909] clamp-[mt,7,9] clamp-[leading,1rem,1.44rem] clamp-[text,base,lg] tracking-[0.36px] font-semibold !clamp-[py,4,6] !clamp-[px,5rem,6.25rem]">
-              Order Now
-            </Button>
+            <FeaturedVendor
+              trigger={
+                <Button className="bg-[#FCF3D9] hover:bg-[#fdeec6] text-[#310909] clamp-[mt,7,9] clamp-[leading,1rem,1.44rem] clamp-[text,base,lg] tracking-[0.36px] font-semibold !clamp-[py,4,6] !clamp-[px,5rem,6.25rem]">
+                  Order Now
+                </Button>
+              }
+              open={featuredVendorModal}
+              setOpen={setFeaturedVendorModal}
+              header="Featured Vendor"
+            />
           </div>
         </div>
       </div>
