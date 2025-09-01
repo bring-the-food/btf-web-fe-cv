@@ -19,11 +19,21 @@ const MFooter = () => {
           <div className="space-y-3 font-caprasimo mt-7">
             <p className="font-caprasimo text-base leading-[21.12px] tracking-[0.32px] start text-[#310909] space-x-2">
               <Image src="/svg/call.svg" alt="call" width={20} height={20} />
-              <span>09036908690</span>
+              <a
+                href="tel:+2349036908590"
+                className="font-semibold hover:underline"
+              >
+                09036908690
+              </a>
             </p>
             <p className="font-caprasimo text-base leading-[21.12px] tracking-[0.32px] start text-[#310909] space-x-2">
               <Image src="/svg/mail.svg" alt="mail" width={20} height={20} />
-              <span>info@bringthisfood.com</span>
+              <a
+                href="mailto:info@bringthisfood.com"
+                className="font-semibold hover:underline"
+              >
+                info@bringthisfood.com
+              </a>
             </p>
           </div>
         </div>
@@ -33,7 +43,7 @@ const MFooter = () => {
           </h6>
 
           <ul className="mt-[22px] space-y-2.5">
-            <Li label="About" />
+            <Li label="About" href={"/about"} />
             <Li label="Contact Us" />
             <Li label="Vendors" />
             <Li label="Riders" />
@@ -90,18 +100,20 @@ export default MFooter;
 
 const Li = ({
   label,
+  href,
   commingSoon,
 }: {
   label: string;
   commingSoon?: boolean;
+  href?: string;
 }) => {
   return (
     <li className="font-caprasimo text-base leading-[21.12px] tracking-[0.32px] text-[#310909]">
-      {label}
+      {href ? <Link href={href}>{label}</Link> : label}
 
       {commingSoon && (
         <span className="bg-[#FFE7B0] font-jakart font-medium text-[8px] rounded-full py-[7px] px-[5.5px] ml-2">
-          Comming Soon
+          Coming Soon
         </span>
       )}
     </li>

@@ -17,6 +17,7 @@ type DialogProps = {
   downloadRes?: any;
   open?: boolean;
   setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  showCloseButton?: boolean;
 };
 
 const DialogC = ({
@@ -27,12 +28,16 @@ const DialogC = ({
   downloadRes,
   open,
   setOpen,
+  showCloseButton,
 }: DialogProps) => {
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>{trigger}</DialogTrigger>
-        <DialogContent className="sm:max-w-[420px] lg:max-w-[756px] bg-[#FFF9E9] md:py-10 md:px-20">
+        <DialogContent
+          showCloseButton={showCloseButton}
+          className="sm:max-w-[420px] lg:max-w-[756px] bg-[#FFF9E9] md:py-10 md:px-20"
+        >
           <DialogTitle className="hidden"></DialogTitle>
           <div className="col-center px-3">
             <h5 className="font-caprasimo text-2xl lg:text-[56px] leading-9 lg:leading-[89.6px] tracking-[0.6px] text-center">

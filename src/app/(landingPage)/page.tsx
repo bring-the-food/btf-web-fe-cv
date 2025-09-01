@@ -177,6 +177,7 @@ const Pallet = ({
           desc={descD}
           isDownload
           downloadRes={setUnderCModal}
+          showCloseButton={false}
         />
       </div>
       <h5 className="font-caprasimo lg:leading-[37.12px] tracking-[0.32px] clamp-[text,1.5rem,2rem] clamp-[mt,6,8] text-center">
