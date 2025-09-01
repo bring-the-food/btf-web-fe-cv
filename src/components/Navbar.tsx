@@ -45,9 +45,16 @@ const Navbar = () => {
           <div className="clamp-[pt,6,8] container_fluid hidden sm:block">
             <ul className="!hidden sm:!flex center space-x-10 text-[#310909] font-medium clamp-[text,base,lg,@sm,@lg] leading-[19.84px] tracking-[0.32px]">
               <li>
-                <Link href={'/about'}>About</Link>
+                <Link href={"/about"}>About</Link>
               </li>
-              <li>Contact Us</li>
+              <li>
+                <Link
+                  target="_blank"
+                  href={`https://wa.me/2349036908590?text=Hi%2C%20I%27ll%20like%20to%20inquire%20about%20Bring%20This%20Food`}
+                >
+                  Contact Us
+                </Link>
+              </li>
               <Link href={"/"}>
                 <Image
                   className="clamp-[w,4.8125rem,5.125rem,@sm,@lg]"
