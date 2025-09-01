@@ -132,6 +132,7 @@ export default function Home() {
         desc={"Thank you for wanting to join the movement!"}
         open={underCModal}
         setOpen={setUnderCModal}
+        showCloseButton={false}
       />
     </>
   );
