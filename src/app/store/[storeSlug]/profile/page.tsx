@@ -3,8 +3,8 @@
 import Back from "@/components/Back";
 import Icon from "@/components/Icon";
 import { Button } from "@/components/ui/button";
-import { swrfetcher } from "@/lib/fetcher";
-import { currencyFormatter } from "@/lib/formatCurrency";
+import { swrfetcher } from "@/lib/swrfetcher";
+import { currencyFormatter, koboToNaira } from "@/lib/formatCurrency";
 import { Loader2Icon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -98,9 +98,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                 <p className="col-start clamp-[text,xs,sm,@sm,@lg] font-medium">
                   <span className="text-[#98A2B3] ">Average Meal Price</span>
                   <span className="text-[#1D2939] mt-1">
-                    {currencyFormatter(
-                      vendor?.store?.items?.averagePrice?.amount
-                    )}
+                    {koboToNaira(vendor?.store?.items?.averagePrice?.amount)}
                   </span>
                 </p>
                 <div className="bg-[#F2F4F7] clamp-[h,5,6,@sm,@lg] w-px" />

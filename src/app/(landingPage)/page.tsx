@@ -42,7 +42,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="bg-[url('/images/mobile_phone.png')] sm:h-[350px] md:h-[400px] h-[600px] xl:h-[650px] max-w-[1560px] xl:mx-auto bg-[50%_8.5%] bg-cover" />
+      <div className="bg-[url('/images/mobile_phone.png')] sm:h-[350px] md:h-[400px] clamp-[h,12.5rem,25rem]  xl:h-[650px] max-w-[1560px] xl:mx-auto bg-[50%_0.5%]  sm:bg-[50%_8.5%] bg-cover" />
 
       <div className="bg-[#FFF9E9]">
         <div className="container_fluid clamp-[py,5.625rem,8.5rem] ">

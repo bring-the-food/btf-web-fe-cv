@@ -1,12 +1,25 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import Icon from "./Icon";
 import { Button } from "./ui/button";
+import { swrfetcher } from "@/lib/swrfetcher";
+import useSWR from "swr";
+import { koboToNaira } from "@/lib/formatCurrency";
 
-const MyCart = () => {
+const MyCart = ({ storeId }: { storeId: string }) => {
+  const { data } = useSWR(`/api/cart/getCarts?storeId=${storeId}`, swrfetcher);
+
+  const comboItems = data?.data?.cart?.combos;
+  const packItems = data?.data?.cart?.packs;
+
   return (
     <div className="clamp-[mt,4,8,@sm,@lg] space-y-6 md:space-y-8">
-      <CartContent title="Combos" />
-      <CartContent title="Pack 1" hasEdit />
+      {comboItems?.length > 0 && (
+        <CartContent title="Combos" data={comboItems} />
+      )}
+      {packItems?.length > 0 && (
+        <CartContent title="Pack 1" hasEdit data={packItems} />
+      )}
 
       <Button className="text-[#59201A] rounded-full clamp-[text,xs,sm,@sm,@lg] font-medium bg-[#FFF9E9] hover:bg-[#fcf2d8] !clamp-[py,3,4,@sm,@lg] !clamp-[px,4,6,@sm,@lg] cursor-pointer space-x-[2.5px] h-auto">
         <Icon
@@ -25,9 +38,10 @@ export default MyCart;
 type CartContentProps = {
   title: string;
   hasEdit?: boolean;
+  data?: any;
 };
 
-const CartContent = ({ title, hasEdit }: CartContentProps) => {
+const CartContent = ({ title, hasEdit, data }: CartContentProps) => {
   return (
     <div>
       <div className="between">
@@ -62,15 +76,31 @@ const CartContent = ({ title, hasEdit }: CartContentProps) => {
       </div>
 
       <div className="clamp-[mt,5,9,@sm,@lg] space-y-4 md:space-y-6">
-        <Pallet />
-        <Pallet />
-        <Pallet />
+        {data?.map((item: any, index: number) => {
+          item = Array.isArray(item) ? item[0] : item;
+          return (
+            <Pallet
+              key={index}
+              name={item?.name}
+              price={item?.price?.amount}
+              count={item?.count}
+            />
+          );
+        })}
       </div>
     </div>
   );
 };
 
-const Pallet = () => {
+const Pallet = ({
+  name,
+  price,
+  count,
+}: {
+  name: string;
+  price: number;
+  count: number;
+}) => {
   return (
     <div className="start-start">
       <Icon
@@ -81,10 +111,10 @@ const Pallet = () => {
 
       <div className="clamp-[ml,0.8125rem,1.0625rem,@sm,@lg]">
         <h6 className="clamp-[text,xs,sm,@sm,@lg] font-medium leading-normal text-[#1D2939]">
-          Fried Rice Combo
+          {name}
         </h6>
         <p className="text-[#98A2B3] font-normal clamp-[text,xs,sm,@sm,@lg] leading-normal">
-          N5,400
+          {koboToNaira(price)}
         </p>
       </div>
 
@@ -96,7 +126,7 @@ const Pallet = () => {
           className="clamp-[w,0.625rem,0.875rem,@sm,@lg] clamp-[h,0.75rem,1rem,@sm,@lg]"
         />
         <p className="text-[#344054] font-medium clamp-[text,xs,sm,@sm,@lg] leading-normal">
-          1
+          {count}
         </p>
         <Icon
           icon="plus"

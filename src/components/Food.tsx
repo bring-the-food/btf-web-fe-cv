@@ -1,10 +1,14 @@
-import { currencyFormatter } from "@/lib/formatCurrency";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { koboToNaira } from "@/lib/formatCurrency";
 import Image from "next/image";
 import React from "react";
+import Icon from "./Icon";
 import { Skeleton } from "./ui/skeleton";
+import { cartFunc } from "./functions/cart";
 
 export type dataProps = {
   data: {
+    id: string;
     name: string;
     description: string;
     price: {
@@ -14,9 +18,125 @@ export type dataProps = {
       url: string;
     };
   };
+  setCart: any;
+  type: string;
+  cart: any;
+  storeId: string;
 };
 
-const Food = ({ data }: dataProps) => {
+const Food = ({ data, type, cart, setCart, storeId }: dataProps) => {
+  const [isAdd, setIsAdd] = React.useState(true);
+  const [quantity, setQuantity] = React.useState(1);
+  const [packIndex, setPackIndex] = React.useState<number | null>(null);
+
+  const handleAdd = async () => {
+    // optimistic local update + remote sync
+    const prev = cart;
+    try {
+      let newCart = { ...prev };
+
+      if (type === "combo") {
+        const current = prev.combos?.[data.id]?.count ?? 0;
+        const next = Math.max(0, current + quantity);
+        const combos = { ...(prev.combos ?? {}) };
+        if (next <= 0) {
+          delete combos[data.id];
+        } else {
+          combos[data.id] = { count: next };
+        }
+        newCart = { ...prev, combos };
+      } else {
+        const packs = [...(prev.packs ?? [])];
+        const index = packs.length;
+        packs.push({ [data.id]: { count: quantity } } as Record<
+          string,
+          { count: number }
+        >);
+        newCart = { ...prev, packs };
+        setPackIndex(index);
+      }
+
+      // optimistic UI
+      setCart(newCart);
+
+      // send to server
+      await cartFunc.addToCart(storeId, newCart);
+      setIsAdd(false);
+    } catch (err) {
+      console.error("Add to cart failed, reverting local state", err);
+      // revert optimistic update
+      setCart(prev);
+    }
+  };
+
+  const handlePlusMinus = async (action: string) => {
+    const delta = action === "plus" ? 1 : -1;
+    const prev = cart;
+
+    // update local quantity (allow 0 so UI can revert to "Add")
+    setQuantity((q) => {
+      const next = Math.max(0, q + delta);
+      if (next === 0) setIsAdd(true);
+      return next;
+    });
+
+    try {
+      let newCart = { ...prev };
+
+      if (type === "combo") {
+        const current = prev.combos?.[data.id]?.count ?? 0;
+        const next = Math.max(0, current + delta);
+        const combos = { ...(prev.combos ?? {}) };
+        if (next <= 0) {
+          delete combos[data.id];
+        } else {
+          combos[data.id] = { count: next };
+        }
+        newCart = { ...prev, combos };
+      } else {
+        // pack handling
+        if (packIndex === null) {
+          // if increment and no pack exists for this item, create one
+          if (delta > 0) {
+            const packs = [...(prev.packs ?? [])];
+            const index = packs.length;
+            packs.push({ [data.id]: { count: 1 } } as Record<
+              string,
+              { count: number }
+            >);
+            newCart = { ...prev, packs };
+            setPackIndex(index);
+          } else {
+            // decrement with no pack -> nothing to do
+            return;
+          }
+        } else {
+          const packs = (prev.packs ?? []).map((p: any) => ({ ...p }));
+          const pack = { ...(packs[packIndex] ?? {}) };
+          const current = pack[data.id]?.count ?? 0;
+          const next = Math.max(0, current + delta);
+          if (next <= 0) {
+            delete pack[data.id];
+          } else {
+            pack[data.id] = { count: next };
+          }
+          packs[packIndex] = pack;
+          newCart = { ...prev, packs };
+        }
+      }
+
+      // optimistic UI
+      setCart(newCart);
+
+      // send to server
+      await cartFunc.addToCart(storeId, newCart);
+    } catch (err) {
+      console.error("Update cart failed, reverting local state", err);
+      // revert optimistic update
+      setCart(prev);
+    }
+  };
+
   return (
     <div className="between space-x-[45px] clamp-[pb,2,3.5,@sm,@lg] border-b border-[#F2F4F7]">
       <div>
@@ -28,7 +148,7 @@ const Food = ({ data }: dataProps) => {
         </p>
 
         <p className="font-jakart font-semibold clamp-[text,sm,base,@sm,@lg] leading-5 text-[#1D2939] clamp-[mt,1.4375rem,2rem,@sm,@lg]">
-          {currencyFormatter(data?.price?.amount)}
+          {koboToNaira(data?.price?.amount)}
         </p>
       </div>
 
@@ -41,16 +161,37 @@ const Food = ({ data }: dataProps) => {
           height={112}
         />
 
-        <button className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer transition-colors text-[#59201A] clamp-[text,sm,base,@sm,@lg] font-jakart font-medium leading-normal absolute bottom-0 z-50 w-full clamp-[py,0.4375rem,0.8125rem,@sm,@lg] center space-x-[6.5px]">
-          <span>Add</span>
-          <Image
-            src="/svg/add.svg"
-            alt="add"
-            width={7}
-            height={7}
-            className="clamp-[w,0.4375rem,0.8125rem,@sm,@lg]"
-          />
-        </button>
+        {isAdd ? (
+          <button
+            onClick={handleAdd}
+            className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer transition-colors text-[#59201A] clamp-[text,sm,base,@sm,@lg] font-jakart font-medium leading-normal absolute bottom-0 z-50 w-full clamp-[py,0.4375rem,0.8125rem,@sm,@lg] center space-x-[6.5px]"
+          >
+            <span>Add</span>
+            <Image
+              src="/svg/add.svg"
+              alt="add"
+              width={7}
+              height={7}
+              className="clamp-[w,0.4375rem,0.8125rem,@sm,@lg]"
+            />
+          </button>
+        ) : (
+          <div className="bg-[#FFF0C7] cursor-pointer transition-colors text-[#59201A] clamp-[text,sm,base,@sm,@lg] font-jakart font-medium leading-normal absolute bottom-0 z-50 w-full clamp-[py,0.4375rem,0.8125rem,@sm,@lg] center space-x-6">
+            <button
+              className="hover:bg-[#f8e3a8]"
+              onClick={() => handlePlusMinus("minus")}
+            >
+              <Icon icon="c_minus" size={16} />
+            </button>
+            <span>{quantity}</span>
+            <button
+              className="hover:bg-[#f8e3a8]"
+              onClick={() => handlePlusMinus("plus")}
+            >
+              <Icon icon="c_plus" size={16} />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

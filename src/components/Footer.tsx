@@ -1,8 +1,13 @@
+"use client"
+
 import Image from "next/image";
 import React from "react";
 import { Button } from "./ui/button";
+import Dialog from "@/components/DialgC";
 
 const Footer = () => {
+  const [underCModal, setUnderCModal] = React.useState(false);
+  
   return (
     <footer className="bg-[#FFF9E9] clamp-[px,5,12,@sm,@lg] clamp-[pt,10,20,@sm,@lg] clamp-[pb,2,4,@sm,@lg]">
       <Image
@@ -25,7 +30,10 @@ const Footer = () => {
         </div>
 
         <div className="space-y-4 md:space-y-6 flex flex-col items-center clamp-[mt,6,10,@sm,@lg] clamp-[mb,10,16,@sm,@lg] md:my-0">
-          <Button className="space-x-2.5 font-medium text-sm leading-normal text-[#FFF9E9] font-jakart py-3.5 px-[17px]">
+          <Button
+            onClick={() => setUnderCModal(true)}
+            className="space-x-2.5 font-medium text-sm leading-normal text-[#FFF9E9] font-jakart py-3.5 px-[17px]"
+          >
             <Image
               src="/svg/playstore.svg"
               alt="playstore"
@@ -34,7 +42,10 @@ const Footer = () => {
             />
             <span>Download on Google Play</span>
           </Button>
-          <Button className="space-x-2.5 font-medium text-sm leading-normal text-[#FFF9E9] font-jakart py-3.5 px-[22px]">
+          <Button
+            onClick={() => setUnderCModal(true)}
+            className="space-x-2.5 font-medium text-sm leading-normal text-[#FFF9E9] font-jakart py-3.5 px-[22px]"
+          >
             <Image
               src="/svg/iphone.svg"
               alt="iphone"
@@ -49,11 +60,21 @@ const Footer = () => {
           <div className="space-y-3 font-caprasimo">
             <p className="text-caprasimo text-base leading-[21.12px] tracking-[0.32px] center text-[#310909] space-x-2">
               <Image src="/svg/call.svg" alt="call" width={20} height={20} />
-              <span>09036908690</span>
+              <a
+                href="tel:+2349036908590"
+                className="font-semibold hover:underline"
+              >
+                09036908690
+              </a>
             </p>
             <p className="text-caprasimo text-base leading-[21.12px] tracking-[0.32px] center text-[#310909] space-x-2">
               <Image src="/svg/mail.svg" alt="mail" width={20} height={20} />
-              <span>info@bringthisfood.com</span>
+              <a
+                href="mailto:info@bringthisfood.com"
+                className="font-semibold hover:underline"
+              >
+                info@bringthisfood.com
+              </a>
             </p>
           </div>
 
@@ -96,6 +117,14 @@ const Footer = () => {
           </p>
         </div>
       </div>
+
+      <Dialog
+        header={"Applications are under construction"}
+        desc={"Thank you for wanting to join the movement!"}
+        open={underCModal}
+        setOpen={setUnderCModal}
+        showCloseButton={false}
+      />
     </footer>
   );
 };

@@ -2,6 +2,7 @@ import Image from "next/image";
 import React from "react";
 import Icon from "./Icon";
 import Link from "next/link";
+import Dialog from "@/components/DialgC";
 
 const MFooter = () => {
   return (
@@ -44,9 +45,12 @@ const MFooter = () => {
 
           <ul className="mt-[22px] space-y-2.5">
             <Li label="About" href={"/about"} />
-            <Li label="Contact Us" />
-            <Li label="Vendors" />
-            <Li label="Riders" />
+            <Li
+              label="Contact Us"
+              href={`https://wa.me/2349036908590?text=Hi%2C%20I%27ll%20like%20to%20inquire%20about%20Bring%20This%20Food`}
+            />
+            <Li label="Vendors" isVendor />
+            <Li label="Riders" isRider />
           </ul>
         </div>
         <div>
@@ -102,20 +106,64 @@ const Li = ({
   label,
   href,
   commingSoon,
+  isVendor,
+  isRider,
 }: {
   label: string;
   commingSoon?: boolean;
   href?: string;
+  isVendor?: boolean;
+  isRider?: boolean;
 }) => {
-  return (
-    <li className="font-caprasimo text-base leading-[21.12px] tracking-[0.32px] text-[#310909]">
-      {href ? <Link href={href}>{label}</Link> : label}
+  const [underCModal, setUnderCModal] = React.useState(false);
 
-      {commingSoon && (
-        <span className="bg-[#FFE7B0] font-jakart font-medium text-[8px] rounded-full py-[7px] px-[5.5px] ml-2">
-          Coming Soon
-        </span>
+  return (
+    <>
+      {isRider ? (
+        <Dialog
+          trigger={
+            <li className="font-caprasimo text-base leading-[21.12px] tracking-[0.32px] text-[#310909]">
+              <button className="">Riders</button>
+            </li>
+          }
+          header="Earn More by Delivering Food"
+          desc="Own a bike or bikes? Earn more delivering food!"
+          isDownload
+          downloadRes={setUnderCModal}
+          showCloseButton={false}
+        />
+      ) : isVendor ? (
+        <Dialog
+          trigger={
+            <li className="font-caprasimo text-base leading-[21.12px] tracking-[0.32px] text-[#310909]">
+              <button className="">Vendors</button>
+            </li>
+          }
+          header="Set Up, Sell More, Stress Less"
+          desc="Focus on making delicious food. We handle the rest!"
+          isDownload
+          downloadRes={setUnderCModal}
+          showCloseButton={false}
+        />
+      ) : (
+        <li className="font-caprasimo text-base leading-[21.12px] tracking-[0.32px] text-[#310909]">
+          {href ? <Link href={href}>{label}</Link> : label}
+
+          {commingSoon && (
+            <span className="bg-[#FFE7B0] font-jakart font-medium text-[8px] rounded-full py-[7px] px-[5.5px] ml-2">
+              Coming Soon
+            </span>
+          )}
+        </li>
       )}
-    </li>
+
+      <Dialog
+        header={"Applications are under construction"}
+        desc={"Thank you for wanting to join the movement!"}
+        open={underCModal}
+        setOpen={setUnderCModal}
+        showCloseButton={false}
+      />
+    </>
   );
 };

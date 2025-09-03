@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Image from "next/image";
@@ -9,14 +10,20 @@ import MyCart from "../MyCart";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import useSWR from "swr";
-import { swrfetcher } from "@/lib/fetcher";
-
-const filter = ["All", "Combos", "Food", "Soup", "Sides", "Drinks"];
+import { swrfetcher } from "@/lib/swrfetcher";
 
 const Menu = ({ storeSlug }: { storeSlug: string }) => {
   const [searchValue, setSearchValue] = React.useState("");
   const [active, setActive] = React.useState("All");
   const [url, setUrl] = React.useState("getAllItems");
+  const [categoryId, setCategoryId] = React.useState("getAllItems");
+  const [cart, setCart] = React.useState<{
+    combos: Record<string, { count: number }>;
+    packs: Array<Record<string, { count: number }>>;
+  }>({
+    combos: {},
+    packs: [],
+  });
 
   const { data } = useSWR(`/api/profile?storeSlug=${storeSlug}`, swrfetcher);
   const vendor = data?.data;
@@ -34,10 +41,93 @@ const Menu = ({ storeSlug }: { storeSlug: string }) => {
     }
   }, [active]);
 
-  const { data: getItemsData, isLoading } = useSWR(
-    `/api/home/${url}?storeId=${vendor?.store?.id}`,
+  const { data: cartData } = useSWR(
+    `/api/cart/getCarts?storeId=${vendor?.store?.id}`,
     swrfetcher
   );
+
+  React.useEffect(() => {
+    if (!cartData) return;
+
+    // normalize possible response wrappers: { data: { cart: ... } } or { cart: ... } or the cart object itself
+    const payload = cartData?.data ?? cartData;
+    const cartObj = payload?.cart ?? payload;
+
+    const combos: Record<string, { count: number }> = {};
+    if (Array.isArray(cartObj?.combos)) {
+      cartObj.combos.forEach((c: any) => {
+        if (c?.id) combos[c.id] = { count: Number(c.count ?? 0) };
+      });
+    } else if (cartObj?.combos && typeof cartObj.combos === "object") {
+      Object.entries(cartObj.combos).forEach(([k, v]: any) => {
+        combos[k] = { count: Number(v?.count ?? v ?? 0) };
+      });
+    }
+
+    const packs: Array<Record<string, { count: number }>> = Array.isArray(
+      cartObj?.packs
+    )
+      ? cartObj.packs.map((p: any) => {
+          if (Array.isArray(p)) {
+            const obj: Record<string, { count: number }> = {};
+            p.forEach((it: any) => {
+              if (it?.id) obj[it.id] = { count: Number(it.count ?? 0) };
+            });
+            return obj;
+          }
+          if (p && typeof p === "object") {
+            const obj: Record<string, { count: number }> = {};
+            Object.entries(p).forEach(([k, v]: any) => {
+              obj[k] = { count: Number(v?.count ?? v ?? 0) };
+            });
+            return obj;
+          }
+          return {};
+        })
+      : [];
+
+    setCart({ combos, packs });
+  }, [cartData, setCart]);
+
+  const { data: getItemsData, isLoading } = useSWR(
+    vendor ? `/api/home/${url}?storeId=${vendor?.store?.id}` : null,
+    swrfetcher
+  );
+
+  const { data: menuCategoriesData } = useSWR(
+    vendor ? `/api/home/getCats?storeId=${vendor?.store?.id}` : null,
+    swrfetcher
+  );
+
+  const { data: menuCatItemsData, isLoading: menuCatItemIsLoading } = useSWR(
+    vendor
+      ? `/api/home/getCatItems?storeId=${vendor?.store?.id}&categoryId=${categoryId}`
+      : null,
+    swrfetcher
+  );
+
+  // const { data: cartData } = useSWR(
+  //   vendor ? `/api/cart/getCarts?storeId=${vendor?.store?.id}` : null,
+  //   swrfetcher
+  // );
+
+  const mappedCats =
+    menuCategoriesData?.data?.map((cat: any) => ({
+      id: cat?.id,
+      label: cat?.name,
+    })) ?? [];
+
+  const filter = [
+    {
+      id: "All",
+      label: "All",
+    },
+    {
+      id: "Combos",
+      label: "Combos",
+    },
+    ...mappedCats,
+  ];
 
   return (
     <div className="relative">
@@ -67,7 +157,7 @@ const Menu = ({ storeSlug }: { storeSlug: string }) => {
           </p>
         </div>
 
-        <Link href={`/${storeSlug}/profile`}>
+        <Link href={`/store/${storeSlug}/profile`}>
           <Button className="text-[#A46900] rounded-full clamp-[text,xs,sm,@sm,@lg] font-semibold bg-[#FFF9E9] hover:bg-[#fcf2d8] !clamp-[py,1.5,2,@sm,@lg] !clamp-[px,2,4,@sm,@lg] cursor-pointer space-x-[2px] h-auto">
             <span>View Profile</span>
           </Button>
@@ -94,17 +184,20 @@ const Menu = ({ storeSlug }: { storeSlug: string }) => {
           <div className="start space-x-3 overflow-x-auto no-scrollbar pt-2 pb-3 mt-2 clamp-[mr,-6,-8,@sm,@lg] clamp-[pr,4,5,@sm,@lg]">
             {filter.map((item) => {
               return (
-                <div key={item} className="start">
+                <div key={item?.id} className="start">
                   <button
                     className={`cursor-pointer clamp-[text,sm,base,@sm,@lg] clamp-[py,1.5,2,@sm,@lg] clamp-[px,2,3,@sm,@lg] whitespace-nowrap ${
-                      active === item
+                      active === item.label
                         ? "bg-[#FFF0C7] text-[#59201A] rounded-[4px]"
                         : "text-[#98A2B3]"
                     }`}
                     // key={item}
-                    onClick={() => setActive(item)}
+                    onClick={() => {
+                      setActive(item.label);
+                      setCategoryId(item.id);
+                    }}
                   >
-                    {item}
+                    {item.label}
                   </button>
                 </div>
               );
@@ -113,13 +206,27 @@ const Menu = ({ storeSlug }: { storeSlug: string }) => {
         </div>
 
         {active === "My Cart" ? (
-          <MyCart />
+          <MyCart storeId={vendor?.store?.id} />
         ) : (
-          <FoodList data={getItemsData?.data} isLoading={isLoading} />
+          <FoodList
+            storeId={vendor?.store?.id}
+            setCart={setCart}
+            cart={cart}
+            data={
+              active === "All" || active === "Combos"
+                ? getItemsData?.data
+                : menuCatItemsData?.data
+            }
+            isLoading={
+              active === "All" || active === "Combos"
+                ? isLoading
+                : menuCatItemIsLoading
+            }
+          />
         )}
       </div>
 
-      <Topper />
+      <Topper storeSlug={storeSlug} />
     </div>
   );
 };

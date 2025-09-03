@@ -32,18 +32,7 @@ const VerifyOTP = async (phoneNumber: string, code: string) => {
   }
 };
 
-const GetCats = async (storeId: string) => {
-  try {
-    const response = await axios.post(`/api/home/getCats?storeId=${storeId}`);
-    return { data: response.data, status: response.status };
-  } catch (error: any) {
-    toast.error(error.response.data?.message);
-    throw { data: error.response.data, status: error.response.status };
-  }
-};
-
 export const homeFunc = {
   SendOTP,
   VerifyOTP,
-  GetCats,
 };
