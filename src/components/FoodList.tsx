@@ -7,12 +7,16 @@ const FoodList = ({
   setCart,
   cart,
   storeId,
+  editPackIndex,
+  setEditPackIndex,
 }: {
   data: any;
   isLoading: boolean;
   setCart?: any;
   cart: any;
   storeId: string;
+  editPackIndex?: number | null;
+  setEditPackIndex?: any;
 }) => {
   return (
     <div className="clamp-[mt,4,8,@sm,@lg] grid md:grid-cols-2 clamp-[gap,4,8,@sm,@lg]">
@@ -31,6 +35,8 @@ const FoodList = ({
               setCart={setCart}
               type={item?.category?.id ? "pack" : "combo"}
               cart={cart}
+              editPackIndex={editPackIndex}
+              setEditPackIndex={setEditPackIndex}
             />
           );
         })

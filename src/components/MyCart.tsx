@@ -5,23 +5,200 @@ import { Button } from "./ui/button";
 import { swrfetcher } from "@/lib/swrfetcher";
 import useSWR from "swr";
 import { koboToNaira } from "@/lib/formatCurrency";
+import { cartFunc } from "./functions/cart";
+import { toast } from "sonner";
 
-const MyCart = ({ storeId }: { storeId: string }) => {
-  const { data } = useSWR(`/api/cart/getCarts?storeId=${storeId}`, swrfetcher);
+const MyCart = ({
+  storeId,
+  setCart,
+  cart,
+  onNewPack,
+  onEditPack,
+}: {
+  storeId: string;
+  setCart?: any;
+  cart?: {
+    combos: Record<string, { count: number }>;
+    packs: Array<Record<string, { count: number }>>;
+  };
+  onNewPack?: (index: number) => void;
+  onEditPack?: (index: number) => void;
+}) => {
+  const { data, mutate } = useSWR(
+    `/api/cart/getCarts?storeId=${storeId}`,
+    swrfetcher
+  );
 
   const comboItems = data?.data?.cart?.combos;
   const packItems = data?.data?.cart?.packs;
 
+  const handleStartNewPack = async () => {
+    if (!setCart) return;
+    const prev = cart ?? { combos: {}, packs: [] };
+    const newPacks = [
+      ...(prev.packs ?? []),
+      {} as Record<string, { count: number }>,
+    ];
+    const newCart = { ...prev, packs: newPacks };
+    // optimistic update so subsequent adds go into this new pack
+    setCart(newCart);
+
+    // notify parent immediately so UI switches to All and targets this new pack index
+    const newIndex = (prev.packs ?? []).length;
+    onNewPack?.(newIndex);
+
+    try {
+      await cartFunc.addToCart(storeId, newCart);
+    } catch (err) {
+      console.error("Start new pack failed, reverting", err);
+      setCart(prev);
+    }
+  };
+
+  // duplicate a pack at index -> insert copy after index
+  const handleDuplicatePack = async (index: number) => {
+    if (!setCart) return;
+    const prev = cart ?? { combos: {}, packs: [] };
+    const packs = [...(prev.packs ?? [])].map((p) => ({ ...p }));
+    const packToCopy = packs[index] ? { ...(packs[index] as any) } : {};
+    const newPacks = [
+      ...packs.slice(0, index + 1),
+      packToCopy,
+      ...packs.slice(index + 1),
+    ];
+    const newCart = { ...prev, packs: newPacks };
+    setCart(newCart);
+
+    try {
+      await cartFunc.addToCart(storeId, newCart);
+      mutate();
+    } catch (err) {
+      console.error("Duplicate pack failed, reverting", err);
+      setCart(prev);
+    }
+  };
+
+  // delete a pack by index
+  const handleDeletePack = async (index: number | string) => {
+    if (!setCart) return;
+    let newCart;
+    const prev = cart ?? { combos: {}, packs: [] };
+
+    if (index === "combo") {
+      newCart = { ...prev, combos: {} };
+      setCart(newCart);
+    } else {
+      const newPacks = (prev.packs ?? []).filter((_, i) => i !== index);
+      newCart = { ...prev, packs: newPacks };
+      setCart(newCart);
+    }
+
+    try {
+      await cartFunc.addToCart(storeId, newCart);
+      mutate();
+    } catch (err) {
+      console.error("Delete pack failed, reverting", err);
+      toast.error("Delete pack failed, reverting");
+      setCart(prev);
+    }
+  };
+
+  // change count for an item inside a specific pack
+  const handleChangePackItem = async (
+    packIndex: number,
+    itemId: string,
+    delta: number
+  ) => {
+    if (!setCart) return;
+    const prev = cart ?? { combos: {}, packs: [] };
+    if (packIndex < 0 || packIndex >= (prev.packs ?? []).length) return;
+    const packs = (prev.packs ?? []).map((p) => ({ ...p }));
+    const pack = { ...(packs[packIndex] ?? {}) };
+    const current = pack[itemId]?.count ?? 0;
+    const next = Math.max(0, current + delta);
+    if (next <= 0) {
+      delete pack[itemId];
+    } else {
+      pack[itemId] = { count: next };
+    }
+    packs[packIndex] = pack;
+    const newCart = { ...prev, packs };
+    setCart(newCart);
+
+    try {
+      await cartFunc.addToCart(storeId, newCart);
+      mutate();
+    } catch (err) {
+      console.error("Update pack item failed, reverting", err);
+      setCart(prev);
+    }
+  };
+
+  // change combo count
+  const handleChangeComboItem = async (itemId: string, delta: number) => {
+    if (!setCart) return;
+    const prev = cart ?? { combos: {}, packs: [] };
+    const combos = { ...(prev.combos ?? {}) };
+    const current = combos[itemId]?.count ?? 0;
+    const next = Math.max(0, current + delta);
+    if (next <= 0) {
+      delete combos[itemId];
+    } else {
+      combos[itemId] = { count: next };
+    }
+    const newCart = { ...prev, combos };
+    setCart(newCart);
+
+    try {
+      await cartFunc.addToCart(storeId, newCart);
+      mutate();
+    } catch (err) {
+      console.error("Update combo failed, reverting", err);
+      setCart(prev);
+    }
+  };
+
   return (
     <div className="clamp-[mt,4,8,@sm,@lg] space-y-6 md:space-y-8">
       {comboItems?.length > 0 && (
-        <CartContent title="Combos" data={comboItems} />
+        <CartContent
+          title="Combos"
+          data={comboItems}
+          onItemMinus={(id: string) => handleChangeComboItem(id, -1)}
+          onItemPlus={(id: string) => handleChangeComboItem(id, 1)}
+          hasNoDuplicate
+          onDelete={() => handleDeletePack("combo")}
+        />
       )}
-      {packItems?.length > 0 && (
-        <CartContent title="Pack 1" hasEdit data={packItems} />
+      {/* render each pack separately so each has its own edit button */}
+      {Array.isArray(packItems) &&
+        packItems.length > 0 &&
+        packItems.map((pack: any, idx: number) => (
+          <CartContent
+            key={idx}
+            title={`Pack ${idx + 1}`}
+            hasEdit
+            data={pack}
+            onEdit={() => onEditPack?.(idx)}
+            onDuplicate={() => handleDuplicatePack(idx)}
+            onDelete={() => handleDeletePack(idx)}
+            onItemMinus={(id: string) => handleChangePackItem(idx, id, -1)}
+            onItemPlus={(id: string) => handleChangePackItem(idx, id, 1)}
+          />
+        ))}
+
+      {comboItems?.length === 0 && packItems?.length === 0 && (
+        <div>
+          <p className="text-center my-20 clamp-[text,sm,lg,@sm,@lg]">
+            No Items in cart
+          </p>
+        </div>
       )}
 
-      <Button className="text-[#59201A] rounded-full clamp-[text,xs,sm,@sm,@lg] font-medium bg-[#FFF9E9] hover:bg-[#fcf2d8] !clamp-[py,3,4,@sm,@lg] !clamp-[px,4,6,@sm,@lg] cursor-pointer space-x-[2.5px] h-auto">
+      <Button
+        onClick={handleStartNewPack}
+        className="text-[#59201A] rounded-full clamp-[text,xs,sm,@sm,@lg] font-medium bg-[#FFF9E9] hover:bg-[#fcf2d8] !clamp-[py,3,4,@sm,@lg] !clamp-[px,4,6,@sm,@lg] cursor-pointer space-x-[2.5px] h-auto"
+      >
         <Icon
           icon="add"
           size={10}
@@ -39,9 +216,47 @@ type CartContentProps = {
   title: string;
   hasEdit?: boolean;
   data?: any;
+  onEdit?: () => void;
+  onDuplicate?: () => void;
+  onDelete?: () => void;
+  onItemMinus?: (id: string) => void;
+  onItemPlus?: (id: string) => void;
+  hasNoDuplicate?: boolean;
 };
 
-const CartContent = ({ title, hasEdit, data }: CartContentProps) => {
+const CartContent = ({
+  title,
+  hasEdit,
+  data,
+  onEdit,
+  onDuplicate,
+  onDelete,
+  onItemMinus,
+  onItemPlus,
+  hasNoDuplicate,
+}: CartContentProps) => {
+  // normalize data to an array we can map over:
+  // - if API returned an array of item objects -> use it
+  // - if API returned an object map { itemId: { count, ... } } -> convert to array preserving id/count
+  // - if API returned an array of arrays like [[itemObj,...], ...] -> use first element
+  const items: any[] = React.useMemo(() => {
+    if (!data) return [];
+    if (Array.isArray(data)) {
+      return data.map((it) => (Array.isArray(it) ? it[0] : it));
+    }
+    if (typeof data === "object") {
+      return Object.entries(data).map(([id, v]: any) => {
+        // if value already looks like a full item object include id
+        if (v && typeof v === "object" && (v.name || v.price || v.count)) {
+          return { id, ...(v as object) };
+        }
+        // otherwise treat v as { count }
+        return { id, ...(v || {}) };
+      });
+    }
+    return [];
+  }, [data]);
+
   return (
     <div>
       <div className="between">
@@ -50,40 +265,55 @@ const CartContent = ({ title, hasEdit, data }: CartContentProps) => {
         </h5>
         <div className="end space-x-2 md:space-x-3">
           {hasEdit && (
-            <div className="rounded-full bg-[#F2F4F7] clamp-[p,1.5,2,@sm,@lg] w-fit">
+            <button
+              onClick={onEdit}
+              className="rounded-full bg-[#F2F4F7] clamp-[p,1.5,2,@sm,@lg] w-fit"
+              aria-label={`Edit ${title}`}
+            >
               <Icon
                 icon="edit"
                 size={16}
                 className="clamp-[size,1rem,1.1875rem,@sm,@lg]"
               />
-            </div>
+            </button>
           )}
-          <div className="rounded-full bg-[#2E896F14] clamp-[p,1.5,2,@sm,@lg] w-fit">
-            <Icon
-              icon="duplicate"
-              size={16}
-              className="clamp-[size,1rem,1.1875rem,@sm,@lg]"
-            />
-          </div>
-          <div className="rounded-full bg-[#FD88880D] clamp-[p,1.5,2,@sm,@lg] w-fit">
+          {!hasNoDuplicate && (
+            <button
+              onClick={onDuplicate}
+              className="rounded-full bg-[#2E896F14] clamp-[p,1.5,2,@sm,@lg] w-fit"
+              aria-label={`Duplicate ${title}`}
+            >
+              <Icon
+                icon="duplicate"
+                size={16}
+                className="clamp-[size,1rem,1.1875rem,@sm,@lg]"
+              />
+            </button>
+          )}
+          <button
+            onClick={onDelete}
+            className="rounded-full bg-[#FD88880D] clamp-[p,1.5,2,@sm,@lg] w-fit"
+            aria-label={`Delete ${title}`}
+          >
             <Icon
               icon="trash"
               size={16}
               className="clamp-[size,1rem,1.1875rem,@sm,@lg]"
             />
-          </div>
+          </button>
         </div>
       </div>
 
       <div className="clamp-[mt,5,9,@sm,@lg] space-y-4 md:space-y-6">
-        {data?.map((item: any, index: number) => {
-          item = Array.isArray(item) ? item[0] : item;
+        {items.map((item: any, index: number) => {
           return (
             <Pallet
-              key={index}
-              name={item?.name}
-              price={item?.price?.amount}
-              count={item?.count}
+              key={item?.id ?? index}
+              name={item?.name ?? item?.id ?? "Item"}
+              price={item?.price?.amount ?? item?.price ?? 0}
+              count={Number(item?.count ?? 0)}
+              onMinus={() => onItemMinus?.(item?.id)}
+              onPlus={() => onItemPlus?.(item?.id)}
             />
           );
         })}
@@ -96,10 +326,14 @@ const Pallet = ({
   name,
   price,
   count,
+  onMinus,
+  onPlus,
 }: {
   name: string;
   price: number;
   count: number;
+  onMinus?: () => void;
+  onPlus?: () => void;
 }) => {
   return (
     <div className="start-start">
@@ -119,21 +353,25 @@ const Pallet = ({
       </div>
 
       <div className="ml-auto end space-x-3 md:space-x-4 bg-[#F2F4F7] rounded-full clamp-[py,0.375rem,0.625rem,@sm,@lg] clamp-[px,0.75rem,1rem,@sm,@lg]">
-        <Icon
-          icon="minus"
-          w={10}
-          h={12}
-          className="clamp-[w,0.625rem,0.875rem,@sm,@lg] clamp-[h,0.75rem,1rem,@sm,@lg]"
-        />
+        <button onClick={onMinus} aria-label="minus">
+          <Icon
+            icon="minus"
+            w={10}
+            h={12}
+            className="clamp-[w,0.625rem,0.875rem,@sm,@lg] clamp-[h,0.75rem,1rem,@sm,@lg]"
+          />
+        </button>
         <p className="text-[#344054] font-medium clamp-[text,xs,sm,@sm,@lg] leading-normal">
           {count}
         </p>
-        <Icon
-          icon="plus"
-          w={10}
-          h={10}
-          className="clamp-[size,0.625rem,0.875rem,@sm,@lg]"
-        />
+        <button onClick={onPlus} aria-label="plus">
+          <Icon
+            icon="plus"
+            w={10}
+            h={10}
+            className="clamp-[size,0.625rem,0.875rem,@sm,@lg]"
+          />
+        </button>
       </div>
     </div>
   );

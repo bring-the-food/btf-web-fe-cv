@@ -22,10 +22,19 @@ export type dataProps = {
   type: string;
   cart: any;
   storeId: string;
+  editPackIndex?: number | null;
+  setEditPackIndex?: any;
 };
 
-const Food = ({ data, type, cart, setCart, storeId }: dataProps) => {
-  console.log("🚀 ~ Food ~ cart:", cart)
+const Food = ({
+  data,
+  type,
+  cart,
+  setCart,
+  storeId,
+  editPackIndex,
+  setEditPackIndex,
+}: dataProps) => {
   const [isAdd, setIsAdd] = React.useState(true);
   const [quantity, setQuantity] = React.useState(0);
   const [packIndex, setPackIndex] = React.useState<number | null>(null);
@@ -49,6 +58,15 @@ const Food = ({ data, type, cart, setCart, storeId }: dataProps) => {
     return -1;
   };
 
+  const findEmptyPackIndex = (c: any) => {
+    const packs = c?.packs ?? [];
+    for (let i = 0; i < packs.length; i++) {
+      const p = packs[i] ?? {};
+      if (Object.keys(p).length === 0) return i;
+    }
+    return -1;
+  };
+
   // sync UI quantity / isAdd / packIndex from cart prop
   React.useEffect(() => {
     if (!cart) return;
@@ -58,14 +76,21 @@ const Food = ({ data, type, cart, setCart, storeId }: dataProps) => {
       setIsAdd(q === 0);
       setPackIndex(null);
     } else {
-      const q = getTotalPackItemCountFromCart(cart, data.id);
-      setQuantity(q);
-      setIsAdd(q === 0);
-      const idx = findPackIndexContainingItem(cart, data.id);
-      setPackIndex(idx >= 0 ? idx : null);
+      // if an editPackIndex is provided, show quantity only for that pack so packs don't mix
+      if (typeof editPackIndex === "number" && editPackIndex >= 0) {
+        const q = cart?.packs?.[editPackIndex]?.[data.id]?.count ?? 0;
+        setQuantity(q);
+        setIsAdd(q === 0);
+        setPackIndex(editPackIndex);
+      } else {
+        const q = getTotalPackItemCountFromCart(cart, data.id);
+        setQuantity(q);
+        setIsAdd(q === 0);
+        const idx = findPackIndexContainingItem(cart, data.id);
+        setPackIndex(idx >= 0 ? idx : null);
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cart, data.id, type]);
+  }, [cart, data.id, type, editPackIndex]);
 
   const handleAdd = async () => {
     const prev = cart;
@@ -83,15 +108,41 @@ const Food = ({ data, type, cart, setCart, storeId }: dataProps) => {
         }
         newCart = { ...prev, combos };
       } else {
-        // create a new pack with this item (user starts a new pack)
-        const packs = [...(prev.packs ?? [])];
-        const index = packs.length;
-        packs.push({ [data.id]: { count: 1 } } as Record<
-          string,
-          { count: number }
-        >);
-        newCart = { ...prev, packs };
-        setPackIndex(index);
+        // prefer explicit editPackIndex if provided (target that pack)
+        const targetIndex =
+          typeof editPackIndex === "number" && editPackIndex >= 0
+            ? editPackIndex
+            : findEmptyPackIndex(prev);
+
+        if (typeof editPackIndex === "number" && editPackIndex >= 0) {
+          const packs = [...(prev.packs ?? [])].map((p: any) => ({ ...p }));
+          const pack = { ...(packs[targetIndex] ?? {}) };
+          const current = pack[data.id]?.count ?? 0;
+          pack[data.id] = { count: current + 1 };
+          packs[targetIndex] = pack;
+          newCart = { ...prev, packs };
+          setPackIndex(targetIndex);
+        } else if (targetIndex >= 0) {
+          const packs = [...(prev.packs ?? [])].map((p: any) => ({ ...p }));
+          const pack = { ...(packs[targetIndex] ?? {}) };
+          const current = pack[data.id]?.count ?? 0;
+          pack[data.id] = { count: current + 1 };
+          packs[targetIndex] = pack;
+          newCart = { ...prev, packs };
+          setPackIndex(targetIndex);
+        } else {
+          // create a new pack with this item (no empty pack found)
+          const packs = [...(prev.packs ?? [])];
+          const index = packs.length;
+          packs.push({ [data.id]: { count: 1 } } as Record<
+            string,
+            { count: number }
+          >);
+          newCart = { ...prev, packs };
+          setPackIndex(index);
+          // if parent wants to record the new editing index keep it in sync
+          setEditPackIndex?.(index);
+        }
       }
 
       // optimistic UI
@@ -106,7 +157,11 @@ const Food = ({ data, type, cart, setCart, storeId }: dataProps) => {
         setQuantity(q);
         setIsAdd(q === 0);
       } else {
-        const q = getTotalPackItemCountFromCart(newCart, data.id);
+        // prefer pack-specific count when editing a pack
+        const q =
+          typeof editPackIndex === "number" && editPackIndex >= 0
+            ? newCart?.packs?.[editPackIndex]?.[data.id]?.count ?? 0
+            : getTotalPackItemCountFromCart(newCart, data.id);
         setQuantity(q);
         setIsAdd(q === 0);
       }
@@ -144,12 +199,31 @@ const Food = ({ data, type, cart, setCart, storeId }: dataProps) => {
       } else {
         // pack handling
         // try to find a pack that contains this item
-        let idx = findPackIndexContainingItem(prev, data.id);
+        // prefer editPackIndex if provided
+        let idx =
+          typeof editPackIndex === "number" && editPackIndex >= 0
+            ? editPackIndex
+            : findPackIndexContainingItem(prev, data.id);
         if (idx === -1) idx = packIndex ?? -1;
 
         if (idx === -1) {
-          // if increment and no pack exists for this item, create one
-          if (delta > 0) {
+          // try to reuse an existing empty pack before creating a new one
+          const emptyIndex = findEmptyPackIndex(prev);
+          const targetEmpty =
+            typeof editPackIndex === "number" && editPackIndex >= 0
+              ? editPackIndex
+              : emptyIndex;
+
+          if (targetEmpty >= 0 && delta > 0) {
+            const packs = (prev.packs ?? []).map((p: any) => ({ ...p }));
+            const pack = { ...(packs[targetEmpty] ?? {}) };
+            const current = pack[data.id]?.count ?? 0;
+            pack[data.id] = { count: current + delta };
+            packs[targetEmpty] = pack;
+            newCart = { ...prev, packs };
+            setPackIndex(targetEmpty);
+            setEditPackIndex?.(targetEmpty);
+          } else if (idx === -1 && delta > 0) {
             const packs = [...(prev.packs ?? [])];
             const index = packs.length;
             packs.push({ [data.id]: { count: 1 } } as Record<
@@ -158,6 +232,7 @@ const Food = ({ data, type, cart, setCart, storeId }: dataProps) => {
             >);
             newCart = { ...prev, packs };
             setPackIndex(index);
+            setEditPackIndex?.(index);
           } else {
             // decrement with no pack -> nothing to do
             // revert displayed quantity
@@ -192,7 +267,11 @@ const Food = ({ data, type, cart, setCart, storeId }: dataProps) => {
         setQuantity(q);
         setIsAdd(q === 0);
       } else {
-        const q = getTotalPackItemCountFromCart(newCart, data.id);
+        // prefer pack-specific count when editing a pack
+        const q =
+          typeof editPackIndex === "number" && editPackIndex >= 0
+            ? newCart?.packs?.[editPackIndex]?.[data.id]?.count ?? 0
+            : getTotalPackItemCountFromCart(newCart, data.id);
         setQuantity(q);
         setIsAdd(q === 0);
       }
@@ -207,7 +286,10 @@ const Food = ({ data, type, cart, setCart, storeId }: dataProps) => {
         setQuantity(q);
         setIsAdd(q === 0);
       } else {
-        const q = getTotalPackItemCountFromCart(prev, data.id);
+        const q =
+          typeof editPackIndex === "number" && editPackIndex >= 0
+            ? prev?.packs?.[editPackIndex]?.[data.id]?.count ?? 0
+            : getTotalPackItemCountFromCart(prev, data.id);
         setQuantity(q);
         setIsAdd(q === 0);
       }

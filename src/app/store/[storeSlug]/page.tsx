@@ -12,10 +12,12 @@ import {
 } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { swrfetcher } from "@/lib/swrfetcher";
 import Image from "next/image";
 import { parseCookies, setCookie } from "nookies";
 import React, { use } from "react";
 import { toast } from "sonner";
+import useSWR from "swr";
 
 export default function Home({
   params,
@@ -32,6 +34,9 @@ export default function Home({
   const [process, setProcess] = React.useState("phoneInput");
   const [loading, setLoading] = React.useState(false);
 
+  const { data, isLoading } = useSWR(`/api/profile?storeSlug=${storeSlug}`, swrfetcher);
+  const vendor = data?.data;
+  
   React.useEffect(() => {
     if (userDetails) {
       setOpenModal(false);
@@ -113,7 +118,11 @@ export default function Home({
             <TabsTrigger value="orders">Orders</TabsTrigger>
           </TabsList>
           <TabsContent value="menu">
-            <Menu storeSlug={storeSlug} />
+            <Menu
+              storeSlug={storeSlug}
+              vendor={vendor}
+              isVendorLoading={isLoading}
+            />
           </TabsContent>
           <TabsContent value="orders">
             <Orders />
@@ -139,7 +148,7 @@ export default function Home({
                 Let&apos;s take your order!
               </h3>
               <p className="text-[#475467] text-sm leading-5 font-normal">
-                Provide your phone number to patronize “Vendor Name”
+                Provide your phone number to patronize {vendor?.store?.name}
               </p>
 
               <div className="grid gap-3 mt-5 mb-6">

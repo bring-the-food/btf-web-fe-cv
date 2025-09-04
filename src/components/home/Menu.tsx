@@ -13,14 +13,24 @@ import useSWR from "swr";
 import { swrfetcher } from "@/lib/swrfetcher";
 import { useRouter, useSearchParams } from "next/navigation";
 import useQueryString from "../hooks/useQueryString";
+import { cartFunc } from "../functions/cart";
+import { Loader2Icon } from "lucide-react";
 
-const Menu = ({ storeSlug }: { storeSlug: string }) => {
+const Menu = ({
+  storeSlug,
+  vendor,
+  isVendorLoading,
+}: {
+  storeSlug: string;
+  vendor: any;
+  isVendorLoading: boolean;
+}) => {
   const getUpdatedUrl = useQueryString();
   const searchParams = useSearchParams();
   const router = useRouter();
 
   const tab = searchParams.get("tab");
-  
+
   const [searchValue, setSearchValue] = React.useState("");
   const [active, setActive] = React.useState("All");
   const [url, setUrl] = React.useState("getAllItems");
@@ -32,15 +42,40 @@ const Menu = ({ storeSlug }: { storeSlug: string }) => {
     combos: {},
     packs: [],
   });
+  const [editPackIndex, setEditPackIndex] = React.useState<number | null>(null);
 
-  
+  // Fetch categories data
+  const { data: menuCategoriesData, isLoading: menuCartLoading } = useSWR(
+    vendor ? `/api/home/getCats?storeId=${vendor?.store?.id}` : null,
+    swrfetcher
+  );
 
+  // Memoize the categories mapping to prevent unnecessary re-renders
+  const mappedCats = React.useMemo(() => {
+    return (
+      menuCategoriesData?.data?.map((cat: any) => ({
+        id: cat?.id,
+        label: cat?.name,
+      })) ?? []
+    );
+  }, [menuCategoriesData?.data]);
+
+  // Set active tab and categoryId when categories data is available
   React.useEffect(() => {
-    if (tab) setActive(tab);
-  }, [tab]);
-
-  const { data } = useSWR(`/api/profile?storeSlug=${storeSlug}`, swrfetcher);
-  const vendor = data?.data;
+    if (tab && mappedCats.length > 0) {
+      // Check if tab is a category (not "All" or "Combos")
+      const categoryTab = mappedCats.find((cat: any) => cat.label === tab);
+      if (categoryTab) {
+        setActive(tab);
+        setCategoryId(categoryTab.id);
+      } else if (tab === "Combos") {
+        setActive("Combos");
+        setUrl("getComboItems");
+      } else if (tab === "My Cart") {
+        setActive("My Cart");
+      }
+    }
+  }, [tab, mappedCats]);
 
   React.useEffect(() => {
     switch (active) {
@@ -56,7 +91,7 @@ const Menu = ({ storeSlug }: { storeSlug: string }) => {
   }, [active]);
 
   const { data: cartData } = useSWR(
-    `/api/cart/getCarts?storeId=${vendor?.store?.id}`,
+    vendor ? `/api/cart/getCarts?storeId=${vendor?.store?.id}` : null,
     swrfetcher
   );
 
@@ -108,23 +143,12 @@ const Menu = ({ storeSlug }: { storeSlug: string }) => {
     swrfetcher
   );
 
-  const { data: menuCategoriesData } = useSWR(
-    vendor ? `/api/home/getCats?storeId=${vendor?.store?.id}` : null,
-    swrfetcher
-  );
-
   const { data: menuCatItemsData, isLoading: menuCatItemIsLoading } = useSWR(
-    vendor
+    vendor && categoryId && categoryId !== "getAllItems"
       ? `/api/home/getCatItems?storeId=${vendor?.store?.id}&categoryId=${categoryId}`
       : null,
     swrfetcher
   );
-
-  const mappedCats =
-    menuCategoriesData?.data?.map((cat: any) => ({
-      id: cat?.id,
-      label: cat?.name,
-    })) ?? [];
 
   const filter = [
     {
@@ -138,110 +162,182 @@ const Menu = ({ storeSlug }: { storeSlug: string }) => {
     ...mappedCats,
   ];
 
+  const menuCatItemsWithCategory = menuCatItemsData?.data?.map((it: any) => ({
+    ...it,
+    category: { ...(it?.category ?? {}), id: categoryId },
+  }));
+
   return (
-    <div className="relative">
-      <div className="between">
-        <div className="start clamp-[pt,4,6,@sm,@lg] clamp-[pb,3.5,5,@sm,@lg]">
-          <Image
-            className="clamp-[size,10,16,@sm,@lg] rounded-full object-center"
-            src={vendor?.store?.picture?.url ?? "/images/logo_placeholder.png"}
-            alt={vendor?.store?.name ?? "placeholder logo"}
-            width={40}
-            height={40}
-            priority
-          />
-
-          <h6 className="clamp-[ml,3,5,@sm,@lg] clamp-[mr,2,4,@sm,@lg] font-semibold clamp-[text,sm,lg,@sm,@lg] leading-normal">
-            {vendor?.store?.name}
-          </h6>
-
-          <p
-            className={`font-medium clamp-[text,0.5rem,xs,@sm,@lg] rounded-full clamp-[py,1,2,@sm,@lg] clamp-[px,1.5,4,@sm,@lg] ${
-              vendor?.store?.active
-                ? "text-[#057F3E] bg-[#057F3E0D]"
-                : "text-[#F52222] bg-[#EDDCDC66]"
-            }`}
-          >
-            {vendor?.store?.active ? "Open" : "Closed"}
-          </p>
+    <>
+      {isVendorLoading || menuCartLoading ? (
+        <div className="mx-auto">
+          <Loader2Icon className="animate-spin clamp-[size,8,14,@sm,@lg] clamp-[mt,20,32,@sm,@lg] mx-auto" />
         </div>
+      ) : (
+        <div className="relative">
+          <div className="between">
+            <div className="start clamp-[pt,4,6,@sm,@lg] clamp-[pb,3.5,5,@sm,@lg]">
+              <Image
+                className="clamp-[size,10,16,@sm,@lg] rounded-full object-center"
+                src={
+                  vendor?.store?.picture?.url ?? "/images/logo_placeholder.png"
+                }
+                alt={vendor?.store?.name ?? "placeholder logo"}
+                width={40}
+                height={40}
+                priority
+              />
 
-        <Link href={`/store/${storeSlug}/profile`}>
-          <Button className="text-[#A46900] rounded-full clamp-[text,xs,sm,@sm,@lg] font-semibold bg-[#FFF9E9] hover:bg-[#fcf2d8] !clamp-[py,1.5,2,@sm,@lg] !clamp-[px,2,4,@sm,@lg] cursor-pointer space-x-[2px] h-auto">
-            <span>View Profile</span>
-          </Button>
-        </Link>
-      </div>
+              <h6 className="clamp-[ml,3,5,@sm,@lg] clamp-[mr,2,4,@sm,@lg] font-semibold clamp-[text,sm,lg,@sm,@lg] leading-normal">
+                {vendor?.store?.name}
+              </h6>
 
-      <div className="clamp-[pt,3,5,@sm,@lg]">
-        <div className="md:flex md:justify-between md:items-center md:space-x-4">
-          <Search value={searchValue} setValue={setSearchValue} />
+              <p
+                className={`font-medium clamp-[text,0.5rem,xs,@sm,@lg] rounded-full clamp-[py,1,2,@sm,@lg] clamp-[px,1.5,4,@sm,@lg] ${
+                  vendor?.store?.active
+                    ? "text-[#057F3E] bg-[#057F3E0D]"
+                    : "text-[#F52222] bg-[#EDDCDC66]"
+                }`}
+              >
+                {vendor?.store?.active ? "Open" : "Closed"}
+              </p>
+            </div>
 
-          <button
-            className={`cursor-pointer clamp-[text,sm,base,@sm,@lg] clamp-[py,1.5,2,@sm,@lg] clamp-[px,2,3,@sm,@lg] whitespace-nowrap ${
-              active === "My Cart"
-                ? "bg-[#FFF0C7] text-[#59201A] rounded-[4px]"
-                : "text-[#98A2B3]"
-            }`}
-            onClick={() => setActive("My Cart")}
-          >
-            My Cart
-          </button>
-
-          <div className="clamp-[h,5,6,@sm,@lg] clamp-[w,0.0625rem,0.5,@sm,@lg] bg-[#F2F4F7]" />
-
-          <div className="start space-x-3 overflow-x-auto no-scrollbar pt-2 pb-3 mt-2 clamp-[mr,-6,-8,@sm,@lg] clamp-[pr,4,5,@sm,@lg]">
-            {filter.map((item) => {
-              return (
-                <div key={item?.id} className="start">
-                  <button
-                    className={`cursor-pointer clamp-[text,sm,base,@sm,@lg] clamp-[py,1.5,2,@sm,@lg] clamp-[px,2,3,@sm,@lg] whitespace-nowrap ${
-                      active === item.label
-                        ? "bg-[#FFF0C7] text-[#59201A] rounded-[4px]"
-                        : "text-[#98A2B3]"
-                    }`}
-                    // key={item}
-                    onClick={() => {
-                      setActive(item.label);
-                      setCategoryId(item.id);
-                      router.push(
-                        getUpdatedUrl({
-                          tab: item.label,
-                        })
-                      );
-                    }}
-                  >
-                    {item.label}
-                  </button>
-                </div>
-              );
-            })}
+            <Link href={`/store/${storeSlug}/profile`}>
+              <Button className="text-[#A46900] rounded-full clamp-[text,xs,sm,@sm,@lg] font-semibold bg-[#FFF9E9] hover:bg-[#fcf2d8] !clamp-[py,1.5,2,@sm,@lg] !clamp-[px,2,4,@sm,@lg] cursor-pointer space-x-[2px] h-auto">
+                <span>View Profile</span>
+              </Button>
+            </Link>
           </div>
-        </div>
 
-        {active === "My Cart" ? (
-          <MyCart storeId={vendor?.store?.id} />
-        ) : (
-          <FoodList
-            storeId={vendor?.store?.id}
-            setCart={setCart}
-            cart={cart}
-            data={
-              active === "All" || active === "Combos"
-                ? getItemsData?.data
-                : menuCatItemsData?.data
-            }
-            isLoading={
-              active === "All" || active === "Combos"
-                ? isLoading
-                : menuCatItemIsLoading
-            }
+          <div className="clamp-[pt,3,5,@sm,@lg]">
+            <div className="md:flex md:justify-between md:items-center md:space-x-4">
+              <Search value={searchValue} setValue={setSearchValue} />
+
+              <button
+                className={`cursor-pointer clamp-[text,sm,base,@sm,@lg] clamp-[py,1.5,2,@sm,@lg] clamp-[px,2,3,@sm,@lg] whitespace-nowrap ${
+                  active === "My Cart"
+                    ? "bg-[#FFF0C7] text-[#59201A] rounded-[4px]"
+                    : "text-[#98A2B3]"
+                }`}
+                onClick={() => {
+                  setActive("My Cart");
+                  router.push(
+                    getUpdatedUrl({
+                      tab: "My Cart",
+                    })
+                  );
+                }}
+              >
+                My Cart
+              </button>
+
+              <div className="clamp-[h,5,6,@sm,@lg] clamp-[w,0.0625rem,0.5,@sm,@lg] bg-[#F2F4F7]" />
+
+              <div className="start space-x-3 overflow-x-auto no-scrollbar pt-2 pb-3 mt-2 clamp-[mr,-6,-8,@sm,@lg] clamp-[pr,4,5,@sm,@lg]">
+                {filter.map((item) => {
+                  return (
+                    <div key={item?.id} className="start">
+                      <button
+                        className={`cursor-pointer clamp-[text,sm,base,@sm,@lg] clamp-[py,1.5,2,@sm,@lg] clamp-[px,2,3,@sm,@lg] whitespace-nowrap ${
+                          active === item.label
+                            ? "bg-[#FFF0C7] text-[#59201A] rounded-[4px]"
+                            : "text-[#98A2B3]"
+                        }`}
+                        onClick={() => {
+                          setActive(item.label);
+                          if (item.id !== "All" && item.id !== "Combos") {
+                            setCategoryId(item.id);
+                          } else if (item.id === "Combos") {
+                            setUrl("getComboItems");
+                          }
+                          router.push(
+                            getUpdatedUrl({
+                              tab: item.label,
+                            })
+                          );
+                        }}
+                      >
+                        {item.label}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {active === "My Cart" ? (
+              <MyCart
+                storeId={vendor?.store?.id}
+                setCart={setCart}
+                cart={cart}
+                // notify parent when a new empty pack is created so we can show All and target that pack
+                onNewPack={(index: number) => {
+                  setActive("All");
+                  setEditPackIndex(index);
+                }}
+                // notify parent when user clicks edit on an existing pack
+                onEditPack={(index: number) => {
+                  setActive("All");
+                  setEditPackIndex(index);
+                }}
+              />
+            ) : (
+              <FoodList
+                storeId={vendor?.store?.id}
+                setCart={setCart}
+                cart={cart}
+                editPackIndex={editPackIndex}
+                setEditPackIndex={setEditPackIndex}
+                data={
+                  active === "All" || active === "Combos"
+                    ? getItemsData?.data
+                    : menuCatItemsWithCategory
+                }
+                isLoading={
+                  active === "All" || active === "Combos"
+                    ? isLoading
+                    : menuCatItemIsLoading
+                }
+              />
+            )}
+          </div>
+
+          <Topper
+            storeSlug={storeSlug}
+            editPackIndex={editPackIndex}
+            onStartNewPack={async () => {
+              // create an empty pack and target it for editing
+              const prev = cart ?? { combos: {}, packs: [] };
+              const newIndex = (prev.packs ?? []).length;
+              const newPacks = [
+                ...(prev.packs ?? []),
+                {} as Record<string, { count: number }>,
+              ];
+              const newCart = { ...prev, packs: newPacks };
+
+              // optimistic update and switch view to All + focus the new pack
+              setCart(newCart);
+              setActive("All");
+              setEditPackIndex(newIndex);
+
+              try {
+                await cartFunc.addToCart(vendor?.store?.id, newCart);
+              } catch (err) {
+                console.error("Start new pack (topper) failed, reverting", err);
+                setCart(prev);
+                setEditPackIndex(null);
+              }
+            }}
+            // optional: you can pass computed totals here
+            totalItemsLabel={`Proceed to order ${
+              /* compute total items if desired */ ""
+            }`}
+            totalPriceLabel={/* compute total price if desired */ "—"}
           />
-        )}
-      </div>
-
-      <Topper storeSlug={storeSlug} />
-    </div>
+        </div>
+      )}
+    </>
   );
 };
 

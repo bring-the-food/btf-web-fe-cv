@@ -8,7 +8,8 @@ export async function fetchData(url: string, method: string, data?: any) {
   const cookieStore = await cookies();
   const userDetails = cookieStore.get("userDetails");
 
-  const token = JSON.parse(userDetails?.value ?? "")?.tokens?.tokens?.access;
+  const token =
+    userDetails && JSON.parse(userDetails?.value ?? "")?.tokens?.tokens?.access;
 
   const config = {
     headers: { Authorization: `Bearer ${token}` },

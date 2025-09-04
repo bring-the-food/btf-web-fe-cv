@@ -2,7 +2,7 @@ import { fetchData } from "@/lib/fetcher";
 import { NextRequest } from "next/server";
 
 export async function PUT(request: NextRequest) {
-  const body = await request.json();
+  const body = await request?.json();
   const { searchParams } = new URL(request.url);
 
   const storeId = searchParams.get("storeId");
