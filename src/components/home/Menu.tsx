@@ -11,8 +11,16 @@ import Link from "next/link";
 import { Button } from "../ui/button";
 import useSWR from "swr";
 import { swrfetcher } from "@/lib/swrfetcher";
+import { useRouter, useSearchParams } from "next/navigation";
+import useQueryString from "../hooks/useQueryString";
 
 const Menu = ({ storeSlug }: { storeSlug: string }) => {
+  const getUpdatedUrl = useQueryString();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const tab = searchParams.get("tab");
+  
   const [searchValue, setSearchValue] = React.useState("");
   const [active, setActive] = React.useState("All");
   const [url, setUrl] = React.useState("getAllItems");
@@ -24,6 +32,12 @@ const Menu = ({ storeSlug }: { storeSlug: string }) => {
     combos: {},
     packs: [],
   });
+
+  
+
+  React.useEffect(() => {
+    if (tab) setActive(tab);
+  }, [tab]);
 
   const { data } = useSWR(`/api/profile?storeSlug=${storeSlug}`, swrfetcher);
   const vendor = data?.data;
@@ -105,11 +119,6 @@ const Menu = ({ storeSlug }: { storeSlug: string }) => {
       : null,
     swrfetcher
   );
-
-  // const { data: cartData } = useSWR(
-  //   vendor ? `/api/cart/getCarts?storeId=${vendor?.store?.id}` : null,
-  //   swrfetcher
-  // );
 
   const mappedCats =
     menuCategoriesData?.data?.map((cat: any) => ({
@@ -195,6 +204,11 @@ const Menu = ({ storeSlug }: { storeSlug: string }) => {
                     onClick={() => {
                       setActive(item.label);
                       setCategoryId(item.id);
+                      router.push(
+                        getUpdatedUrl({
+                          tab: item.label,
+                        })
+                      );
                     }}
                   >
                     {item.label}

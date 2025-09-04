@@ -25,19 +25,56 @@ export type dataProps = {
 };
 
 const Food = ({ data, type, cart, setCart, storeId }: dataProps) => {
+  console.log("🚀 ~ Food ~ cart:", cart)
   const [isAdd, setIsAdd] = React.useState(true);
-  const [quantity, setQuantity] = React.useState(1);
+  const [quantity, setQuantity] = React.useState(0);
   const [packIndex, setPackIndex] = React.useState<number | null>(null);
 
+  // helper: total count for this item across all packs
+  const getTotalPackItemCountFromCart = (c: any, itemId: string) => {
+    const packs = c?.packs ?? [];
+    return packs.reduce(
+      (acc: number, p: any) => acc + (p?.[itemId]?.count ?? 0),
+      0
+    );
+  };
+
+  const findPackIndexContainingItem = (c: any, itemId: string) => {
+    const packs = c?.packs ?? [];
+    for (let i = 0; i < packs.length; i++) {
+      if (packs[i] && Object.prototype.hasOwnProperty.call(packs[i], itemId)) {
+        return i;
+      }
+    }
+    return -1;
+  };
+
+  // sync UI quantity / isAdd / packIndex from cart prop
+  React.useEffect(() => {
+    if (!cart) return;
+    if (type === "combo") {
+      const q = cart?.combos?.[data.id]?.count ?? 0;
+      setQuantity(q);
+      setIsAdd(q === 0);
+      setPackIndex(null);
+    } else {
+      const q = getTotalPackItemCountFromCart(cart, data.id);
+      setQuantity(q);
+      setIsAdd(q === 0);
+      const idx = findPackIndexContainingItem(cart, data.id);
+      setPackIndex(idx >= 0 ? idx : null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cart, data.id, type]);
+
   const handleAdd = async () => {
-    // optimistic local update + remote sync
     const prev = cart;
     try {
       let newCart = { ...prev };
 
       if (type === "combo") {
         const current = prev.combos?.[data.id]?.count ?? 0;
-        const next = Math.max(0, current + quantity);
+        const next = Math.max(0, current + 1);
         const combos = { ...(prev.combos ?? {}) };
         if (next <= 0) {
           delete combos[data.id];
@@ -46,9 +83,10 @@ const Food = ({ data, type, cart, setCart, storeId }: dataProps) => {
         }
         newCart = { ...prev, combos };
       } else {
+        // create a new pack with this item (user starts a new pack)
         const packs = [...(prev.packs ?? [])];
         const index = packs.length;
-        packs.push({ [data.id]: { count: quantity } } as Record<
+        packs.push({ [data.id]: { count: 1 } } as Record<
           string,
           { count: number }
         >);
@@ -61,7 +99,17 @@ const Food = ({ data, type, cart, setCart, storeId }: dataProps) => {
 
       // send to server
       await cartFunc.addToCart(storeId, newCart);
-      setIsAdd(false);
+
+      // reflect resulting qty
+      if (type === "combo") {
+        const q = newCart?.combos?.[data.id]?.count ?? 0;
+        setQuantity(q);
+        setIsAdd(q === 0);
+      } else {
+        const q = getTotalPackItemCountFromCart(newCart, data.id);
+        setQuantity(q);
+        setIsAdd(q === 0);
+      }
     } catch (err) {
       console.error("Add to cart failed, reverting local state", err);
       // revert optimistic update
@@ -73,7 +121,7 @@ const Food = ({ data, type, cart, setCart, storeId }: dataProps) => {
     const delta = action === "plus" ? 1 : -1;
     const prev = cart;
 
-    // update local quantity (allow 0 so UI can revert to "Add")
+    // optimistic local quantity update displayed immediately
     setQuantity((q) => {
       const next = Math.max(0, q + delta);
       if (next === 0) setIsAdd(true);
@@ -95,7 +143,11 @@ const Food = ({ data, type, cart, setCart, storeId }: dataProps) => {
         newCart = { ...prev, combos };
       } else {
         // pack handling
-        if (packIndex === null) {
+        // try to find a pack that contains this item
+        let idx = findPackIndexContainingItem(prev, data.id);
+        if (idx === -1) idx = packIndex ?? -1;
+
+        if (idx === -1) {
           // if increment and no pack exists for this item, create one
           if (delta > 0) {
             const packs = [...(prev.packs ?? [])];
@@ -108,11 +160,13 @@ const Food = ({ data, type, cart, setCart, storeId }: dataProps) => {
             setPackIndex(index);
           } else {
             // decrement with no pack -> nothing to do
+            // revert displayed quantity
+            setQuantity((q) => Math.max(0, q - delta * -1)); // revert change
             return;
           }
         } else {
           const packs = (prev.packs ?? []).map((p: any) => ({ ...p }));
-          const pack = { ...(packs[packIndex] ?? {}) };
+          const pack = { ...(packs[idx] ?? {}) };
           const current = pack[data.id]?.count ?? 0;
           const next = Math.max(0, current + delta);
           if (next <= 0) {
@@ -120,8 +174,9 @@ const Food = ({ data, type, cart, setCart, storeId }: dataProps) => {
           } else {
             pack[data.id] = { count: next };
           }
-          packs[packIndex] = pack;
+          packs[idx] = pack;
           newCart = { ...prev, packs };
+          setPackIndex(idx);
         }
       }
 
@@ -130,10 +185,32 @@ const Food = ({ data, type, cart, setCart, storeId }: dataProps) => {
 
       // send to server
       await cartFunc.addToCart(storeId, newCart);
+
+      // update displayed quantity from resulting cart
+      if (type === "combo") {
+        const q = newCart?.combos?.[data.id]?.count ?? 0;
+        setQuantity(q);
+        setIsAdd(q === 0);
+      } else {
+        const q = getTotalPackItemCountFromCart(newCart, data.id);
+        setQuantity(q);
+        setIsAdd(q === 0);
+      }
     } catch (err) {
       console.error("Update cart failed, reverting local state", err);
       // revert optimistic update
       setCart(prev);
+
+      // restore displayed quantity from prev
+      if (type === "combo") {
+        const q = prev?.combos?.[data.id]?.count ?? 0;
+        setQuantity(q);
+        setIsAdd(q === 0);
+      } else {
+        const q = getTotalPackItemCountFromCart(prev, data.id);
+        setQuantity(q);
+        setIsAdd(q === 0);
+      }
     }
   };
 

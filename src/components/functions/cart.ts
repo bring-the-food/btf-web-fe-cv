@@ -132,6 +132,14 @@ function getPackItemCount(state: CartState, packIndex: number, itemId: string) {
   return pack?.[itemId]?.count ?? 0;
 }
 
+/**
+ * Sum counts for an item across all packs (useful when an item may be present
+ * in multiple packs).
+ */
+function getTotalPackItemCount(state: CartState, itemId: string) {
+  return state.packs.reduce((acc, p) => acc + (p?.[itemId]?.count ?? 0), 0);
+}
+
 const addToCart = async (storeId: string, payload: any) => {
   try {
     const response = await axios.put(
@@ -155,4 +163,5 @@ export const cartFunc = {
   removePack,
   getComboCount,
   getPackItemCount,
+  getTotalPackItemCount,
 };
