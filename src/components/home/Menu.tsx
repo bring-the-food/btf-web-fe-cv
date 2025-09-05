@@ -44,13 +44,36 @@ const Menu = ({
   });
   const [editPackIndex, setEditPackIndex] = React.useState<number | null>(null);
 
-  // Fetch categories data
+  React.useEffect(() => {
+    if (cart?.packs?.length > 0) {
+      setEditPackIndex(cart?.packs?.length - 1);
+    } else {
+      setEditPackIndex(null);
+    }
+  }, [cart]);
+
   const { data: menuCategoriesData, isLoading: menuCartLoading } = useSWR(
     vendor ? `/api/home/getCats?storeId=${vendor?.store?.id}` : null,
     swrfetcher
   );
 
-  // Memoize the categories mapping to prevent unnecessary re-renders
+  const { data: cartData } = useSWR(
+    vendor ? `/api/cart/getCarts?storeId=${vendor?.store?.id}` : null,
+    swrfetcher
+  );
+
+  const { data: getItemsData, isLoading } = useSWR(
+    vendor ? `/api/home/${url}?storeId=${vendor?.store?.id}` : null,
+    swrfetcher
+  );
+
+  const { data: menuCatItemsData, isLoading: menuCatItemIsLoading } = useSWR(
+    vendor && categoryId && categoryId !== "getAllItems"
+      ? `/api/home/getCatItems?storeId=${vendor?.store?.id}&categoryId=${categoryId}`
+      : null,
+    swrfetcher
+  );
+
   const mappedCats = React.useMemo(() => {
     return (
       menuCategoriesData?.data?.map((cat: any) => ({
@@ -60,10 +83,8 @@ const Menu = ({
     );
   }, [menuCategoriesData?.data]);
 
-  // Set active tab and categoryId when categories data is available
   React.useEffect(() => {
     if (tab && mappedCats.length > 0) {
-      // Check if tab is a category (not "All" or "Combos")
       const categoryTab = mappedCats.find((cat: any) => cat.label === tab);
       if (categoryTab) {
         setActive(tab);
@@ -90,15 +111,9 @@ const Menu = ({
     }
   }, [active]);
 
-  const { data: cartData } = useSWR(
-    vendor ? `/api/cart/getCarts?storeId=${vendor?.store?.id}` : null,
-    swrfetcher
-  );
-
   React.useEffect(() => {
     if (!cartData) return;
 
-    // normalize possible response wrappers: { data: { cart: ... } } or { cart: ... } or the cart object itself
     const payload = cartData?.data ?? cartData;
     const cartObj = payload?.cart ?? payload;
 
@@ -137,18 +152,6 @@ const Menu = ({
 
     setCart({ combos, packs });
   }, [cartData, setCart]);
-
-  const { data: getItemsData, isLoading } = useSWR(
-    vendor ? `/api/home/${url}?storeId=${vendor?.store?.id}` : null,
-    swrfetcher
-  );
-
-  const { data: menuCatItemsData, isLoading: menuCatItemIsLoading } = useSWR(
-    vendor && categoryId && categoryId !== "getAllItems"
-      ? `/api/home/getCatItems?storeId=${vendor?.store?.id}&categoryId=${categoryId}`
-      : null,
-    swrfetcher
-  );
 
   const filter = [
     {

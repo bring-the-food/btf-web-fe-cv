@@ -93,10 +93,38 @@ export default function Home() {
             </p>
 
             <div className="grid grid-cols-2 clamp-[gap,3,6] clamp-[mt,7,9]">
-              <Pallet2 icon="brand" title="Great Brand Selection" />
-              <Pallet2 icon="quick" title="Quick & Reliable Delivery" />
-              <Pallet2 icon="tracking" title="Real-Time Order Tracking" />
-              <Pallet2 icon="fav" title="Easy In-App Ordering" />
+              <Pallet2
+                icon="brand"
+                title={
+                  <span>
+                    Great Brand <br /> Selection
+                  </span>
+                }
+              />
+              <Pallet2
+                icon="quick"
+                title={
+                  <span>
+                    Quick & Reliable <br /> Delivery
+                  </span>
+                }
+              />
+              <Pallet2
+                icon="tracking"
+                title={
+                  <span>
+                    Real-Time Order <br /> Tracking
+                  </span>
+                }
+              />
+              <Pallet2
+                icon="fav"
+                title={
+                  <span>
+                    Easy In-App <br /> Ordering
+                  </span>
+                }
+              />
             </div>
           </div>
           <div className="grid grid-cols-2 clamp-[gap,3,6] items-stretch ">
@@ -188,14 +216,14 @@ const Pallet = ({
   );
 };
 
-const Pallet2 = ({ icon, title }: { title: string; icon: string }) => {
+const Pallet2 = ({ icon, title }: { title: React.ReactNode; icon: string }) => {
   return (
     <div className="bg-[#FCF3D9] rounded-[12px] clamp-[py,4,6] clamp-[px,1,6]">
       <div className="bg-[#310909] rounded-full center clamp-[size,8,12] mx-auto">
         <Icon icon={icon} size={24} />
       </div>
 
-      <h6 className="font-caprasimo clamp-[text,sm,lg] clamp-[leading,5,6] tracking-[0.2px] text-center clamp-[mt,2,3] px-1 sm:px-16 lg:px-4">
+      <h6 className="font-caprasimo clamp-[text,sm,lg] clamp-[leading,5,6] tracking-[0.2px] text-center clamp-[mt,2,3] px-1 ">
         {title}
       </h6>
     </div>

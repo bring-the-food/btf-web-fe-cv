@@ -88,9 +88,30 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                 />
 
                 <p className="text-[#344054] clamp-[text,sm,base,@sm,@lg] leading-normal">
-                  {vendor?.store?.location?.description},{" "}
-                  {vendor?.store?.location?.street},{" "}
-                  {vendor?.store?.location?.city}.
+                  {vendor?.store?.locations &&
+                  vendor.store.locations.length > 0 ? (
+                    vendor.store.locations.map(
+                      (
+                        location: {
+                          city: string;
+                          street: string;
+                          description: string;
+                        },
+                        index: number
+                      ) => (
+                        <span key={index}>
+                          {location.description && (
+                            <>{location.description}, </>
+                          )}
+                          {location.street && <>{location.street}, </>}
+                          {location.city}
+                          {index < vendor.store.locations.length - 1 && <br />}
+                        </span>
+                      )
+                    )
+                  ) : (
+                    <span>No location information available</span>
+                  )}
                 </p>
               </div>
 
@@ -124,23 +145,43 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
               <div className="mt-4 grid grid-cols-1 md:grid-cols-4 clamp-[gap,4,6,@sm,@lg]">
                 <Pallet
                   title="Monday"
-                  value={`${vendorAvailability?.mon?.start} - ${vendorAvailability?.mon?.end}`}
+                  value={
+                    vendorAvailability?.mon
+                      ? `${vendorAvailability?.mon?.start} - ${vendorAvailability?.mon?.end}`
+                      : "Closed"
+                  }
                 />
                 <Pallet
                   title="Tuesday"
-                  value={`${vendorAvailability?.tue?.start} - ${vendorAvailability?.tue?.end}`}
+                  value={
+                    vendorAvailability?.tue
+                      ? `${vendorAvailability?.tue?.start} - ${vendorAvailability?.tue?.end}`
+                      : "Closed"
+                  }
                 />
                 <Pallet
                   title="Wednesday"
-                  value={`${vendorAvailability?.wed?.start} - ${vendorAvailability?.wed?.end}`}
+                  value={
+                    vendorAvailability?.wed
+                      ? `${vendorAvailability?.wed?.start} - ${vendorAvailability?.wed?.end}`
+                      : "Closed"
+                  }
                 />
                 <Pallet
                   title="Thursday"
-                  value={`${vendorAvailability?.thur?.start} - ${vendorAvailability?.thur?.end}`}
+                  value={
+                    vendorAvailability?.thur
+                      ? `${vendorAvailability?.thur?.start} - ${vendorAvailability?.thur?.end}`
+                      : "Closed"
+                  }
                 />
                 <Pallet
                   title="Friday"
-                  value={`${vendorAvailability?.fri?.start} - ${vendorAvailability?.fri?.end}`}
+                  value={
+                    vendorAvailability?.fri
+                      ? `${vendorAvailability?.fri?.start} - ${vendorAvailability?.fri?.end}`
+                      : "Closed"
+                  }
                 />
                 <Pallet
                   title="Saturday"
