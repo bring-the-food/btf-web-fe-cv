@@ -148,7 +148,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                   value={
                     vendorAvailability?.mon
                       ? `${vendorAvailability?.mon?.start} - ${vendorAvailability?.mon?.end}`
-                      : "Closed"
+                      : "--"
                   }
                 />
                 <Pallet
@@ -156,7 +156,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                   value={
                     vendorAvailability?.tue
                       ? `${vendorAvailability?.tue?.start} - ${vendorAvailability?.tue?.end}`
-                      : "Closed"
+                      : "--"
                   }
                 />
                 <Pallet
@@ -164,7 +164,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                   value={
                     vendorAvailability?.wed
                       ? `${vendorAvailability?.wed?.start} - ${vendorAvailability?.wed?.end}`
-                      : "Closed"
+                      : "--"
                   }
                 />
                 <Pallet
@@ -172,7 +172,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                   value={
                     vendorAvailability?.thur
                       ? `${vendorAvailability?.thur?.start} - ${vendorAvailability?.thur?.end}`
-                      : "Closed"
+                      : "--"
                   }
                 />
                 <Pallet
@@ -180,7 +180,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                   value={
                     vendorAvailability?.fri
                       ? `${vendorAvailability?.fri?.start} - ${vendorAvailability?.fri?.end}`
-                      : "Closed"
+                      : "--"
                   }
                 />
                 <Pallet
@@ -188,7 +188,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                   value={
                     vendorAvailability?.sat
                       ? `${vendorAvailability?.sat?.start} - ${vendorAvailability?.sat?.end}`
-                      : "Closed"
+                      : "--"
                   }
                 />
                 <Pallet
@@ -196,7 +196,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                   value={
                     vendorAvailability?.sun
                       ? `${vendorAvailability?.sun?.start} - ${vendorAvailability?.sun?.end}`
-                      : "Closed"
+                      : "--"
                   }
                 />
               </div>

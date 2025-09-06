@@ -40,10 +40,8 @@ const MyCart = ({
       {} as Record<string, { count: number }>,
     ];
     const newCart = { ...prev, packs: newPacks };
-    // optimistic update so subsequent adds go into this new pack
     setCart(newCart);
 
-    // notify parent immediately so UI switches to All and targets this new pack index
     const newIndex = (prev.packs ?? []).length;
     onNewPack?.(newIndex);
 
@@ -55,7 +53,6 @@ const MyCart = ({
     }
   };
 
-  // duplicate a pack at index -> insert copy after index
   const handleDuplicatePack = async (index: number) => {
     if (!setCart) return;
     const prev = cart ?? { combos: {}, packs: [] };
@@ -78,7 +75,6 @@ const MyCart = ({
     }
   };
 
-  // delete a pack by index
   const handleDeletePack = async (index: number | string) => {
     if (!setCart) return;
     let newCart;
@@ -103,7 +99,6 @@ const MyCart = ({
     }
   };
 
-  // change count for an item inside a specific pack
   const handleChangePackItem = async (
     packIndex: number,
     itemId: string,
@@ -134,7 +129,6 @@ const MyCart = ({
     }
   };
 
-  // change combo count
   const handleChangeComboItem = async (itemId: string, delta: number) => {
     if (!setCart) return;
     const prev = cart ?? { combos: {}, packs: [] };
@@ -170,7 +164,7 @@ const MyCart = ({
           onDelete={() => handleDeletePack("combo")}
         />
       )}
-      {/* render each pack separately so each has its own edit button */}
+
       {Array.isArray(packItems) &&
         packItems.length > 0 &&
         packItems.map((pack: any, idx: number) => (
@@ -235,10 +229,6 @@ const CartContent = ({
   onItemPlus,
   hasNoDuplicate,
 }: CartContentProps) => {
-  // normalize data to an array we can map over:
-  // - if API returned an array of item objects -> use it
-  // - if API returned an object map { itemId: { count, ... } } -> convert to array preserving id/count
-  // - if API returned an array of arrays like [[itemObj,...], ...] -> use first element
   const items: any[] = React.useMemo(() => {
     if (!data) return [];
     if (Array.isArray(data)) {
@@ -246,11 +236,9 @@ const CartContent = ({
     }
     if (typeof data === "object") {
       return Object.entries(data).map(([id, v]: any) => {
-        // if value already looks like a full item object include id
         if (v && typeof v === "object" && (v.name || v.price || v.count)) {
           return { id, ...(v as object) };
         }
-        // otherwise treat v as { count }
         return { id, ...(v || {}) };
       });
     }

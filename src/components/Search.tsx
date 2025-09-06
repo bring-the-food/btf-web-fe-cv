@@ -1,5 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Image from "next/image";
 import React from "react";
+import useQueryString from "./hooks/useQueryString";
+import { useRouter } from "next/navigation";
 
 type SearchProps = {
   value: string;
@@ -7,17 +10,31 @@ type SearchProps = {
 };
 
 const Search = ({ value, setValue }: SearchProps) => {
+  const router = useRouter();
+
+  const getUpdatedUrl = useQueryString();
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
   };
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: any) => {
     if (e.key === "Enter") {
-      console.log("Searching for:", value);
+      // if (setPagination) {
+      //   setPagination({
+      //     ...pagination,
+      //     pageIndex: 0,
+      //   });
+      // }
+
+      const newUrl = getUpdatedUrl({
+        search: e.target.value,
+      });
+      router.push(newUrl);
     }
   };
 
   return (
-    <div className="start max-w-[32rem] w-full space-x-2.5 border-[0.5px] border-[#E9EAEB] focus-within:border-[#FFC247] transition-colors clamp-[py,3,4,@sm,@lg] clamp-[px,4,5,@sm,@lg] clamp-[rounded,0.5rem,0.625rem,@sm,@lg]">
+    <div className="start max-w-sm w-full space-x-2.5 border-[0.5px] border-[#E9EAEB] focus-within:border-[#FFC247] transition-colors clamp-[py,3,4,@sm,@lg] clamp-[px,4,5,@sm,@lg] clamp-[rounded,0.5rem,0.625rem,@sm,@lg]">
       <Image
         className="clamp-[w,0.75rem,1rem,@sm,@lg]"
         src="/svg/search.svg"

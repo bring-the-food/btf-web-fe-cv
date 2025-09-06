@@ -15,6 +15,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import useQueryString from "../hooks/useQueryString";
 import { cartFunc } from "../functions/cart";
 import { Loader2Icon } from "lucide-react";
+import { buildUrlWithParams } from "@/lib/urlParamBuilder";
 
 const Menu = ({
   storeSlug,
@@ -30,6 +31,8 @@ const Menu = ({
   const router = useRouter();
 
   const tab = searchParams.get("tab");
+  const search = searchParams.get("search");
+  // const lastkey = searchParams.get("lastkey");
 
   const [searchValue, setSearchValue] = React.useState("");
   const [active, setActive] = React.useState("All");
@@ -43,6 +46,7 @@ const Menu = ({
     packs: [],
   });
   const [editPackIndex, setEditPackIndex] = React.useState<number | null>(null);
+  const [isEditing, setIsEditing] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     if (cart?.packs?.length > 0) {
@@ -63,16 +67,33 @@ const Menu = ({
   );
 
   const { data: getItemsData, isLoading } = useSWR(
-    vendor ? `/api/home/${url}?storeId=${vendor?.store?.id}` : null,
+    vendor
+      ? buildUrlWithParams(`/api/home/${url}`, {
+          storeId: vendor?.store?.id,
+          keyword: search,
+          // pageSize: 3,
+          // lastEvaluatedKey: ''
+        })
+      : null,
     swrfetcher
   );
 
   const { data: menuCatItemsData, isLoading: menuCatItemIsLoading } = useSWR(
     vendor && categoryId && categoryId !== "getAllItems"
-      ? `/api/home/getCatItems?storeId=${vendor?.store?.id}&categoryId=${categoryId}`
+      ? buildUrlWithParams(`/api/home/getCatItems`, {
+          storeId: vendor?.store?.id,
+          categoryId: categoryId,
+          keyword: search,
+          // pageSize: 3,
+          // lastEvaluatedKey: "",
+        })
       : null,
     swrfetcher
   );
+
+  React.useEffect(() => {
+    if (search) setSearchValue(search);
+  }, [search]);
 
   const mappedCats = React.useMemo(() => {
     return (
@@ -217,55 +238,57 @@ const Menu = ({
             <div className="md:flex md:justify-between md:items-center md:space-x-4">
               <Search value={searchValue} setValue={setSearchValue} />
 
-              <button
-                className={`cursor-pointer clamp-[text,sm,base,@sm,@lg] clamp-[py,1.5,2,@sm,@lg] clamp-[px,2,3,@sm,@lg] whitespace-nowrap ${
-                  active === "My Cart"
-                    ? "bg-[#FFF0C7] text-[#59201A] rounded-[4px]"
-                    : "text-[#98A2B3]"
-                }`}
-                onClick={() => {
-                  setActive("My Cart");
-                  router.push(
-                    getUpdatedUrl({
-                      tab: "My Cart",
-                    })
-                  );
-                }}
-              >
-                My Cart
-              </button>
+              <div className="start md:space-x-4">
+                <button
+                  className={`cursor-pointer clamp-[text,sm,base,@sm,@lg] clamp-[py,1.5,2,@sm,@lg] clamp-[px,2,3,@sm,@lg] whitespace-nowrap ${
+                    active === "My Cart"
+                      ? "bg-[#FFF0C7] text-[#59201A] rounded-[4px]"
+                      : "text-[#98A2B3]"
+                  }`}
+                  onClick={() => {
+                    setActive("My Cart");
+                    router.push(
+                      getUpdatedUrl({
+                        tab: "My Cart",
+                      })
+                    );
+                  }}
+                >
+                  My Cart
+                </button>
 
-              <div className="clamp-[h,5,6,@sm,@lg] clamp-[w,0.0625rem,0.5,@sm,@lg] bg-[#F2F4F7]" />
+                <div className="clamp-[h,5,6,@sm,@lg] clamp-[w,0.0625rem,0.5,@sm,@lg] bg-[#F2F4F7]" />
 
-              <div className="start space-x-3 overflow-x-auto no-scrollbar pt-2 pb-3 mt-2 clamp-[mr,-6,-8,@sm,@lg] clamp-[pr,4,5,@sm,@lg]">
-                {filter.map((item) => {
-                  return (
-                    <div key={item?.id} className="start">
-                      <button
-                        className={`cursor-pointer clamp-[text,sm,base,@sm,@lg] clamp-[py,1.5,2,@sm,@lg] clamp-[px,2,3,@sm,@lg] whitespace-nowrap ${
-                          active === item.label
-                            ? "bg-[#FFF0C7] text-[#59201A] rounded-[4px]"
-                            : "text-[#98A2B3]"
-                        }`}
-                        onClick={() => {
-                          setActive(item.label);
-                          if (item.id !== "All" && item.id !== "Combos") {
-                            setCategoryId(item.id);
-                          } else if (item.id === "Combos") {
-                            setUrl("getComboItems");
-                          }
-                          router.push(
-                            getUpdatedUrl({
-                              tab: item.label,
-                            })
-                          );
-                        }}
-                      >
-                        {item.label}
-                      </button>
-                    </div>
-                  );
-                })}
+                <div className="start space-x-3 overflow-x-auto no-scrollbar pt-2 pb-3 mt-2 clamp-[mr,-6,-8,@sm,@lg] clamp-[pr,4,5,@sm,@lg]">
+                  {filter.map((item) => {
+                    return (
+                      <div key={item?.id} className="start">
+                        <button
+                          className={`cursor-pointer clamp-[text,sm,base,@sm,@lg] clamp-[py,1.5,2,@sm,@lg] clamp-[px,2,3,@sm,@lg] whitespace-nowrap ${
+                            active === item.label
+                              ? "bg-[#FFF0C7] text-[#59201A] rounded-[4px]"
+                              : "text-[#98A2B3]"
+                          }`}
+                          onClick={() => {
+                            setActive(item.label);
+                            if (item.id !== "All" && item.id !== "Combos") {
+                              setCategoryId(item.id);
+                            } else if (item.id === "Combos") {
+                              setUrl("getComboItems");
+                            }
+                            router.push(
+                              getUpdatedUrl({
+                                tab: item.label,
+                              })
+                            );
+                          }}
+                        >
+                          {item.label}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
@@ -274,15 +297,15 @@ const Menu = ({
                 storeId={vendor?.store?.id}
                 setCart={setCart}
                 cart={cart}
-                // notify parent when a new empty pack is created so we can show All and target that pack
                 onNewPack={(index: number) => {
                   setActive("All");
                   setEditPackIndex(index);
+                  setIsEditing(false);
                 }}
-                // notify parent when user clicks edit on an existing pack
                 onEditPack={(index: number) => {
                   setActive("All");
                   setEditPackIndex(index);
+                  setIsEditing(true);
                 }}
               />
             ) : (
@@ -307,10 +330,18 @@ const Menu = ({
           </div>
 
           <Topper
+            isEditing={isEditing}
+            onEditing={() => {
+              setActive("My Cart");
+              router.push(
+                getUpdatedUrl({
+                  tab: "My Cart",
+                })
+              );
+            }}
             storeSlug={storeSlug}
             editPackIndex={editPackIndex}
             onStartNewPack={async () => {
-              // create an empty pack and target it for editing
               const prev = cart ?? { combos: {}, packs: [] };
               const newIndex = (prev.packs ?? []).length;
               const newPacks = [
@@ -319,10 +350,10 @@ const Menu = ({
               ];
               const newCart = { ...prev, packs: newPacks };
 
-              // optimistic update and switch view to All + focus the new pack
               setCart(newCart);
               setActive("All");
               setEditPackIndex(newIndex);
+              setIsEditing(false);
 
               try {
                 await cartFunc.addToCart(vendor?.store?.id, newCart);
@@ -332,7 +363,6 @@ const Menu = ({
                 setEditPackIndex(null);
               }
             }}
-            // optional: you can pass computed totals here
             totalItemsLabel={`Proceed to order ${
               /* compute total items if desired */ ""
             }`}

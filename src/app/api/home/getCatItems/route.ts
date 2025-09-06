@@ -1,4 +1,5 @@
 import { fetchData } from "@/lib/fetcher";
+import { buildUrlWithParams, filteredParams } from "@/lib/urlParamBuilder";
 import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -6,9 +7,21 @@ export async function GET(request: NextRequest) {
 
   const storeId = searchParams.get("storeId");
   const categoryId = searchParams.get("categoryId");
+  const keyword = searchParams.get("keyword");
+  const pageSize = searchParams.get("pageSize");
+  const lastEvaluatedKey = searchParams.get("lastEvaluatedKey");
+
+  const params = {
+    keyword,
+    pageSize,
+    lastEvaluatedKey,
+  };
 
   const response = await fetchData(
-    `${process.env.BASE_URL}/store/${storeId}/menu/category/${categoryId}/items`,
+    buildUrlWithParams(
+      `${process.env.BASE_URL}/store/${storeId}/menu/category/${categoryId}/items`,
+      filteredParams(params)
+    ),
     "GET"
   );
 
