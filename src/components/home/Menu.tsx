@@ -16,6 +16,7 @@ import useQueryString from "../hooks/useQueryString";
 import { cartFunc } from "../functions/cart";
 import { Loader2Icon } from "lucide-react";
 import { buildUrlWithParams } from "@/lib/urlParamBuilder";
+import { koboToNaira } from "@/lib/formatCurrency";
 
 const Menu = ({
   storeSlug,
@@ -61,10 +62,12 @@ const Menu = ({
     swrfetcher
   );
 
-  const { data: cartData } = useSWR(
+  const { data: cartData, mutate } = useSWR(
     vendor ? `/api/cart/getCarts?storeId=${vendor?.store?.id}` : null,
     swrfetcher
   );
+
+  const summary = cartData?.data?.cart?.summary;
 
   const { data: getItemsData, isLoading } = useSWR(
     vendor
@@ -301,12 +304,15 @@ const Menu = ({
                   setActive("All");
                   setEditPackIndex(index);
                   setIsEditing(false);
+                  mutate();
                 }}
                 onEditPack={(index: number) => {
                   setActive("All");
                   setEditPackIndex(index);
                   setIsEditing(true);
+                  mutate();
                 }}
+                onActionsComplete={() => mutate()}
               />
             ) : (
               <FoodList
@@ -325,6 +331,7 @@ const Menu = ({
                     ? isLoading
                     : menuCatItemIsLoading
                 }
+                onActionsComplete={() => mutate()}
               />
             )}
           </div>
@@ -363,10 +370,10 @@ const Menu = ({
                 setEditPackIndex(null);
               }
             }}
-            totalItemsLabel={`Proceed to order ${
-              /* compute total items if desired */ ""
-            }`}
-            totalPriceLabel={/* compute total price if desired */ "—"}
+            totalItemsLabel={`Proceed to order ${summary?.items?.count} items`}
+            totalPriceLabel={
+              koboToNaira(summary?.items?.price?.amount ?? 0) ?? "—"
+            }
           />
         </div>
       )}

@@ -11,10 +11,10 @@ import Link from "next/link";
 import { use } from "react";
 import useSWR from "swr";
 
-const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
+const Profile = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   const { storeSlug } = use(params);
 
-  const { data } = useSWR(`/api/profile?storeSlug=${storeSlug}`, swrfetcher);
+  const { data, isLoading } = useSWR(`/api/profile?storeSlug=${storeSlug}`, swrfetcher);
 
   const vendor = data?.data;
   const vendorAvailability = vendor?.store?.availability?.weekly;
@@ -39,7 +39,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
           </h4>
         </div>
 
-        {!data ? (
+        {isLoading ? (
           <div className="mx-auto">
             <Loader2Icon className="animate-spin clamp-[size,8,14,@sm,@lg] clamp-[mt,20,32,@sm,@lg] mx-auto" />
           </div>
@@ -126,13 +126,30 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                 <p className="col-start clamp-[text,xs,sm,@sm,@lg] font-medium">
                   <span className="text-[#98A2B3] ">Delivery Fee</span>
                   <span className="text-[#1D2939] mt-1">
-                    {currencyFormatter(600)} - {currencyFormatter(1500)}
+                    {vendor?.store?.delivery?.price ? (
+                      <>
+                        {currencyFormatter(vendor?.store?.delivery?.price?.min)}{" "}
+                        -{" "}
+                        {currencyFormatter(vendor?.store?.delivery?.price?.max)}{" "}
+                      </>
+                    ) : (
+                      "--"
+                    )}
                   </span>
                 </p>
                 <div className="bg-[#F2F4F7] clamp-[h,5,6,@sm,@lg] w-px" />
                 <p className="col-start clamp-[text,xs,sm,@sm,@lg] font-medium">
                   <span className="text-[#98A2B3] ">Expect In</span>
-                  <span className="text-[#1D2939] mt-1">20 - 40 min</span>
+                  <span className="text-[#1D2939] mt-1">
+                    {vendor?.store?.delivery?.time ? (
+                      <>
+                        {vendor?.store?.delivery?.time?.min} -{" "}
+                        {vendor?.store?.delivery?.time?.max} min{" "}
+                      </>
+                    ) : (
+                      "--"
+                    )}
+                  </span>
                 </p>
               </div>
             </div>
@@ -208,7 +225,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   );
 };
 
-export default Checkout;
+export default Profile;
 
 type PalletProps = {
   title: string;

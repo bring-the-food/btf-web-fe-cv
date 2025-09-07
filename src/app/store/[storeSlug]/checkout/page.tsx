@@ -10,22 +10,54 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
+import { parseCookies } from "nookies";
+import { swrfetcher } from "@/lib/swrfetcher";
+import useSWR from "swr";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Checkbox } from "@/components/ui/checkbox";
+import { oau, offCampus } from "../../../../../data/locations";
+import { koboToNaira } from "@/lib/formatCurrency";
+import { Loader2Icon } from "lucide-react";
 
-const Checkout = () => {
+const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   const router = useRouter();
+
+  const { storeSlug } = React.use(params);
+
+  const { userDetails } = parseCookies();
+  const userParsed = userDetails && JSON?.parse(userDetails);
 
   const [openModal, setOpenModal] = React.useState(false);
   const [openDrawer, setOpenDrawer] = React.useState(false);
   const [phoneNumber, setPhoneNumber] = React.useState("");
   const [isSuccess, setIsSuccess] = React.useState(false);
+  // const [areaType, setAreaType] = React.useState("oau")
+
+  const { data, isLoading: profileLoading } = useSWR(
+    `/api/profile?storeSlug=${storeSlug}`,
+    swrfetcher
+  );
+  const vendor = data?.data;
+
+  const { data: cartData, isLoading } = useSWR(
+    vendor ? `/api/cart/getCarts?storeId=${vendor?.store?.id}` : null,
+    swrfetcher
+  );
 
   const handlePhoneInput = () => {
     setOpenModal(false);
   };
 
   const handlePayment = () => {
-    window.scrollTo(0, 0);
-    setIsSuccess(true);
+    if (window) {
+      window.scrollTo(0, 0);
+      setIsSuccess(true);
+    }
   };
 
   return (
@@ -53,100 +85,151 @@ const Checkout = () => {
               Checkout
             </h4>
           </div>
+          {profileLoading || isLoading ? (
+            <div className="mx-auto">
+              <Loader2Icon className="animate-spin clamp-[size,8,14,@sm,@lg] clamp-[mt,20,32,@sm,@lg] mx-auto" />
+            </div>
+          ) : (
+            <>
+              <div className="space-y-5 md:space-y-8">
+                <div className="border border-[#F2F4F7] rounded-[8px] clamp-[p,3.5,5,@sm,@lg] clamp-[pb,4,6,@sm,@lg]">
+                  <div className="between">
+                    <div className="start">
+                      <Image
+                        className="clamp-[size,10,16,@sm,@lg] rounded-full object-center"
+                        src={
+                          vendor?.store?.picture?.url ??
+                          "/images/logo_placeholder.png"
+                        }
+                        alt={vendor?.store?.name ?? "placeholder logo"}
+                        width={40}
+                        height={40}
+                        priority
+                      />
 
-          <div className="space-y-5 md:space-y-8">
-            <div className="border border-[#F2F4F7] rounded-[8px] clamp-[p,3.5,5,@sm,@lg] clamp-[pb,4,6,@sm,@lg]">
-              <div className="between">
-                <div className="start">
-                  <Image
-                    className="clamp-[w,10,16,@sm,@lg]"
-                    src="/images/logo_placeholder.png"
-                    alt="Placeholder logo"
-                    width={40}
-                    height={40}
-                    priority
-                  />
+                      <div className="clamp-[ml,2,4,@sm,@lg]">
+                        <h6 className="font-semibold clamp-[text,sm,lg,@sm,@lg] leading-normal">
+                          {vendor?.store?.name}
+                        </h6>
+                        <p className="clamp-[text,xs,sm,@sm,@lg] leading-normal start clamp-[mt,1,2,@sm,@lg] space-x-1">
+                          <span className="text-[#98A2B3]">
+                            {cartData?.data?.cart?.summary?.items?.count} item
+                            {cartData?.data?.cart?.summary?.items?.count <= 1
+                              ? ""
+                              : "s"}
+                          </span>
+                          <span className="text-[#98A2B3]">
+                            |{" "}
+                            {koboToNaira(
+                              cartData?.data?.cart?.summary?.items?.price
+                                ?.amount
+                            )}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
 
-                  <div className="clamp-[ml,2,4,@sm,@lg]">
-                    <h6 className="font-semibold clamp-[text,sm,lg,@sm,@lg] leading-normal">
-                      Mola Foods
-                    </h6>
-                    <p className="clamp-[text,xs,sm,@sm,@lg] leading-normal start clamp-[mt,1,2,@sm,@lg] space-x-1">
-                      <span className="text-[#98A2B3]">5 items</span>
-                      <span className="text-[#98A2B3]">| N7,900</span>
-                    </p>
+                    {/*  */}
+                    <Link href={`/store/${storeSlug}/?tab=My Cart`}>
+                      <Button className="text-[#A46900] rounded-full clamp-[text,xs,sm,@sm,@lg] font-semibold bg-[#FFF9E9] hover:bg-[#fcf2d8] !clamp-[py,1.5,2,@sm,@lg] !clamp-[px,2,4,@sm,@lg] cursor-pointer space-x-[2px] h-auto">
+                        <Icon
+                          icon="right"
+                          size={12}
+                          className="clamp-[size,3,4,@sm,@lg]"
+                        />
+                        <span>Back to cart</span>
+                      </Button>
+                    </Link>
+                  </div>
+
+                  <div className="clamp-[mt,6,8,@sm,@lg] space-y-2">
+                    <button
+                      onClick={() => setOpenDrawer(true)}
+                      className="clamp-[pt,3,5,@sm,@lg] clamp-[pb,4,6,@sm,@lg] start text-left w-full space-x-3"
+                    >
+                      <Icon icon="marker" size={20} />
+
+                      <div>
+                        <p className="text-[#1D2939] font-medium clamp-[text,sm,base,@sm,@lg]">
+                          Choose Delivery Location
+                        </p>
+                        <p className="text-[#A46900] font-medium clamp-[text,0.625rem,xs,@sm,@lg] clamp-[mt,1,1.5,@sm,@lg]">
+                          Add Delivery Address
+                        </p>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => setOpenModal(true)}
+                      className="clamp-[pt,3,5,@sm,@lg] clamp-[pb,4,6,@sm,@lg] start text-left w-full space-x-3"
+                    >
+                      <Icon icon="message" size={20} />
+
+                      <div>
+                        <p className="text-[#1D2939] font-medium clamp-[text,sm,base,@sm,@lg]">
+                          {userParsed?.telephone} will be called for pickup
+                        </p>
+                        <p className="text-[#A46900] font-medium clamp-[text,0.625rem,xs,@sm,@lg] clamp-[mt,1,1.5,@sm,@lg]">
+                          Update Phone Number
+                        </p>
+                      </div>
+                    </button>
                   </div>
                 </div>
 
-                {/* /${storeSlug} */}
-                <Link href={`/?tab=cart`}>
-                  <Button className="text-[#A46900] rounded-full clamp-[text,xs,sm,@sm,@lg] font-semibold bg-[#FFF9E9] hover:bg-[#fcf2d8] !clamp-[py,1.5,2,@sm,@lg] !clamp-[px,2,4,@sm,@lg] cursor-pointer space-x-[2px] h-auto">
-                    <Icon
-                      icon="right"
-                      size={12}
-                      className="clamp-[size,3,4,@sm,@lg]"
+                <div className="text-[#1D2939]">
+                  <h4 className="font-semibold clamp-[text,base,lg,@sm,@lg]">
+                    Payment Summary
+                  </h4>
+
+                  <div className="mt-2">
+                    <Pallet
+                      title={`Sub-total (${
+                        cartData?.data?.cart?.summary?.items?.count
+                      } item${
+                        cartData?.data?.cart?.summary?.items?.count <= 1
+                          ? ""
+                          : "s"
+                      })`}
+                      value={
+                        cartData?.data?.cart?.summary?.items?.price?.amount
+                      }
                     />
-                    <span>Back to cart</span>
+                    <Pallet
+                      title={`Packs (${
+                        cartData?.data?.cart?.summary?.packs?.count
+                      } item${
+                        cartData?.data?.cart?.summary?.packs?.count <= 1
+                          ? ""
+                          : "s"
+                      })`}
+                      value={
+                        cartData?.data?.cart?.summary?.packs?.price?.amount
+                      }
+                    />
+                    <Pallet
+                      title="Delivery Fee"
+                      value={0}
+                      // value={cartData?.data?.cart?.summary?.items?.price?.amount}
+                    />
+                    <Pallet
+                      title="Total bill"
+                      value={cartData?.data?.cart?.summary?.bill?.amount}
+                      isTotal
+                    />
+                  </div>
+                </div>
+
+                <div className="center">
+                  <Button
+                    onClick={handlePayment}
+                    className="text-[#59201A] hover:bg-[#fdb420] w-full max-w-sm bg-[#FFC247] rounded-[8px] !clamp-[py,1.125rem,1.375rem,@sm,@lg] clamp-[text,sm,base,@sm,@lg] font-semibold leading-5 clamp-[mt,4.4375rem,4.6875rem,@sm,@lg]"
+                  >
+                    Make Payment
                   </Button>
-                </Link>
+                </div>
               </div>
-
-              <div className="clamp-[mt,6,8,@sm,@lg] space-y-2">
-                <button
-                  onClick={() => setOpenDrawer(true)}
-                  className="clamp-[pt,3,5,@sm,@lg] clamp-[pb,4,6,@sm,@lg] start text-left w-full space-x-3"
-                >
-                  <Icon icon="marker" size={20} />
-
-                  <div>
-                    <p className="text-[#1D2939] font-medium clamp-[text,sm,base,@sm,@lg]">
-                      Choose Delivery Location
-                    </p>
-                    <p className="text-[#A46900] font-medium clamp-[text,0.625rem,xs,@sm,@lg] clamp-[mt,1,1.5,@sm,@lg]">
-                      Add Delivery Address
-                    </p>
-                  </div>
-                </button>
-                <button
-                  onClick={() => setOpenModal(true)}
-                  className="clamp-[pt,3,5,@sm,@lg] clamp-[pb,4,6,@sm,@lg] start text-left w-full space-x-3"
-                >
-                  <Icon icon="message" size={20} />
-
-                  <div>
-                    <p className="text-[#1D2939] font-medium clamp-[text,sm,base,@sm,@lg]">
-                      07012345678 will be called for pickup
-                    </p>
-                    <p className="text-[#A46900] font-medium clamp-[text,0.625rem,xs,@sm,@lg] clamp-[mt,1,1.5,@sm,@lg]">
-                      Update Phone Number
-                    </p>
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            <div className="text-[#1D2939]">
-              <h4 className="font-semibold clamp-[text,base,lg,@sm,@lg]">
-                Payment Summary
-              </h4>
-
-              <div className="mt-2">
-                <Pallet title="Sub-total (5 items)" value={7900} />
-                <Pallet title="Packs (1 item)" value={300} />
-                <Pallet title="Delivery Fee" value={800} />
-                <Pallet title="Total bill" value={9000} isTotal />
-              </div>
-            </div>
-
-            <div className="center">
-              <Button
-                onClick={handlePayment}
-                className="text-[#59201A] hover:bg-[#fdb420] w-full max-w-sm bg-[#FFC247] rounded-[8px] !clamp-[py,1.125rem,1.375rem,@sm,@lg] clamp-[text,sm,base,@sm,@lg] font-semibold leading-5 clamp-[mt,4.4375rem,4.6875rem,@sm,@lg]"
-              >
-                Make Payment
-              </Button>
-            </div>
-          </div>
+            </>
+          )}
         </div>
       ) : (
         <div className="w-full col-center py-[108px]">
@@ -220,6 +303,25 @@ const Checkout = () => {
             Let us know where you hang out. So we can deliver to you.
           </p>
 
+          <div>
+            <Accordion type="single" collapsible>
+              <LocationAccordian
+                label="OAU (On Campus)"
+                desc="Obafemi Awolowo University"
+                contents={oau.map((area: string) => (
+                  <CCheckbox key={area} label={area} />
+                ))}
+              />
+              <LocationAccordian
+                label="Ile - Ife (Off Campus)"
+                desc="Locations in Ile-Ife"
+                contents={offCampus.map((area: string) => (
+                  <CCheckbox key={area} label={area} />
+                ))}
+              />
+            </Accordion>
+          </div>
+
           <Button
             onClick={() => setOpenDrawer(false)}
             className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-[8px] text-[#59201A] text-sm font-semibold leading-5 py-[18px]"
@@ -264,8 +366,41 @@ const Pallet = ({ title, value, isTotal }: PalletProps) => {
           isTotal && "font-semibold"
         }`}
       >
-        N{value}
+        {koboToNaira(value ?? 0)}
       </p>
+    </div>
+  );
+};
+
+const LocationAccordian = ({
+  label,
+  contents,
+  desc,
+}: {
+  label: string;
+  contents: React.ReactNode;
+  desc: string;
+}) => {
+  return (
+    <AccordionItem value={label} key={label} className="mb-3">
+      <AccordionTrigger className="border border-[#E6E8EC] rounded-[8px] py-[9px] px-3.5">
+        <span className="col-start">
+          <span className="font-medium leading-6 text-[#1E2024] text-base">{label}</span>
+          <span className="mt-1 text-sm text-[#616469]">{desc}</span>
+        </span>
+      </AccordionTrigger>
+      <AccordionContent className="text-[#616469] text-base border border-[#E6E8EC] px-3.5 py-3 overflow-y-auto max-h-[425px] space-y-5 mt-2">
+        {contents}
+      </AccordionContent>
+    </AccordionItem>
+  );
+};
+
+const CCheckbox = ({ label }: { label: string }) => {
+  return (
+    <div className="flex items-center gap-3">
+      <Checkbox id={label} />
+      <Label htmlFor={label}>{label}</Label>
     </div>
   );
 };

@@ -14,6 +14,7 @@ const MyCart = ({
   cart,
   onNewPack,
   onEditPack,
+  onActionsComplete,
 }: {
   storeId: string;
   setCart?: any;
@@ -23,6 +24,7 @@ const MyCart = ({
   };
   onNewPack?: (index: number) => void;
   onEditPack?: (index: number) => void;
+  onActionsComplete: () => void;
 }) => {
   const { data, mutate } = useSWR(
     `/api/cart/getCarts?storeId=${storeId}`,
@@ -69,6 +71,7 @@ const MyCart = ({
     try {
       await cartFunc.addToCart(storeId, newCart);
       mutate();
+      onActionsComplete();
     } catch (err) {
       console.error("Duplicate pack failed, reverting", err);
       setCart(prev);
@@ -92,6 +95,7 @@ const MyCart = ({
     try {
       await cartFunc.addToCart(storeId, newCart);
       mutate();
+      onActionsComplete();
     } catch (err) {
       console.error("Delete pack failed, reverting", err);
       toast.error("Delete pack failed, reverting");
@@ -123,6 +127,7 @@ const MyCart = ({
     try {
       await cartFunc.addToCart(storeId, newCart);
       mutate();
+      onActionsComplete();
     } catch (err) {
       console.error("Update pack item failed, reverting", err);
       setCart(prev);
@@ -146,6 +151,7 @@ const MyCart = ({
     try {
       await cartFunc.addToCart(storeId, newCart);
       mutate();
+      onActionsComplete();
     } catch (err) {
       console.error("Update combo failed, reverting", err);
       setCart(prev);
