@@ -36,6 +36,17 @@ const MFooter = () => {
                 info@bringthisfood.com
               </a>
             </p>
+            <p className="font-caprasimo text-base leading-[21.12px] tracking-[0.32px] start text-[#310909] space-x-2">
+              <Image
+                src="/svg/location.svg"
+                alt="mail"
+                width={20}
+                height={20}
+              />
+              <span className="font-semibold">
+                House 16, Ede Road, Ile-ife.
+              </span>
+            </p>
           </div>
         </div>
         <div>

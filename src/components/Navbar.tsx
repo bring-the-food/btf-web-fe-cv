@@ -1,26 +1,36 @@
 "use client";
 
 import Dialog from "@/components/DialgC";
-import {
-  Navbar as NavbarC,
-  NavbarContent,
-  NavbarMenu,
-  NavbarMenuToggle,
-} from "@heroui/navbar";
+import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import { Button } from "./ui/button";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [underCModal, setUnderCModal] = React.useState(false);
 
+  React.useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isMenuOpen]);
+
   const MenuItems = ({ isDesktop }: { isDesktop?: boolean }) => {
     return (
       <>
         <li>
-          <Link href={"/about"}>About</Link>
+          <Link onClick={() => setIsMenuOpen(false)} href={"/about"}>
+            About
+          </Link>
         </li>
         <li>
           <Link
@@ -85,36 +95,47 @@ const Navbar = () => {
           <p>New: Get free delivery on your first order!</p>
         </div>
 
-        <NavbarC onMenuOpenChange={setIsMenuOpen} className="pt-4">
-          <NavbarContent className="between w-full sm:!hidden">
-            <Image
-              className="clamp-[w,3.8125rem,4.125rem] z-50"
-              src="/svg/logo.svg"
-              alt="Bring this food logo"
-              width={77}
-              height={60}
-              priority
-            />
-
-            <NavbarMenuToggle
-              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-              className="!text-[#310909] z-50"
-              icon={(isOpen: boolean) => (isOpen ? <X /> : <Menu />)}
-            />
-          </NavbarContent>
-
+        <div className="relative">
           <div className="clamp-[pt,6,8] container_fluid hidden sm:block">
             <ul className="!hidden sm:!flex center space-x-10 text-[#310909] font-medium clamp-[text,base,lg,@sm,@lg] leading-[19.84px] tracking-[0.32px]">
               <MenuItems isDesktop />
             </ul>
           </div>
 
-          <NavbarMenu className="bg-[#FFC247] pt-20 ">
-            <div className="pt-[36px] space-y-10 text-[#310909] font-medium clamp-[text,base,lg,@sm,@lg] leading-[19.84px] tracking-[0.32px]">
-              <MenuItems />
-            </div>
-          </NavbarMenu>
-        </NavbarC>
+          <div className="between pt-4 container_fluid sm:!hidden">
+            <Link href={"/"}>
+              <Image
+                className="clamp-[w,3.8125rem,4.125rem] z-50"
+                src="/svg/logo.svg"
+                alt="Bring this food logo"
+                width={77}
+                height={60}
+                priority
+              />
+            </Link>
+
+            <Button
+              variant={"ghost"}
+              size={"icon"}
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? (
+                <X className="size-5" />
+              ) : (
+                <Menu className="size-5" />
+              )}
+            </Button>
+          </div>
+
+          <ul
+            className={cn(
+              isMenuOpen ? "min-h-[calc(100svh-101px)] pt-[36px] " : "h-0 ",
+              "space-y-10 text-[#310909] font-medium clamp-[text,base,lg,@sm,@lg] overflow-hidden leading-[19.84px] tracking-[0.32px] absolute bg-[#FFC247] w-full container_fluid transition-all duration-500"
+            )}
+          >
+            <MenuItems />
+          </ul>
+        </div>
       </nav>
     </div>
   );

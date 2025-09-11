@@ -11,6 +11,7 @@ const FoodList = ({
   storeId,
   editPackIndex,
   setEditPackIndex,
+  onActionsComplete,
 }: {
   data: any;
   isLoading: boolean;
@@ -19,6 +20,7 @@ const FoodList = ({
   storeId: string;
   editPackIndex?: number | null;
   setEditPackIndex?: any;
+  onActionsComplete: () => void;
 }) => {
   return (
     <div>
@@ -50,6 +52,7 @@ const FoodList = ({
                 cart={cart}
                 editPackIndex={editPackIndex}
                 setEditPackIndex={setEditPackIndex}
+                onActionsComplete={onActionsComplete}
               />
             );
           })

@@ -24,6 +24,7 @@ export type dataProps = {
   storeId: string;
   editPackIndex?: number | null;
   setEditPackIndex?: any;
+  onActionsComplete: () => void;
 };
 
 const Food = ({
@@ -34,6 +35,7 @@ const Food = ({
   storeId,
   editPackIndex,
   setEditPackIndex,
+  onActionsComplete,
 }: dataProps) => {
   const [isAdd, setIsAdd] = React.useState(true);
   const [quantity, setQuantity] = React.useState(0);
@@ -143,13 +145,15 @@ const Food = ({
           // if parent wants to record the new editing index keep it in sync
           setEditPackIndex?.(index);
         }
-      }
 
+      }
+      
       // optimistic UI
       setCart(newCart);
-
+      
       // send to server
       await cartFunc.addToCart(storeId, newCart);
+      onActionsComplete();
 
       // reflect resulting qty
       if (type === "combo") {
@@ -257,10 +261,11 @@ const Food = ({
 
       // optimistic UI
       setCart(newCart);
-
+      
       // send to server
       await cartFunc.addToCart(storeId, newCart);
-
+      onActionsComplete();
+      
       // update displayed quantity from resulting cart
       if (type === "combo") {
         const q = newCart?.combos?.[data.id]?.count ?? 0;
