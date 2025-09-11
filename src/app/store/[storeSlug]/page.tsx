@@ -34,9 +34,12 @@ export default function Home({
   const [process, setProcess] = React.useState("phoneInput");
   const [loading, setLoading] = React.useState(false);
 
-  const { data, isLoading } = useSWR(`/api/profile?storeSlug=${storeSlug}`, swrfetcher);
+  const { data, isLoading } = useSWR(
+    `/api/profile?storeSlug=${storeSlug}`,
+    swrfetcher
+  );
   const vendor = data?.data;
-  
+
   React.useEffect(() => {
     if (userDetails) {
       setOpenModal(false);
@@ -125,7 +128,11 @@ export default function Home({
             />
           </TabsContent>
           <TabsContent value="orders">
-            <Orders />
+            <Orders
+              storeSlug={storeSlug}
+              vendor={vendor}
+              isVendorLoading={isLoading}
+            />
           </TabsContent>
         </Tabs>
       </div>

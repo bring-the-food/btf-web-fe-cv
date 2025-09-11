@@ -17,6 +17,8 @@ import { cartFunc } from "../functions/cart";
 import { Loader2Icon } from "lucide-react";
 import { buildUrlWithParams } from "@/lib/urlParamBuilder";
 import { koboToNaira } from "@/lib/formatCurrency";
+import VendorHeader from "../VendorHeader";
+import Loader from "../Loader";
 
 const Menu = ({
   storeSlug,
@@ -195,189 +197,150 @@ const Menu = ({
   }));
 
   return (
-    <>
-      {isVendorLoading || menuCartLoading ? (
-        <div className="mx-auto">
-          <Loader2Icon className="animate-spin clamp-[size,8,14,@sm,@lg] clamp-[mt,20,32,@sm,@lg] mx-auto" />
-        </div>
-      ) : (
-        <div className="relative">
-          <div className="between">
-            <div className="start clamp-[pt,4,6,@sm,@lg] clamp-[pb,3.5,5,@sm,@lg]">
-              <Image
-                className="clamp-[size,10,16,@sm,@lg] rounded-full object-center"
-                src={
-                  vendor?.store?.picture?.url ?? "/images/logo_placeholder.png"
-                }
-                alt={vendor?.store?.name ?? "placeholder logo"}
-                width={40}
-                height={40}
-                priority
-              />
+    <Loader state={isVendorLoading || menuCartLoading}>
+      <div className="relative">
+        <VendorHeader vendor={vendor} storeSlug={storeSlug} />
 
-              <h6 className="clamp-[ml,3,5,@sm,@lg] clamp-[mr,2,4,@sm,@lg] font-semibold clamp-[text,sm,lg,@sm,@lg] leading-normal">
-                {vendor?.store?.name}
-              </h6>
+        <div className="clamp-[pt,3,5,@sm,@lg]">
+          <div className="md:flex md:justify-between md:items-center md:space-x-4">
+            <Search value={searchValue} setValue={setSearchValue} />
 
-              <p
-                className={`font-medium clamp-[text,0.5rem,xs,@sm,@lg] rounded-full clamp-[py,1,2,@sm,@lg] clamp-[px,1.5,4,@sm,@lg] ${
-                  vendor?.store?.active
-                    ? "text-[#057F3E] bg-[#057F3E0D]"
-                    : "text-[#F52222] bg-[#EDDCDC66]"
+            <div className="start md:space-x-4">
+              <button
+                className={`cursor-pointer clamp-[text,sm,base,@sm,@lg] clamp-[py,1.5,2,@sm,@lg] clamp-[px,2,3,@sm,@lg] whitespace-nowrap ${
+                  active === "My Cart"
+                    ? "bg-[#FFF0C7] text-[#59201A] rounded-[4px]"
+                    : "text-[#98A2B3]"
                 }`}
+                onClick={() => {
+                  setActive("My Cart");
+                  router.push(
+                    getUpdatedUrl({
+                      tab: "My Cart",
+                    })
+                  );
+                }}
               >
-                {vendor?.store?.active ? "Open" : "Closed"}
-              </p>
-            </div>
+                My Cart
+              </button>
 
-            <Link href={`/store/${storeSlug}/profile`}>
-              <Button className="text-[#A46900] rounded-full clamp-[text,xs,sm,@sm,@lg] font-semibold bg-[#FFF9E9] hover:bg-[#fcf2d8] !clamp-[py,1.5,2,@sm,@lg] !clamp-[px,2,4,@sm,@lg] cursor-pointer space-x-[2px] h-auto">
-                <span>View Profile</span>
-              </Button>
-            </Link>
-          </div>
+              <div className="clamp-[h,5,6,@sm,@lg] clamp-[w,0.0625rem,0.5,@sm,@lg] bg-[#F2F4F7]" />
 
-          <div className="clamp-[pt,3,5,@sm,@lg]">
-            <div className="md:flex md:justify-between md:items-center md:space-x-4">
-              <Search value={searchValue} setValue={setSearchValue} />
-
-              <div className="start md:space-x-4">
-                <button
-                  className={`cursor-pointer clamp-[text,sm,base,@sm,@lg] clamp-[py,1.5,2,@sm,@lg] clamp-[px,2,3,@sm,@lg] whitespace-nowrap ${
-                    active === "My Cart"
-                      ? "bg-[#FFF0C7] text-[#59201A] rounded-[4px]"
-                      : "text-[#98A2B3]"
-                  }`}
-                  onClick={() => {
-                    setActive("My Cart");
-                    router.push(
-                      getUpdatedUrl({
-                        tab: "My Cart",
-                      })
-                    );
-                  }}
-                >
-                  My Cart
-                </button>
-
-                <div className="clamp-[h,5,6,@sm,@lg] clamp-[w,0.0625rem,0.5,@sm,@lg] bg-[#F2F4F7]" />
-
-                <div className="start space-x-3 overflow-x-auto no-scrollbar pt-2 pb-3 mt-2 clamp-[mr,-6,-8,@sm,@lg] clamp-[pr,4,5,@sm,@lg]">
-                  {filter.map((item) => {
-                    return (
-                      <div key={item?.id} className="start">
-                        <button
-                          className={`cursor-pointer clamp-[text,sm,base,@sm,@lg] clamp-[py,1.5,2,@sm,@lg] clamp-[px,2,3,@sm,@lg] whitespace-nowrap ${
-                            active === item.label
-                              ? "bg-[#FFF0C7] text-[#59201A] rounded-[4px]"
-                              : "text-[#98A2B3]"
-                          }`}
-                          onClick={() => {
-                            setActive(item.label);
-                            if (item.id !== "All" && item.id !== "Combos") {
-                              setCategoryId(item.id);
-                            } else if (item.id === "Combos") {
-                              setUrl("getComboItems");
-                            }
-                            router.push(
-                              getUpdatedUrl({
-                                tab: item.label,
-                              })
-                            );
-                          }}
-                        >
-                          {item.label}
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
+              <div className="start space-x-3 overflow-x-auto no-scrollbar pt-2 pb-3 mt-2 clamp-[mr,-6,-8,@sm,@lg] clamp-[pr,4,5,@sm,@lg]">
+                {filter.map((item) => {
+                  return (
+                    <div key={item?.id} className="start">
+                      <button
+                        className={`cursor-pointer clamp-[text,sm,base,@sm,@lg] clamp-[py,1.5,2,@sm,@lg] clamp-[px,2,3,@sm,@lg] whitespace-nowrap ${
+                          active === item.label
+                            ? "bg-[#FFF0C7] text-[#59201A] rounded-[4px]"
+                            : "text-[#98A2B3]"
+                        }`}
+                        onClick={() => {
+                          setActive(item.label);
+                          if (item.id !== "All" && item.id !== "Combos") {
+                            setCategoryId(item.id);
+                          } else if (item.id === "Combos") {
+                            setUrl("getComboItems");
+                          }
+                          router.push(
+                            getUpdatedUrl({
+                              tab: item.label,
+                            })
+                          );
+                        }}
+                      >
+                        {item.label}
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             </div>
-
-            {active === "My Cart" ? (
-              <MyCart
-                storeId={vendor?.store?.id}
-                setCart={setCart}
-                cart={cart}
-                onNewPack={(index: number) => {
-                  setActive("All");
-                  setEditPackIndex(index);
-                  setIsEditing(false);
-                  mutate();
-                }}
-                onEditPack={(index: number) => {
-                  setActive("All");
-                  setEditPackIndex(index);
-                  setIsEditing(true);
-                  mutate();
-                }}
-                onActionsComplete={() => mutate()}
-              />
-            ) : (
-              <FoodList
-                storeId={vendor?.store?.id}
-                setCart={setCart}
-                cart={cart}
-                editPackIndex={editPackIndex}
-                setEditPackIndex={setEditPackIndex}
-                data={
-                  active === "All" || active === "Combos"
-                    ? getItemsData?.data
-                    : menuCatItemsWithCategory
-                }
-                isLoading={
-                  active === "All" || active === "Combos"
-                    ? isLoading
-                    : menuCatItemIsLoading
-                }
-                onActionsComplete={() => mutate()}
-              />
-            )}
           </div>
 
-          <Topper
-            isEditing={isEditing}
-            onEditing={() => {
-              setActive("My Cart");
-              router.push(
-                getUpdatedUrl({
-                  tab: "My Cart",
-                })
-              );
-            }}
-            storeSlug={storeSlug}
-            editPackIndex={editPackIndex}
-            onStartNewPack={async () => {
-              const prev = cart ?? { combos: {}, packs: [] };
-              const newIndex = (prev.packs ?? []).length;
-              const newPacks = [
-                ...(prev.packs ?? []),
-                {} as Record<string, { count: number }>,
-              ];
-              const newCart = { ...prev, packs: newPacks };
-
-              setCart(newCart);
-              setActive("All");
-              setEditPackIndex(newIndex);
-              setIsEditing(false);
-
-              try {
-                await cartFunc.addToCart(vendor?.store?.id, newCart);
-              } catch (err) {
-                console.error("Start new pack (topper) failed, reverting", err);
-                setCart(prev);
-                setEditPackIndex(null);
+          {active === "My Cart" ? (
+            <MyCart
+              storeId={vendor?.store?.id}
+              setCart={setCart}
+              cart={cart}
+              onNewPack={(index: number) => {
+                setActive("All");
+                setEditPackIndex(index);
+                setIsEditing(false);
+                mutate();
+              }}
+              onEditPack={(index: number) => {
+                setActive("All");
+                setEditPackIndex(index);
+                setIsEditing(true);
+                mutate();
+              }}
+              onActionsComplete={() => mutate()}
+            />
+          ) : (
+            <FoodList
+              storeId={vendor?.store?.id}
+              setCart={setCart}
+              cart={cart}
+              editPackIndex={editPackIndex}
+              setEditPackIndex={setEditPackIndex}
+              data={
+                active === "All" || active === "Combos"
+                  ? getItemsData?.data
+                  : menuCatItemsWithCategory
               }
-            }}
-            totalItemsLabel={`Proceed to order ${summary?.items?.count} items`}
-            totalPriceLabel={
-              koboToNaira(summary?.items?.price?.amount ?? 0) ?? "—"
-            }
-          />
+              isLoading={
+                active === "All" || active === "Combos"
+                  ? isLoading
+                  : menuCatItemIsLoading
+              }
+              onActionsComplete={() => mutate()}
+            />
+          )}
         </div>
-      )}
-    </>
+
+        <Topper
+          isEditing={isEditing}
+          onEditing={() => {
+            setActive("My Cart");
+            router.push(
+              getUpdatedUrl({
+                tab: "My Cart",
+              })
+            );
+          }}
+          storeSlug={storeSlug}
+          editPackIndex={editPackIndex}
+          onStartNewPack={async () => {
+            const prev = cart ?? { combos: {}, packs: [] };
+            const newIndex = (prev.packs ?? []).length;
+            const newPacks = [
+              ...(prev.packs ?? []),
+              {} as Record<string, { count: number }>,
+            ];
+            const newCart = { ...prev, packs: newPacks };
+
+            setCart(newCart);
+            setActive("All");
+            setEditPackIndex(newIndex);
+            setIsEditing(false);
+
+            try {
+              await cartFunc.addToCart(vendor?.store?.id, newCart);
+            } catch (err) {
+              console.error("Start new pack (topper) failed, reverting", err);
+              setCart(prev);
+              setEditPackIndex(null);
+            }
+          }}
+          totalItemsLabel={`Proceed to order ${summary?.items?.count} items`}
+          totalPriceLabel={
+            koboToNaira(summary?.items?.price?.amount ?? 0) ?? "—"
+          }
+        />
+      </div>
+    </Loader>
   );
 };
 
