@@ -90,7 +90,6 @@ export default function Home({
       };
 
       setCookie(null, "userDetails", JSON.stringify(details), {
-        maxAge: 30 * 24 * 60 * 60,
         path: "/",
       });
 

@@ -25,7 +25,7 @@ const Orders = ({
         <OrderCard storeSlug={storeSlug} isCompleted />
       </div>
 
-      <EmptyOrder />
+      {/* <EmptyOrder /> */}
     </Loader>
   );
 };

@@ -296,7 +296,7 @@ const Menu = ({
           )}
         </div>
 
-        <Topper
+        {summary?.items?.count && <Topper
           isEditing={isEditing}
           onEditing={() => {
             setActive("My Cart");
@@ -334,7 +334,7 @@ const Menu = ({
           totalPriceLabel={
             koboToNaira(summary?.items?.price?.amount ?? 0) ?? "—"
           }
-        />
+        />}
       </div>
     </Loader>
   );

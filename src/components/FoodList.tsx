@@ -41,6 +41,7 @@ const FoodList = ({
             <FoodSkeleton />
           </>
         ) : (
+          data?.length > 0 ?
           data?.map((item: any, index: number) => {
             return (
               <Food
@@ -55,7 +56,7 @@ const FoodList = ({
                 onActionsComplete={onActionsComplete}
               />
             );
-          })
+          }) : <p className="text-center col-span-2 mt-8 md:mt-14 font-medium">No Food Items</p>
         )}
       </div>
 
