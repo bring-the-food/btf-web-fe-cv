@@ -342,7 +342,7 @@ type PalletProps = {
   isTotal?: boolean;
 };
 
-const Pallet = ({ title, value, isTotal }: PalletProps) => {
+export const Pallet = ({ title, value, isTotal }: PalletProps) => {
   return (
     <div className="start-start clamp-[py,4,5,@sm,@lg]">
       <Icon

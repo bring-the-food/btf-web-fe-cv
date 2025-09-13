@@ -1,24 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import Image from "next/image";
+import { koboToNaira } from "@/lib/formatCurrency";
+import { swrfetcher } from "@/lib/swrfetcher";
+import { buildUrlWithParams } from "@/lib/urlParamBuilder";
+import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
+import useSWR from "swr";
+import FoodList from "../FoodList";
+import { cartFunc } from "../functions/cart";
+import useQueryString from "../hooks/useQueryString";
+import Loader from "../Loader";
+import MyCart from "../MyCart";
 import Search from "../Search";
 import Topper from "../Topper";
-import FoodList from "../FoodList";
-import MyCart from "../MyCart";
-import Link from "next/link";
-import { Button } from "../ui/button";
-import useSWR from "swr";
-import { swrfetcher } from "@/lib/swrfetcher";
-import { useRouter, useSearchParams } from "next/navigation";
-import useQueryString from "../hooks/useQueryString";
-import { cartFunc } from "../functions/cart";
-import { Loader2Icon } from "lucide-react";
-import { buildUrlWithParams } from "@/lib/urlParamBuilder";
-import { koboToNaira } from "@/lib/formatCurrency";
 import VendorHeader from "../VendorHeader";
-import Loader from "../Loader";
 
 const Menu = ({
   storeSlug,

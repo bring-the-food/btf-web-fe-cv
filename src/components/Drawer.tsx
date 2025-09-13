@@ -23,7 +23,7 @@ export function DrawerC({ open, setOpen, trigger, children }: DrawerCProps) {
       <DrawerContent>
         <DrawerTitle className="hidden"></DrawerTitle>
 
-        <div className="mx-auto w-full max-w-sm">
+        <div className="mx-auto w-full max-w-lg">
           {children}
         </div>
       </DrawerContent>
