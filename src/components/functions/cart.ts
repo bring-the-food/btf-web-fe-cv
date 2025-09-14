@@ -153,6 +153,19 @@ const addToCart = async (storeId: string, payload: any) => {
   }
 };
 
+const checkout = async (storeId: string, payload: any) => {
+  try {
+    const response = await axios.put(
+      `/api/cart/checkout?storeId=${storeId}`,
+      payload
+    );
+    return { data: response.data, status: response.status };
+  } catch (error: any) {
+    toast.error(error.response.data?.message);
+    throw { data: error.response.data, status: error.response.status };
+  }
+};
+
 export const cartFunc = {
   addToCart,
   updateComboCount,
@@ -164,4 +177,5 @@ export const cartFunc = {
   getComboCount,
   getPackItemCount,
   getTotalPackItemCount,
+  checkout
 };

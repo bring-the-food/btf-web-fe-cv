@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { DialogC } from "@/components/Dialog";
@@ -19,10 +20,12 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Checkbox } from "@/components/ui/checkbox";
 import { oau, offCampus } from "../../../../../data/locations";
 import { koboToNaira } from "@/lib/formatCurrency";
 import { Loader2Icon } from "lucide-react";
+import { cartFunc } from "@/components/functions/cart";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import LoadingButton from "@/components/LoadingButton";
 
 const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   const router = useRouter();
@@ -35,7 +38,13 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   const [openModal, setOpenModal] = React.useState(false);
   const [openDrawer, setOpenDrawer] = React.useState(false);
   const [phoneNumber, setPhoneNumber] = React.useState("");
+  const [location, setLocation] = React.useState({
+    city: "",
+    street: "",
+    description: "",
+  });
   const [isSuccess, setIsSuccess] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
   // const [areaType, setAreaType] = React.useState("oau")
 
   const { data, isLoading: profileLoading } = useSWR(
@@ -53,11 +62,35 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
     setOpenModal(false);
   };
 
-  const handlePayment = () => {
-    if (window) {
-      window.scrollTo(0, 0);
-      setIsSuccess(true);
+  React.useEffect(() => {
+    if (userParsed?.telephone) {
+      setPhoneNumber(userParsed?.telephone);
     }
+  }, [userParsed?.telephone]);
+
+  const handlePayment = async () => {
+    setLoading(true);
+
+    await cartFunc
+      .checkout(vendor?.store?.id, {
+        delivery: {
+          location: location,
+          telephone: phoneNumber,
+          message: "",
+        },
+        payment: {
+          method: "wallet",
+        },
+      })
+      .then(() => {
+        if (window) {
+          window.scrollTo(0, 0);
+          setIsSuccess(true);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
@@ -122,7 +155,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                             |{" "}
                             {koboToNaira(
                               cartData?.data?.cart?.summary?.items?.price
-                                ?.amount
+                                ?.amount ?? 0
                             )}
                           </span>
                         </p>
@@ -151,10 +184,22 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
 
                       <div>
                         <p className="text-[#1D2939] font-medium clamp-[text,sm,base,@sm,@lg]">
-                          Choose Delivery Location
+                          {location?.street ? (
+                            <span>
+                              {location.description && (
+                                <>{location.description}, </>
+                              )}
+                              {location.street && <>{location.street}, </>}
+                              {location.city}
+                            </span>
+                          ) : (
+                            "Choose Delivery Location"
+                          )}
                         </p>
                         <p className="text-[#A46900] font-medium clamp-[text,0.625rem,xs,@sm,@lg] clamp-[mt,1,1.5,@sm,@lg]">
-                          Add Delivery Address
+                          {location?.street
+                            ? "Change Delivery Address"
+                            : "Add Delivery Address"}
                         </p>
                       </div>
                     </button>
@@ -166,7 +211,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
 
                       <div>
                         <p className="text-[#1D2939] font-medium clamp-[text,sm,base,@sm,@lg]">
-                          {userParsed?.telephone} will be called for pickup
+                          {phoneNumber} will be called for pickup
                         </p>
                         <p className="text-[#A46900] font-medium clamp-[text,0.625rem,xs,@sm,@lg] clamp-[mt,1,1.5,@sm,@lg]">
                           Update Phone Number
@@ -220,12 +265,13 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                 </div>
 
                 <div className="center">
-                  <Button
+                  <LoadingButton
+                    isLoading={loading}
                     onClick={handlePayment}
                     className="text-[#59201A] hover:bg-[#fdb420] w-full max-w-sm bg-[#FFC247] rounded-[8px] !clamp-[py,1.125rem,1.375rem,@sm,@lg] clamp-[text,sm,base,@sm,@lg] font-semibold leading-5 clamp-[mt,4.4375rem,4.6875rem,@sm,@lg]"
                   >
                     Make Payment
-                  </Button>
+                  </LoadingButton>
                 </div>
               </div>
             </>
@@ -251,7 +297,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
 
           <div className="center w-full">
             <Link
-              href={`/?tab=orders`}
+              href={`/store/${storeSlug}/?tab=orders`}
               className="text-[#59201A] text-center hover:bg-[#fdb420] w-full max-w-sm bg-[#FFC247] rounded-[8px] !clamp-[py,1.125rem,1.375rem,@sm,@lg] clamp-[text,sm,base,@sm,@lg] font-semibold leading-5 clamp-[mt,4.4375rem,4.6875rem,@sm,@lg]"
             >
               Proceed to Order
@@ -308,6 +354,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
               <LocationAccordian
                 label="OAU (On Campus)"
                 desc="Obafemi Awolowo University"
+                setLocation={setLocation}
                 contents={oau.map((area: string) => (
                   <CCheckbox key={area} label={area} />
                 ))}
@@ -315,6 +362,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
               <LocationAccordian
                 label="Ile - Ife (Off Campus)"
                 desc="Locations in Ile-Ife"
+                setLocation={setLocation}
                 contents={offCampus.map((area: string) => (
                   <CCheckbox key={area} label={area} />
                 ))}
@@ -376,21 +424,35 @@ const LocationAccordian = ({
   label,
   contents,
   desc,
+  setLocation,
 }: {
   label: string;
   contents: React.ReactNode;
   desc: string;
+  setLocation: any;
 }) => {
   return (
     <AccordionItem value={label} key={label} className="mb-3">
       <AccordionTrigger className="border border-[#E6E8EC] rounded-[8px] py-[9px] px-3.5">
         <span className="col-start">
-          <span className="font-medium leading-6 text-[#1E2024] text-base">{label}</span>
+          <span className="font-medium leading-6 text-[#1E2024] text-base">
+            {label}
+          </span>
           <span className="mt-1 text-sm text-[#616469]">{desc}</span>
         </span>
       </AccordionTrigger>
       <AccordionContent className="text-[#616469] text-base border border-[#E6E8EC] px-3.5 py-3 overflow-y-auto max-h-[425px] space-y-5 mt-2">
-        {contents}
+        <RadioGroup
+          onValueChange={(value) => {
+            setLocation({
+              city: label,
+              street: value,
+              description: "",
+            });
+          }}
+        >
+          {contents}
+        </RadioGroup>
       </AccordionContent>
     </AccordionItem>
   );
@@ -399,7 +461,7 @@ const LocationAccordian = ({
 const CCheckbox = ({ label }: { label: string }) => {
   return (
     <div className="flex items-center gap-3">
-      <Checkbox id={label} />
+      <RadioGroupItem value={label} id={label} />
       <Label htmlFor={label}>{label}</Label>
     </div>
   );
