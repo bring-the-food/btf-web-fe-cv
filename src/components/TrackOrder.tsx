@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { DialogC } from "@/components/Dialog";
@@ -7,44 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { koboToNaira } from "@/lib/formatCurrency";
+import moment from "moment";
 import React from "react";
 
-const timelineData = [
-  {
-    title: "Order Received",
-    desc: "Waiting for vendor to confirm your order",
-    date: "06:59 AM",
-    isCompleted: true,
-  },
-  {
-    title: "Vendor Accepted Order",
-    desc: "The vendor has confirm your order",
-    date: "06:59 AM",
-    isCompleted: true,
-  },
-  {
-    title: "You Order has been Packed",
-    desc: "Your order is ready to be picked",
-    date: "06:59 AM",
-  },
-  {
-    title: "Rider Accepted Order",
-    desc: "Rider has picked your order",
-    date: "06:59 AM",
-  },
-  {
-    title: "Order in Transit",
-    desc: "Your order is on it's way to you",
-    date: "06:59 AM",
-  },
-  {
-    title: "Order Complete",
-    desc: "",
-    date: "06:59 AM",
-  },
-];
-
-const TrackOrder = () => {
+const TrackOrder = ({ data }: { data: any }) => {
   const [openModal, setOpenModal] = React.useState(false);
   const [phoneNumber, setPhoneNumber] = React.useState("");
 
@@ -52,16 +19,57 @@ const TrackOrder = () => {
     setOpenModal(false);
   };
 
+  console.log("<<<", data?.order?.delivery?.location?.street);
+
+  const timelineData = [
+    {
+      title: "Order Received",
+      desc: "Waiting for vendor to confirm your order",
+      date: moment(data?.order?.trackings?.[0]?.dateCreated).format("lll"),
+      isCompleted: data?.order?.trackings?.[0]?.status === "success",
+    },
+    {
+      title: "Vendor Accepted Order",
+      desc: "The vendor has confirm your order",
+      date: moment(data?.order?.trackings?.[1]?.dateCreated).format("lll"),
+      isCompleted: data?.order?.trackings?.[1]?.status === "success",
+    },
+    {
+      title: "You Order has been Packed",
+      desc: "Your order is ready to be picked",
+      date: moment(data?.order?.trackings?.[2]?.dateCreated).format("lll"),
+      isCompleted: data?.order?.trackings?.[2]?.status === "success",
+    },
+    {
+      title: "Rider Accepted Order",
+      desc: "Rider has picked your order",
+      date: moment(data?.order?.trackings?.[3]?.dateCreated).format("lll"),
+      isCompleted: data?.order?.trackings?.[3]?.status === "success",
+    },
+    {
+      title: "Order in Transit",
+      desc: "Your order is on it's way to you",
+      date: moment(data?.order?.trackings?.[4]?.dateCreated).format("lll"),
+      isCompleted: data?.order?.trackings?.[4]?.status === "success",
+    },
+    {
+      title: "Order Complete",
+      desc: "",
+      date: moment(data?.order?.trackings?.[5]?.dateCreated).format("lll"),
+      isCompleted: data?.order?.trackings?.[5]?.status === "success",
+    },
+  ];
+
   return (
     <div>
-      <h6 className="text-[#1D2939] font-semibold clamp-[mt,5,8,@sm,@lg] clamp-[text,base,lg,@sm,@lg]">
-        Mikun Sarafadeen
+      <h6 className="text-[#1D2939] font-semibold clamp-[mt,5,8,@sm,@lg] clamp-[text,base,lg,@sm,@lg] capitalize">
+        {data?.order?.customer?.name}
       </h6>
       <p className="text-[#475467] clamp-[text,xs,sm,@sm,@lg] font-inter mt-2">
         Your order will be delivered shortly
       </p>
       <h5 className="text-[#59201A] font-semibold clamp-[text,sm,base,@sm,@lg] clamp-[my,6,9,@sm,@lg]">
-        Order ID. BTF124Z
+        Order ID. {data?.order?.id}
       </h5>
       <div className="bg-[#EEF6F3] clamp-[p,4,5,@sm,@lg] rounded-[8] between space-x-[15px]">
         <div>
@@ -102,7 +110,11 @@ const TrackOrder = () => {
           <Icon icon="marker2" size={20} className="clamp-[size,4,5,@sm,@lg]" />
 
           <p className="text-[#1D2939] clamp-[text,sm,base,@sm,@lg] leading-normal">
-            Adereti , Damico, Ile-ife, Osun, Nigeria
+            {data?.order?.delivery?.location?.description +
+              (data?.order?.delivery?.location?.description ? ", " : "") +
+              data?.order?.delivery?.location?.street +
+              ", " +
+              data?.order?.delivery?.location?.city}
           </p>
         </div>
 
@@ -115,7 +127,8 @@ const TrackOrder = () => {
             />
 
             <p className="text-[#1D2939] font-medium clamp-[text,sm,base,@sm,@lg] leading-5">
-              This number will be called upon rider&apos;s arrival; 070123456789
+              This number will be called upon rider&apos;s arrival;{" "}
+              {data?.order?.delivery?.telephone}
             </p>
           </div>
 
@@ -145,7 +158,7 @@ const TrackOrder = () => {
               Order Details
             </h5>
             <p className="text-[#475467] clamp-[text,xs,sm,@sm,@lg] clamp-[mt,2,2.5,@sm,@lg]">
-              Yummy Flavour
+              {data?.order?.store?.name}
             </p>
           </div>
 
@@ -155,13 +168,33 @@ const TrackOrder = () => {
         </div>
 
         <div className="clamp-[mt,4,6,@sm,@lg] space-y-4 md:space-y-5">
-          <Pallet
-            name={"Pack 1"}
-            desc="Amala Wrap (2 x), Egusi Soup (1 x) , Complimentary Coke (1 x)."
-            price={3600}
-          />
-          <Pallet name={"Amala Combo"} desc="1x" price={2600} />
-          <Pallet name={"Jollof Rice Combo"} desc="1x" price={1800} />
+          {data?.order?.packs.map((pack: any, packIndex: number) => {
+            const totalPrice = pack.reduce(
+              (sum: number, item: any) => sum + item.price.amount,
+              0
+            );
+
+            const desc = pack
+              .map((item: any) => `${item.name} (${item.count} x)`)
+              .join(", ");
+
+            return (
+              <Pallet
+                key={packIndex}
+                name={`Pack ${packIndex + 1}`}
+                desc={desc}
+                price={totalPrice}
+              />
+            );
+          })}
+          {data?.order?.combos?.map((c: any, i: string) => (
+            <Pallet
+              key={i}
+              name={c?.name}
+              desc={`${c?.count}x`}
+              price={c?.price?.amount}
+            />
+          ))}
         </div>
       </div>
 

@@ -187,13 +187,14 @@ const MyCart = ({
           />
         ))}
 
-      {comboItems?.length === 0 && packItems?.length === 0 && (
-        <div>
-          <p className="text-center my-20 clamp-[text,sm,lg,@sm,@lg]">
-            No Items in cart
-          </p>
-        </div>
-      )}
+      {(comboItems?.length === 0 && packItems?.length === 0) ||
+        (!comboItems && !packItems && (
+          <div>
+            <p className="text-center my-20 clamp-[text,sm,lg,@sm,@lg]">
+              No Items in cart
+            </p>
+          </div>
+        ))}
 
       <Button
         onClick={handleStartNewPack}

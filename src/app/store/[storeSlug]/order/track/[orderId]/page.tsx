@@ -1,15 +1,22 @@
 "use client";
 
 import Back from "@/components/Back";
+import Loader from "@/components/Loader";
 import OrderDetails from "@/components/orderDetails";
 import TrackOrder from "@/components/TrackOrder";
+import { swrfetcher } from "@/lib/swrfetcher";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import React from "react";
+import useSWR from "swr";
 
 const Page = ({ params }: { params: Promise<{ orderId: string }> }) => {
   const { orderId } = React.use(params);
-  console.log("🚀 ~ Page ~ orderId:", orderId);
+
+  const { data, isLoading } = useSWR(
+    `/api/orders/getOrder?orderId=${orderId}`,
+    swrfetcher
+  );
 
   const searchParams = useSearchParams();
 
@@ -43,8 +50,10 @@ const Page = ({ params }: { params: Promise<{ orderId: string }> }) => {
           </h4>
         </div>
 
-        {status !== "IsCompleted" && <TrackOrder />}
-        {status === "IsCompleted" && <OrderDetails />}
+        <Loader state={isLoading}>
+          {status !== "IsCompleted" && <TrackOrder data={data?.data} />}
+          {status === "IsCompleted" && <OrderDetails />}
+        </Loader>
       </div>
     </div>
   );

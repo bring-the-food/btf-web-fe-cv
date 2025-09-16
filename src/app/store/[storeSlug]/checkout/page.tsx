@@ -26,6 +26,7 @@ import { Loader2Icon } from "lucide-react";
 import { cartFunc } from "@/components/functions/cart";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import LoadingButton from "@/components/LoadingButton";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   const router = useRouter();
@@ -257,6 +258,11 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                       // value={cartData?.data?.cart?.summary?.items?.price?.amount}
                     />
                     <Pallet
+                      title="Service Charge"
+                      value={10000}
+                      // value={cartData?.data?.cart?.summary?.items?.price?.amount}
+                    />
+                    <Pallet
                       title="Total bill"
                       value={cartData?.data?.cart?.summary?.bill?.amount}
                       isTotal
@@ -291,13 +297,14 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
             Payment Successful!
           </h6>
           <p className="text-[#717680] clamp-[text,base,xl,@sm,@lg] leading-[24px] clamp-[mt,1.5,3,@sm,@lg] text-center">
-            Your payment of N7,200 is successful. You <br /> can proceed to
-            track your order
+            Your payment of{" "}
+            {koboToNaira(cartData?.data?.cart?.summary?.bill?.amount ?? 0)} is
+            successful. You <br /> can proceed to track your order
           </p>
 
           <div className="center w-full">
             <Link
-              href={`/store/${storeSlug}/?tab=orders`}
+              href={`/store/${storeSlug}/?page=orders`}
               className="text-[#59201A] text-center hover:bg-[#fdb420] w-full max-w-sm bg-[#FFC247] rounded-[8px] !clamp-[py,1.125rem,1.375rem,@sm,@lg] clamp-[text,sm,base,@sm,@lg] font-semibold leading-5 clamp-[mt,4.4375rem,4.6875rem,@sm,@lg]"
             >
               Proceed to Order
@@ -340,7 +347,11 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
         </div>
       </DialogC>
 
-      <DrawerC open={openDrawer} setOpen={setOpenDrawer}>
+      <DrawerC
+        open={openDrawer}
+        setOpen={setOpenDrawer}
+        className="overflow-y-auto"
+      >
         <div className="grid gap-4 m-5 text-center px-4">
           <h3 className="font-semibold leading-normal text-[#1E2024] text-[20px]">
             Add Delivery Address
@@ -367,6 +378,31 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                   <CCheckbox key={area} label={area} />
                 ))}
               />
+              {location?.street && (
+                <div className="border border-[#E6E8EC] rounded-[8px] py-[9px] px-3.5">
+                  <div className="flex items-center gap-3">
+                    <Checkbox checked />
+                    <Label className="!text-[#1E2024] text-base">
+                      {location?.street}
+                    </Label>
+                  </div>
+
+                  <hr className="my-3 border-[#E9EAEB]" />
+
+                  <textarea
+                    className="w-full text-base leading-5 focus:outline-none"
+                    placeholder="Add precise address (add extras like beside or after a popular place)"
+                    rows={5}
+                    value={location.description}
+                    onChange={(event) =>
+                      setLocation({
+                        ...location,
+                        description: event?.target?.value,
+                      })
+                    }
+                  ></textarea>
+                </div>
+              )}
             </Accordion>
           </div>
 

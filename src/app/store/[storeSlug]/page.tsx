@@ -4,6 +4,7 @@ import { DialogC } from "@/components/Dialog";
 import { homeFunc } from "@/components/functions/home";
 import Menu from "@/components/home/Menu";
 import Orders from "@/components/home/Orders";
+import useQueryString from "@/components/hooks/useQueryString";
 import LoadingButton from "@/components/LoadingButton";
 import {
   InputOTP,
@@ -14,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { swrfetcher } from "@/lib/swrfetcher";
 import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
 import { parseCookies, setCookie } from "nookies";
 import React, { use } from "react";
 import { toast } from "sonner";
@@ -24,6 +26,12 @@ export default function Home({
 }: {
   params: Promise<{ storeSlug: string }>;
 }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const getUpdatedUrl = useQueryString();
+
+  const page = searchParams.get("page");
+
   const { storeSlug } = use(params);
 
   const { userDetails } = parseCookies();
@@ -31,8 +39,13 @@ export default function Home({
   const [openModal, setOpenModal] = React.useState(true);
   const [phoneNumber, setPhoneNumber] = React.useState("");
   const [otp, setOtp] = React.useState("");
+  const [active, setActive] = React.useState("menu");
   const [process, setProcess] = React.useState("phoneInput");
   const [loading, setLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    if (page) setActive(page);
+  }, [page]);
 
   const { data, isLoading } = useSWR(
     `/api/profile?storeSlug=${storeSlug}`,
@@ -114,10 +127,32 @@ export default function Home({
       />
 
       <div className="w-full">
-        <Tabs defaultValue="menu" className="w-full">
+        <Tabs value={active} className="w-full">
           <TabsList>
-            <TabsTrigger value="menu">Menu</TabsTrigger>
-            <TabsTrigger value="orders">Orders</TabsTrigger>
+            <TabsTrigger
+              onClick={() => {
+                router.push(
+                  getUpdatedUrl({
+                    page: "menu",
+                  })
+                );
+              }}
+              value="menu"
+            >
+              Menu
+            </TabsTrigger>
+            <TabsTrigger
+              onClick={() => {
+                router.push(
+                  getUpdatedUrl({
+                    page: "orders",
+                  })
+                );
+              }}
+              value="orders"
+            >
+              Orders
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="menu">
             <Menu

@@ -6,6 +6,10 @@ import VendorHeader from "../VendorHeader";
 import Loader from "../Loader";
 import Icon from "../Icon";
 import Link from "next/link";
+import useSWR from "swr";
+import { swrfetcher } from "@/lib/swrfetcher";
+import { koboToNaira } from "@/lib/formatCurrency";
+import moment from "moment";
 
 const Orders = ({
   storeSlug,
@@ -16,16 +20,21 @@ const Orders = ({
   vendor: any;
   isVendorLoading: boolean;
 }) => {
+  const { data, isLoading } = useSWR(`/api/orders/getOrders`, swrfetcher);
+
   return (
-    <Loader state={isVendorLoading}>
+    <Loader state={isVendorLoading && isLoading}>
       <VendorHeader vendor={vendor} storeSlug={storeSlug} />
 
-      <div className="clamp-[mt,4,8,@sm,@lg] grid md:grid-cols-2 clamp-[gap,4,8,@sm,@lg]">
-        <OrderCard storeSlug={storeSlug} />
-        <OrderCard storeSlug={storeSlug} isCompleted />
-      </div>
-
-      {/* <EmptyOrder /> */}
+      {data?.data?.length > 0 ? (
+        <div className="clamp-[mt,4,8,@sm,@lg] grid md:grid-cols-2 clamp-[gap,4,8,@sm,@lg]">
+          {data?.data?.map((order: any, index: number) => {
+            return <OrderCard key={index} storeSlug={storeSlug} data={order} />;
+          })}
+        </div>
+      ) : (
+        <EmptyOrder />
+      )}
     </Loader>
   );
 };
@@ -54,59 +63,65 @@ const EmptyOrder = () => {
   );
 };
 
-const OrderCard = ({
-  isCompleted,
-  storeSlug,
-}: {
-  isCompleted?: boolean;
-  storeSlug: string;
-}) => {
+const OrderCard = ({ storeSlug, data }: { storeSlug: string; data: any }) => {
+  const isCompleted = data?.status === "complete";
+
   return (
     <div className="border border-[#E4E7EC] rounded-[8px] p-3.5">
       <div className="between">
         <p className="inline-grid">
-          <span className="text-[#1D2939] text-sm font-medium">Mola Foods</span>
-          <span className="text-[#98A2B3] text-xs mt-1">
-            I4TH JUN, 2025. 12:02PM
+          <span className="text-[#1D2939] text-sm font-medium">
+            {data?.store?.name}
+          </span>
+          <span className="text-[#98A2B3] text-xs mt-1 uppercase">
+            {moment(data?.dateCreated).format("lll")}
           </span>
         </p>
         <p className="inline-grid text-right">
-          <span className="text-[#1D2939] text-sm font-medium">N7,900</span>
-          <span className="text-[#98A2B3] text-xs mt-1">Order ID. BTF124Z</span>
+          <span className="text-[#1D2939] text-sm font-medium">
+            {koboToNaira(data?.summary?.bill?.amount)}
+          </span>
+          <span className="text-[#98A2B3] text-xs mt-1">
+            Order ID. {data?.id}
+          </span>
         </p>
       </div>
 
       <p className="inline-grid my-4">
-        <span className="text-[#1D2939] text-xs">1 x Barbecue Fish</span>
-        <span className="text-[#98A2B3] text-[10px] mt-1">+2 more item(s)</span>
+        <span className="text-[#1D2939] text-xs">
+          {data?.combos?.length > 0
+            ? `${data?.combos?.[0]?.count}x ${data?.combos?.[0]?.name}`
+            : `${data?.packs?.[0]?.[0]?.count}x ${data?.packs?.[0]?.[0]?.name}`}
+        </span>
+        {data?.summary?.items?.count > 1 && (
+          <span className="text-[#98A2B3] text-[10px] mt-1">
+            +{data?.summary?.items?.count - 1} more item(s)
+          </span>
+        )}
       </p>
 
       <div className="w-full h-px border-t border-[#E4E7EC] border-dashed" />
 
       <div className="between space-x-2 mt-5 mb-4">
-        <div className="h-[3px] w-full bg-[#FFC247] rounded-full" />
-        <div className="h-[3px] w-full bg-[#FFC247] rounded-full" />
-        <div className="h-[3px] w-full bg-[#FFC247] rounded-full" />
-        {isCompleted ? (
-          <>
-            <div className="h-[3px] w-full bg-[#FFC247] rounded-full" />
-            <div className="h-[3px] w-full bg-[#FFC247] rounded-full" />
-            <div className="h-[3px] w-full bg-[#FFC247] rounded-full" />
-          </>
-        ) : (
-          <>
-            <div className="h-[3px] w-full bg-[#F2F4F7] rounded-full" />
-            <div className="h-[3px] w-full bg-[#F2F4F7] rounded-full" />
-            <div className="h-[3px] w-full bg-[#F2F4F7] rounded-full" />
-          </>
-        )}
+        {Array.from({ length: data?.trackings?.length }, (_, i) => (
+          <div
+            key={i}
+            className={`h-[3px] w-full rounded-full ${
+              isCompleted || i <= findLatestSuccess(data?.trackings)?.index
+                ? "bg-[#FFC247]"
+                : "bg-[#F2F4F7]"
+            }`}
+          />
+        ))}
       </div>
 
       {isCompleted ? (
         <div className="between">
           <p className=" text-sm font-medium text-[#057F3E]">Completed</p>
 
-          <Link href={`/store/${storeSlug}/order/track/orderId?status=IsCompleted`}>
+          <Link
+            href={`/store/${storeSlug}/order/track/${data?.id}?status=IsCompleted`}
+          >
             <Button
               variant={"ghost"}
               className="text-[#59201A] font-medium text-xs"
@@ -118,12 +133,21 @@ const OrderCard = ({
         </div>
       ) : (
         <div className="between">
-          <p className=" text-sm font-medium">
-            <span className="text-[#1D2939]">12:15PM -</span>{" "}
-            <span className="text-[#98A2B3]">Rider accepted order</span>
+          <p className=" text-sm font-medium space-x-1">
+            <span className="text-[#1D2939]">
+              {moment(
+                findLatestSuccess(data?.trackings)?.tracking?.dateCreated
+              ).format("lll")}
+            </span>{" "}
+            {findLatestSuccess(data?.trackings)?.humanReadable && (
+              <span className="">-</span>
+            )}
+            <span className="text-[#98A2B3]">
+              {findLatestSuccess(data?.trackings)?.humanReadable}
+            </span>
           </p>
 
-          <Link href={`/store/${storeSlug}/order/track/orderId`}>
+          <Link href={`/store/${storeSlug}/order/track/${data?.id}`}>
             <Button
               variant={"ghost"}
               className="text-[#59201A] font-medium text-xs"
@@ -137,5 +161,50 @@ const OrderCard = ({
     </div>
   );
 };
+
+function findLatestSuccess(
+  trackings: {
+    dateCreated?: string;
+    type: string;
+    status: string;
+  }[]
+) {
+  const successfulTrackings = trackings
+    .filter((t) => t.status === "success" && t.dateCreated)
+    .map((tracking, index) => ({
+      tracking,
+      index,
+      date: new Date(tracking.dateCreated as string),
+    }));
+
+  if (successfulTrackings.length === 0) {
+    return { index: -1, tracking: null, humanReadable: null };
+  }
+
+  const latest = successfulTrackings.reduce((prev, current) =>
+    current.date > prev.date ? current : prev
+  );
+
+  const humanReadable = transformToHumanReadable(latest.tracking.type);
+
+  return {
+    index: latest.index,
+    tracking: latest.tracking,
+    humanReadable: humanReadable,
+  };
+}
+
+function transformToHumanReadable(type: string): string {
+  const typeMap: { [key: string]: string } = {
+    "store-received": "Order Received",
+    "store-accepted": "Vendor Accepted Order",
+    "store-packed": "You Order has been Packed",
+    "rider-accepted": "Rider Accepted Order",
+    "rider-in-transit": "Order in Transit",
+    delivered: "Order Complete",
+  };
+
+  return typeMap[type] || type;
+}
 
 export default Orders;

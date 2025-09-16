@@ -1,11 +1,12 @@
 "use client";
 
 import {
-    Drawer,
-    DrawerContent,
-    DrawerTitle,
-    DrawerTrigger
+  Drawer,
+  DrawerContent,
+  DrawerTitle,
+  DrawerTrigger,
 } from "@/components/ui/drawer";
+import { cn } from "@/lib/utils";
 import * as React from "react";
 
 type DrawerCProps = {
@@ -14,16 +15,23 @@ type DrawerCProps = {
   hasNoClose?: boolean;
   trigger?: React.ReactNode;
   children?: React.ReactNode;
+  className?: string;
 };
 
-export function DrawerC({ open, setOpen, trigger, children }: DrawerCProps) {
+export function DrawerC({
+  open,
+  setOpen,
+  trigger,
+  children,
+  className,
+}: DrawerCProps) {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>{trigger}</DrawerTrigger>
       <DrawerContent>
         <DrawerTitle className="hidden"></DrawerTitle>
 
-        <div className="mx-auto w-full max-w-lg">
+        <div className={cn(className, "mx-auto w-full max-w-lg")}>
           {children}
         </div>
       </DrawerContent>
