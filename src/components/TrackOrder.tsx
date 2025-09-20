@@ -69,7 +69,7 @@ const TrackOrder = ({ data }: { data: any }) => {
         Your order will be delivered shortly
       </p>
       <h5 className="text-[#59201A] font-semibold clamp-[text,sm,base,@sm,@lg] clamp-[my,6,9,@sm,@lg]">
-        Order ID. {data?.order?.id}
+        Order ID. {data?.order?.slug}
       </h5>
       <div className="bg-[#EEF6F3] clamp-[p,4,5,@sm,@lg] rounded-[8] between space-x-[15px]">
         <div>
@@ -86,19 +86,19 @@ const TrackOrder = ({ data }: { data: any }) => {
           </p>
         </div>
 
-        <div>
+        {data?.order?.confirmationCode && (
           <p className="font-medium text-[#1D2939] clamp-[text,sm,base,@sm,@lg] space-x-1.5 md:space-x-2.5">
             <span className="clamp-[p,3.5,4,@sm,@lg] bg-white rounded-[2px] ">
-              0
+              {data?.order?.confirmationCode[0]}
             </span>
             <span className="clamp-[p,3.5,4,@sm,@lg] bg-white rounded-[2px] ">
-              0
+              {data?.order?.confirmationCode[1]}
             </span>
             <span className="clamp-[p,3.5,4,@sm,@lg] bg-white rounded-[2px] ">
-              1
+              {data?.order?.confirmationCode[2]}
             </span>
           </p>
-        </div>
+        )}
       </div>
       {/* Delivery details */}
       <div className="clamp-[my,6,8,@sm,@lg]">

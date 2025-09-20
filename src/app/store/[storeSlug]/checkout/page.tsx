@@ -254,13 +254,13 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                     />
                     <Pallet
                       title="Delivery Fee"
-                      value={0}
-                      // value={cartData?.data?.cart?.summary?.items?.price?.amount}
+                      value={
+                        cartData?.data?.cart?.summary?.delivery?.price?.amount
+                      }
                     />
                     <Pallet
                       title="Service Charge"
-                      value={10000}
-                      // value={cartData?.data?.cart?.summary?.items?.price?.amount}
+                      value={cartData?.data?.cart?.summary?.service?.price?.amount}
                     />
                     <Pallet
                       title="Total bill"

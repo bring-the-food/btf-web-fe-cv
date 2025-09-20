@@ -23,7 +23,7 @@ const Orders = ({
   const { data, isLoading } = useSWR(`/api/orders/getOrders`, swrfetcher);
 
   return (
-    <Loader state={isVendorLoading && isLoading}>
+    <Loader state={isVendorLoading || isLoading}>
       <VendorHeader vendor={vendor} storeSlug={storeSlug} />
 
       {data?.data?.length > 0 ? (
@@ -33,15 +33,15 @@ const Orders = ({
           })}
         </div>
       ) : (
-        <EmptyOrder />
+        <EmptyOrder storeSlug={storeSlug} />
       )}
     </Loader>
   );
 };
 
-const EmptyOrder = () => {
+const EmptyOrder = ({ storeSlug }: { storeSlug: string }) => {
   return (
-    <div className="col-center clamp-[py,6.25rem,8.125rem,@sm,@lg] clamp-[mt,4.5rem,6.375rem,@sm,@lg]">
+    <div className="col-center clamp-[py,4.25rem,6.125rem,@sm,@lg] clamp-[mt,3.5rem,5.375rem,@sm,@lg]">
       <Image
         src="/images/order_placeholder.png"
         alt="order Placeholder"
@@ -56,9 +56,11 @@ const EmptyOrder = () => {
         any active orders.
       </p>
 
-      <Button className="bg-[#FFC247] text-[#59201A] cursor-pointer w-full max-w-sm rounded-[8px] clamp-[text,sm,base,@sm,@lg] font-semibold leading-5 !clamp-[py,1.125rem,1.375rem,@sm,@lg] clamp-[mt,4,8,@sm,@lg] hover:bg-[#FFC247]/90">
-        Start a new order
-      </Button>
+      <Link href={`/store/${storeSlug}?page=menu`} className="w-full center">
+        <Button className="bg-[#FFC247] text-[#59201A] cursor-pointer w-full max-w-sm rounded-[8px] clamp-[text,sm,base,@sm,@lg] font-semibold leading-5 !clamp-[py,1.125rem,1.375rem,@sm,@lg] clamp-[mt,4,8,@sm,@lg] hover:bg-[#FFC247]/90">
+          Start a new order
+        </Button>
+      </Link>
     </div>
   );
 };
@@ -82,7 +84,7 @@ const OrderCard = ({ storeSlug, data }: { storeSlug: string; data: any }) => {
             {koboToNaira(data?.summary?.bill?.amount)}
           </span>
           <span className="text-[#98A2B3] text-xs mt-1">
-            Order ID. {data?.id}
+            Order ID. {data?.slug}
           </span>
         </p>
       </div>

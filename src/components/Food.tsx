@@ -25,11 +25,13 @@ export type dataProps = {
   editPackIndex?: number | null;
   setEditPackIndex?: any;
   onActionsComplete: () => void;
+  isAll: boolean;
 };
 
 const Food = ({
   data,
   type,
+  isAll,
   cart,
   setCart,
   storeId,
@@ -145,12 +147,11 @@ const Food = ({
           // if parent wants to record the new editing index keep it in sync
           setEditPackIndex?.(index);
         }
-
       }
-      
+
       // optimistic UI
       setCart(newCart);
-      
+
       // send to server
       await cartFunc.addToCart(storeId, newCart);
       onActionsComplete();
@@ -261,11 +262,11 @@ const Food = ({
 
       // optimistic UI
       setCart(newCart);
-      
+
       // send to server
       await cartFunc.addToCart(storeId, newCart);
       onActionsComplete();
-      
+
       // update displayed quantity from resulting cart
       if (type === "combo") {
         const q = newCart?.combos?.[data.id]?.count ?? 0;
@@ -303,10 +304,18 @@ const Food = ({
 
   return (
     <div className="between space-x-[45px] clamp-[pb,2,3.5,@sm,@lg] border-b border-[#F2F4F7]">
-      <div>
-        <h5 className="clamp-[text,sm,base,@sm,@lg] font-jakart font-medium leading-5 text-[#1D2939]">
-          {data?.name}
-        </h5>
+      <div className="w-full">
+        <div className="between space-x-5 w-full">
+          <h5 className="clamp-[text,sm,base,@sm,@lg] font-jakart font-medium leading-5 text-[#1D2939]">
+            {data?.name}
+          </h5>
+
+          {isAll && type === "combo" && (
+            <div className="bg-[#FFC247] rounded-full text-[#59201A] clamp-[text,0.5rem,0.625rem,@sm,@lg] clamp-[px,2,3,@sm,@lg] clamp-[py,0.5,1,@sm,@lg] font-medium leading-3.5">
+              Combo
+            </div>
+          )}
+        </div>
         <p className="clamp-[mt,1,2,@sm,@lg] text-[#98A2B3] clamp-[text,xs,sm,@sm,@lg] leading-normal font-jakart !clamp-[pr,5,6,@sm,@lg]">
           {data?.description}
         </p>

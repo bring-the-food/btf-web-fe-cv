@@ -281,6 +281,7 @@ const Menu = ({
               cart={cart}
               editPackIndex={editPackIndex}
               setEditPackIndex={setEditPackIndex}
+              isAll={active === "All"}
               data={
                 active === "All" || active === "Combos"
                   ? getItemsData?.data
@@ -296,45 +297,47 @@ const Menu = ({
           )}
         </div>
 
-        {summary?.items?.count && <Topper
-          isEditing={isEditing}
-          onEditing={() => {
-            setActive("My Cart");
-            router.push(
-              getUpdatedUrl({
-                tab: "My Cart",
-              })
-            );
-          }}
-          storeSlug={storeSlug}
-          editPackIndex={editPackIndex}
-          onStartNewPack={async () => {
-            const prev = cart ?? { combos: {}, packs: [] };
-            const newIndex = (prev.packs ?? []).length;
-            const newPacks = [
-              ...(prev.packs ?? []),
-              {} as Record<string, { count: number }>,
-            ];
-            const newCart = { ...prev, packs: newPacks };
+        {summary?.items?.count && (
+          <Topper
+            isEditing={isEditing}
+            onEditing={() => {
+              setActive("My Cart");
+              router.push(
+                getUpdatedUrl({
+                  tab: "My Cart",
+                })
+              );
+            }}
+            storeSlug={storeSlug}
+            editPackIndex={editPackIndex}
+            onStartNewPack={async () => {
+              const prev = cart ?? { combos: {}, packs: [] };
+              const newIndex = (prev.packs ?? []).length;
+              const newPacks = [
+                ...(prev.packs ?? []),
+                {} as Record<string, { count: number }>,
+              ];
+              const newCart = { ...prev, packs: newPacks };
 
-            setCart(newCart);
-            setActive("All");
-            setEditPackIndex(newIndex);
-            setIsEditing(false);
+              setCart(newCart);
+              setActive("All");
+              setEditPackIndex(newIndex);
+              setIsEditing(false);
 
-            try {
-              await cartFunc.addToCart(vendor?.store?.id, newCart);
-            } catch (err) {
-              console.error("Start new pack (topper) failed, reverting", err);
-              setCart(prev);
-              setEditPackIndex(null);
+              try {
+                await cartFunc.addToCart(vendor?.store?.id, newCart);
+              } catch (err) {
+                console.error("Start new pack (topper) failed, reverting", err);
+                setCart(prev);
+                setEditPackIndex(null);
+              }
+            }}
+            totalItemsLabel={`Proceed to order ${summary?.items?.count} items`}
+            totalPriceLabel={
+              koboToNaira(summary?.items?.price?.amount ?? 0) ?? "—"
             }
-          }}
-          totalItemsLabel={`Proceed to order ${summary?.items?.count} items`}
-          totalPriceLabel={
-            koboToNaira(summary?.items?.price?.amount ?? 0) ?? "—"
-          }
-        />}
+          />
+        )}
       </div>
     </Loader>
   );

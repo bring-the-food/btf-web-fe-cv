@@ -47,7 +47,11 @@ const FeaturedVendor = ({ trigger, header, open, setOpen }: DialogProps) => {
             <div className="mt-4 lg:mt-8 space-y-3 lg:space-y-6 overflow-y-auto lg:pr-7 flex-grow">
               {data?.data?.map((vendor: any, index: number) => {
                 return (
-                  <Link key={index} href={`/store/${vendor?.slug}`} className="block">
+                  <Link
+                    key={index}
+                    href={`/store/${vendor?.slug}`}
+                    className="block"
+                  >
                     <button className="start w-full hover:bg-gray-50 bg-white border border-[#E4E7EC] px-3 py-6 lg:px-4 lg:py-7 rounded-[8px] lg:rounded-[16px] space-x-1.5 lg:space-x-3">
                       <Image
                         src={
@@ -63,9 +67,11 @@ const FeaturedVendor = ({ trigger, header, open, setOpen }: DialogProps) => {
                         {vendor?.name}
                       </p>
 
-                      <p className="bg-[#FFE7B0] rounded-full border border-[#FFF0C7] py-1 px-2 lg:py-1.5 lg:px-4 text-[8px] lg:text-xs font-semibold leading-normal hidden sm:inline-block">
-                        {vendor?.category}
-                      </p>
+                      {vendor?.category && (
+                        <p className="bg-[#FFE7B0] rounded-full border border-[#FFF0C7] py-1 px-2 lg:py-1.5 lg:px-4 text-[8px] lg:text-xs font-semibold leading-normal hidden sm:inline-block">
+                          {vendor?.category}
+                        </p>
+                      )}
 
                       <Icon
                         icon="c_right"
