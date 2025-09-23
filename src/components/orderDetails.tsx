@@ -1,6 +1,6 @@
 "use client";
 
-import { Pallet as Pallet2 } from "@/app/store/[storeSlug]/checkout/page";
+import Pallet2 from "@/components/Pallet";
 import Icon from "@/components/Icon";
 import Timeline from "@/components/Timeline";
 import { Button } from "@/components/ui/button";

@@ -27,6 +27,7 @@ import { cartFunc } from "@/components/functions/cart";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import LoadingButton from "@/components/LoadingButton";
 import { Checkbox } from "@/components/ui/checkbox";
+import Pallet from "@/components/Pallet";
 
 const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   const router = useRouter();
@@ -260,7 +261,9 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                     />
                     <Pallet
                       title="Service Charge"
-                      value={cartData?.data?.cart?.summary?.service?.price?.amount}
+                      value={
+                        cartData?.data?.cart?.summary?.service?.price?.amount
+                      }
                     />
                     <Pallet
                       title="Total bill"
@@ -419,42 +422,6 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
 };
 
 export default Checkout;
-
-type PalletProps = {
-  title: string;
-  value: number;
-  isTotal?: boolean;
-};
-
-export const Pallet = ({ title, value, isTotal }: PalletProps) => {
-  return (
-    <div className="start-start clamp-[py,4,5,@sm,@lg]">
-      <Icon
-        icon={isTotal ? "receipt" : "stars"}
-        size={20}
-        className="clamp-[size,5,6,@sm,@lg]"
-      />
-
-      <div className="clamp-[ml,0.8125rem,1.0625rem,@sm,@lg]">
-        <h6
-          className={`clamp-[text,sm,base,@sm,@lg] leading-normal text-[#1D2939] ${
-            isTotal && "font-semibold"
-          }`}
-        >
-          {title}
-        </h6>
-      </div>
-
-      <p
-        className={`ml-auto end text-[#344054] clamp-[text,sm,base,@sm,@lg] leading-normal ${
-          isTotal && "font-semibold"
-        }`}
-      >
-        {koboToNaira(value ?? 0)}
-      </p>
-    </div>
-  );
-};
 
 const LocationAccordian = ({
   label,
