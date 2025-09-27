@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { swrfetcher } from "@/lib/swrfetcher";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { parseCookies, setCookie } from "nookies";
 import React, { use } from "react";
@@ -117,14 +118,16 @@ export default function Home({
 
   return (
     <div className="col-start-center clamp-[px,5,12,@sm,@lg] clamp-[py,10,20,@sm,@lg] w-full">
-      <Image
-        className="clamp-[mb,3.5,8,@sm,@lg] clamp-[w,3.8125rem,8rem,@sm,@lg]"
-        src="/svg/logo.svg"
-        alt="Bring this food logo"
-        width={61}
-        height={48}
-        priority
-      />
+      <Link href={"/"}>
+        <Image
+          className="clamp-[mb,3.5,8,@sm,@lg] clamp-[w,3.8125rem,8rem,@sm,@lg]"
+          src="/svg/logo.svg"
+          alt="Bring this food logo"
+          width={61}
+          height={48}
+          priority
+        />
+      </Link>
 
       <div className="w-full">
         <Tabs value={active} className="w-full">
