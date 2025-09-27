@@ -10,10 +10,15 @@ import React from "react";
 import { DrawerC } from "./Drawer";
 import OrderSummary from "./OrderSummary";
 import { FrownFace, HappyFace, NeutralFace, SadFace, SmileFace } from "./Svgs";
+import { orderFunc } from "./functions/order";
+import LoadingButton from "./LoadingButton";
 
 const OrderDetails = ({ data }: { data: any }) => {
   const [openDrawer, setOpenDrawer] = React.useState(false);
+  const [review, setReview] = React.useState("");
+  const [rating, setRating] = React.useState<1 | 2 | 3 | 4 | 5 | null>(null);
   const [openRateDrawer, setOpenRateDrawer] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
 
   const timelineData = [
     {
@@ -79,6 +84,20 @@ const OrderDetails = ({ data }: { data: any }) => {
       isCompleted: timelines?.[1]?.status === "success",
     },
   ];
+
+  const handleRateRider = async () => {
+    try {
+      setLoading(true);
+      await orderFunc.rateRider(data?.order?.rider?.id, {
+        text: review,
+        rating: rating as number,
+      });
+      setLoading(false);
+      setOpenRateDrawer(false);
+    } catch {
+      setLoading(false);
+    }
+  };
 
   return (
     <div>
@@ -185,11 +204,11 @@ const OrderDetails = ({ data }: { data: any }) => {
           </div>
 
           <div className="between max-w-[353] mx-auto clamp-[mt,6,8,@sm,@lg] px-[36.5px]">
-            <SadFace />
-            <FrownFace />
-            <NeutralFace />
-            <SmileFace />
-            <HappyFace />
+            <SadFace active={rating === 1} onClick={() => setRating(1)} />
+            <FrownFace active={rating === 2} onClick={() => setRating(2)} />
+            <NeutralFace active={rating === 3} onClick={() => setRating(3)} />
+            <SmileFace active={rating === 4} onClick={() => setRating(4)} />
+            <HappyFace active={rating === 5} onClick={() => setRating(5)} />
           </div>
 
           <div className="clamp-[mt,8,10,@sm,@lg] w-full col-center">
@@ -205,11 +224,17 @@ const OrderDetails = ({ data }: { data: any }) => {
               id="feedback"
               rows={5}
               className="clamp-[py,3.5,4,@sm,@lg] clamp-[px,4,5,@sm,@lg] clamp-[mt,4,5,@sm,@lg] clamp-[text,sm,base,@sm,@lg] border border-[#D0D5DD] focus:outline-none rounded-[8px] min-w-[353]"
-            ></textarea>
+              value={review}
+              onChange={(e) => setReview(e?.target?.value)}
+            />
 
-            <Button className="bg-[#FFC247] hover:bg-[#fcb526] rounded-[8px] w-full max-w-[353] clamp-[mt,5,6,@sm,@lg] !clamp-[py,1.125rem,1.375rem,@sm,@lg] h-auto text-[#59201A] clamp-[text,sm,base,@sm,@lg] font-semibold">
+            <LoadingButton
+              onClick={handleRateRider}
+              isLoading={loading}
+              className="bg-[#FFC247] hover:bg-[#fcb526] rounded-[8px] w-full max-w-[353] clamp-[mt,5,6,@sm,@lg] !clamp-[py,1.125rem,1.375rem,@sm,@lg] h-auto text-[#59201A] clamp-[text,sm,base,@sm,@lg] font-semibold"
+            >
               Submit Feedback
-            </Button>
+            </LoadingButton>
           </div>
         </div>
       </DrawerC>
