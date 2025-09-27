@@ -48,7 +48,7 @@ const Profile = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
             <div className="clamp-[pt,3.5,5,@sm,@lg] between">
               <div className="start">
                 <Image
-                  className="clamp-[size,10,16,@sm,@lg] rounded-full object-center"
+                  className="clamp-[size,10,16,@sm,@lg] rounded-full object-cover"
                   src={
                     vendor?.store?.picture?.url ??
                     "/images/logo_placeholder.png"

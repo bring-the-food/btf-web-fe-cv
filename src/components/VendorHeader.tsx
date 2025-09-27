@@ -15,7 +15,7 @@ const VendorHeader = ({
     <div className="between">
       <div className="start clamp-[pt,4,6,@sm,@lg] clamp-[pb,3.5,5,@sm,@lg]">
         <Image
-          className="clamp-[size,10,16,@sm,@lg] rounded-full object-center"
+          className="clamp-[size,10,16,@sm,@lg] rounded-full object-cover"
           src={vendor?.store?.picture?.url ?? "/images/logo_placeholder.png"}
           alt={vendor?.store?.name ?? "placeholder logo"}
           width={40}

@@ -10,16 +10,26 @@ import { Label } from "@/components/ui/label";
 import { koboToNaira } from "@/lib/formatCurrency";
 import moment from "moment";
 import React from "react";
+import { orderFunc } from "./functions/order";
+import LoadingButton from "./LoadingButton";
+import { mutate } from "swr";
 
 const TrackOrder = ({ data }: { data: any }) => {
   const [openModal, setOpenModal] = React.useState(false);
   const [phoneNumber, setPhoneNumber] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
 
-  const handlePhoneInput = () => {
-    setOpenModal(false);
+  const handlePhoneInput = async () => {
+    try {
+      setLoading(true);
+      await orderFunc.updateTel(data?.order?.id, { telephone: phoneNumber });
+      mutate(`/api/orders/getOrder?orderId=${data?.order?.id}`);
+      setLoading(false);
+      setOpenModal(false);
+    } catch {
+      setLoading(false);
+    }
   };
-
-  console.log("<<<", data?.order?.delivery?.location?.street);
 
   const timelineData = [
     {
@@ -162,9 +172,13 @@ const TrackOrder = ({ data }: { data: any }) => {
             </p>
           </div>
 
-          <Button className="rounded-full bg-[#FFF0C7] hover:bg-[#fae9ba] clamp-[py,1.5,2.5,@sm,@lg] clamp-[px,2.5,3.5,@sm,@lg] text-[#59201A] clamp-[text,xs,sm,@sm,@lg]">
-            CALL RIDER
-          </Button>
+          {data?.order?.rider?.telephone && (
+            <a href={`tel:${data?.order?.rider?.telephone}`}>
+              <Button className="rounded-full bg-[#FFF0C7] hover:bg-[#fae9ba] clamp-[py,1.5,2.5,@sm,@lg] clamp-[px,2.5,3.5,@sm,@lg] text-[#59201A] clamp-[text,xs,sm,@sm,@lg]">
+                CALL RIDER
+              </Button>
+            </a>
+          )}
         </div>
 
         <div className="clamp-[mt,4,6,@sm,@lg] space-y-4 md:space-y-5">
@@ -223,12 +237,13 @@ const TrackOrder = ({ data }: { data: any }) => {
             />
           </div>
 
-          <Button
+          <LoadingButton
+            isLoading={loading}
             onClick={handlePhoneInput}
             className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-[8px] text-[#59201A] text-sm font-semibold leading-5 py-[18px]"
           >
             Update
-          </Button>
+          </LoadingButton>
         </div>
       </DialogC>
     </div>

@@ -52,7 +52,7 @@ const Page = ({ params }: { params: Promise<{ orderId: string }> }) => {
 
         <Loader state={isLoading}>
           {status !== "IsCompleted" && <TrackOrder data={data?.data} />}
-          {status === "IsCompleted" && <OrderDetails />}
+          {status === "IsCompleted" && <OrderDetails data={data?.data} />}
         </Loader>
       </div>
     </div>

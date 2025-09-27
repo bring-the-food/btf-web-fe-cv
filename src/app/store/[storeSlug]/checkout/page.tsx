@@ -3,31 +3,31 @@
 
 import { DialogC } from "@/components/Dialog";
 import { DrawerC } from "@/components/Drawer";
+import { cartFunc } from "@/components/functions/cart";
 import Icon from "@/components/Icon";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import React from "react";
-import { parseCookies } from "nookies";
-import { swrfetcher } from "@/lib/swrfetcher";
-import useSWR from "swr";
+import LoadingButton from "@/components/LoadingButton";
+import OrderSummary from "@/components/OrderSummary";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { oau, offCampus } from "../../../../../data/locations";
-import { koboToNaira } from "@/lib/formatCurrency";
-import { Loader2Icon } from "lucide-react";
-import { cartFunc } from "@/components/functions/cart";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import LoadingButton from "@/components/LoadingButton";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import Pallet from "@/components/Pallet";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { koboToNaira } from "@/lib/formatCurrency";
+import { swrfetcher } from "@/lib/swrfetcher";
+import { Loader2Icon } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { parseCookies } from "nookies";
+import React from "react";
+import useSWR from "swr";
+import { oau, offCampus } from "../../../../../data/locations";
 
 const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   const router = useRouter();
@@ -229,47 +229,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                   </h4>
 
                   <div className="mt-2">
-                    <Pallet
-                      title={`Sub-total (${
-                        cartData?.data?.cart?.summary?.items?.count
-                      } item${
-                        cartData?.data?.cart?.summary?.items?.count <= 1
-                          ? ""
-                          : "s"
-                      })`}
-                      value={
-                        cartData?.data?.cart?.summary?.items?.price?.amount
-                      }
-                    />
-                    <Pallet
-                      title={`Packs (${
-                        cartData?.data?.cart?.summary?.packs?.count
-                      } item${
-                        cartData?.data?.cart?.summary?.packs?.count <= 1
-                          ? ""
-                          : "s"
-                      })`}
-                      value={
-                        cartData?.data?.cart?.summary?.packs?.price?.amount
-                      }
-                    />
-                    <Pallet
-                      title="Delivery Fee"
-                      value={
-                        cartData?.data?.cart?.summary?.delivery?.price?.amount
-                      }
-                    />
-                    <Pallet
-                      title="Service Charge"
-                      value={
-                        cartData?.data?.cart?.summary?.service?.price?.amount
-                      }
-                    />
-                    <Pallet
-                      title="Total bill"
-                      value={cartData?.data?.cart?.summary?.bill?.amount}
-                      isTotal
-                    />
+                    <OrderSummary summary={cartData?.data?.cart?.summary} />
                   </div>
                 </div>
 

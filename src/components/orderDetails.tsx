@@ -1,109 +1,124 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import Pallet2 from "@/components/Pallet";
 import Icon from "@/components/Icon";
 import Timeline from "@/components/Timeline";
 import { Button } from "@/components/ui/button";
+import moment from "moment";
 import Image from "next/image";
 import React from "react";
 import { DrawerC } from "./Drawer";
+import OrderSummary from "./OrderSummary";
 import { FrownFace, HappyFace, NeutralFace, SadFace, SmileFace } from "./Svgs";
 
-const deliveryTimeLine = [
-  {
-    title: "Redhorn restaurant, Fashina",
-    desc: "Sat, 14th Jun, 2025.",
-    date: "06:59 AM",
-    isCompleted: true,
-  },
-  {
-    title: "Adereti , Damico, Ile-ife, Osun",
-    desc: "Completed",
-    date: "06:59 AM",
-    isCompleted: true,
-  },
-];
-
-const timelineData = [
-  {
-    title: "Order Received",
-    desc: "Waiting for vendor to confirm your order",
-    date: "06:59 AM",
-    isCompleted: true,
-  },
-  {
-    title: "Vendor Accepted Order",
-    desc: "The vendor has confirm your order",
-    date: "06:59 AM",
-    isCompleted: true,
-  },
-  {
-    title: "You Order has been Packed",
-    desc: "Your order is ready to be picked",
-    date: "06:59 AM",
-    isCompleted: true,
-  },
-  {
-    title: "Rider Accepted Order",
-    desc: "Rider has picked your order",
-    date: "06:59 AM",
-    isCompleted: true,
-  },
-  {
-    title: "Order in Transit",
-    desc: "Your order is on it's way to you",
-    date: "06:59 AM",
-    isCompleted: true,
-  },
-  {
-    title: "Order Complete",
-    desc: "",
-    date: "06:59 AM",
-    isCompleted: true,
-  },
-];
-
-const OrderDetails = () => {
+const OrderDetails = ({ data }: { data: any }) => {
   const [openDrawer, setOpenDrawer] = React.useState(false);
   const [openRateDrawer, setOpenRateDrawer] = React.useState(false);
 
+  const timelineData = [
+    {
+      title: "Order Received",
+      desc: "Waiting for vendor to confirm your order",
+      date: moment(data?.order?.trackings?.[0]?.dateCreated).format("lll"),
+      isCompleted: data?.order?.trackings?.[0]?.status === "success",
+    },
+    {
+      title: "Vendor Accepted Order",
+      desc: "The vendor has confirm your order",
+      date: moment(data?.order?.trackings?.[1]?.dateCreated).format("lll"),
+      isCompleted: data?.order?.trackings?.[1]?.status === "success",
+    },
+    {
+      title: "You Order has been Packed",
+      desc: "Your order is ready to be picked",
+      date: moment(data?.order?.trackings?.[2]?.dateCreated).format("lll"),
+      isCompleted: data?.order?.trackings?.[2]?.status === "success",
+    },
+    {
+      title: "Rider Accepted Order",
+      desc: "Rider has picked your order",
+      date: moment(data?.order?.trackings?.[3]?.dateCreated).format("lll"),
+      isCompleted: data?.order?.trackings?.[3]?.status === "success",
+    },
+    {
+      title: "Order in Transit",
+      desc: "Your order is on it's way to you",
+      date: moment(data?.order?.trackings?.[4]?.dateCreated).format("lll"),
+      isCompleted: data?.order?.trackings?.[4]?.status === "success",
+    },
+    {
+      title: "Order Complete",
+      desc: "",
+      date: moment(data?.order?.trackings?.[5]?.dateCreated).format("lll"),
+      isCompleted: data?.order?.trackings?.[5]?.status === "success",
+    },
+  ];
+
+  const timelines = data?.order?.timelines;
+  const deliveryTimeLine = [
+    {
+      title:
+        timelines?.[0]?.location?.description +
+        (timelines?.[0]?.location?.description ? ", " : "") +
+        timelines?.[0]?.location?.street +
+        ", " +
+        timelines?.[0]?.location?.city,
+      desc: moment(timelines?.[0]?.dateCreated).format("ddd, Do MMM, YYYY"),
+      date: moment(timelines?.[0]?.dateCreated).format("LT"),
+      isCompleted: timelines?.[0]?.status === "success",
+    },
+    {
+      title:
+        timelines?.[1]?.location?.description +
+        (timelines?.[1]?.location?.description ? ", " : "") +
+        timelines?.[1]?.location?.street +
+        ", " +
+        timelines?.[1]?.location?.city,
+      desc: moment(timelines?.[1]?.dateCreated).format("ddd, Do MMM, YYYY"),
+      date: moment(timelines?.[1]?.dateCreated).format("LT"),
+      isCompleted: timelines?.[1]?.status === "success",
+    },
+  ];
+
   return (
     <div>
-      <div className="between">
-        <div className="start clamp-[pt,4,6,@sm,@lg] clamp-[pb,3.5,5,@sm,@lg]">
-          <Image
-            className="clamp-[size,12,20,@sm,@lg] rounded-full object-center"
-            src={"/images/logo_placeholder.png"}
-            alt={"placeholder logo"}
-            width={48}
-            height={48}
-            priority
-          />
+      {data?.order?.rider && (
+        <div className="between">
+          <div className="start clamp-[pt,4,6,@sm,@lg] clamp-[pb,3.5,5,@sm,@lg]">
+            <Image
+              className="clamp-[size,12,20,@sm,@lg] rounded-full object-center"
+              src={data?.order?.rider?.picture.url}
+              alt={"placeholder logo"}
+              width={48}
+              height={48}
+              priority
+            />
 
-          <div className="clamp-[ml,3,5,@sm,@lg]">
-            <h6 className="text-[#101828] font-semibold clamp-[text,base,xl,@sm,@lg] leading-none">
-              Tejumade Olomola
-            </h6>
+            <div className="clamp-[ml,3,5,@sm,@lg]">
+              <h6 className="text-[#101828] font-semibold clamp-[text,base,xl,@sm,@lg] leading-none">
+                {data?.order?.rider?.name}
+              </h6>
 
-            <p
-              className={`clamp-[text,sm,base,@sm,@lg] clamp-[mt,1,2,@sm,@lg] text-[#667085]`}
-            >
-              Rider
-            </p>
+              <p
+                className={`clamp-[text,sm,base,@sm,@lg] clamp-[mt,1,2,@sm,@lg] text-[#667085] capitalize`}
+              >
+                {data?.order?.rider?.role?.main?.toLowerCase()}
+              </p>
+            </div>
           </div>
-        </div>
 
-        <Button
-          onClick={() => setOpenRateDrawer(true)}
-          variant={"ghost"}
-          className="clamp-[text,sm,base,@sm,@lg] font-semibold"
-        >
-          <span>Rate Rider</span>
-        </Button>
-      </div>
+          <Button
+            onClick={() => setOpenRateDrawer(true)}
+            variant={"ghost"}
+            className="clamp-[text,sm,base,@sm,@lg] font-semibold"
+          >
+            <span>Rate Rider</span>
+          </Button>
+        </div>
+      )}
 
       <h5 className="text-[#59201A] font-semibold clamp-[text,sm,base,@sm,@lg] clamp-[my,8,10,@sm,@lg]">
-        Order ID. BTF124Z
+        Order ID. {data?.order?.slug}
       </h5>
 
       {/* Order tracking */}
@@ -134,10 +149,7 @@ const OrderDetails = () => {
         </div>
 
         <div className="clamp-[mt,3,4,@sm,@lg]">
-          <Pallet2 title={"Sub-total (2 items)"} value={3600} />
-          <Pallet2 title={"Service Fee"} value={2600} />
-          <Pallet2 title={"Delivery Fee"} value={1800} />
-          <Pallet2 title={"Total bill"} value={4267} isTotal />
+          <OrderSummary summary={data?.order?.summary} />
         </div>
       </div>
 
