@@ -2,22 +2,73 @@
 
 import Back from "@/components/Back";
 import Icon from "@/components/Icon";
+import { DialogC } from "@/components/Dialog";
 import { Button } from "@/components/ui/button";
 import { swrfetcher } from "@/lib/swrfetcher";
 import { currencyFormatter, koboToNaira } from "@/lib/formatCurrency";
 import { Loader2Icon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { use } from "react";
+import React, { use } from "react";
 import useSWR from "swr";
 
 const Profile = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   const { storeSlug } = use(params);
 
-  const { data, isLoading } = useSWR(`/api/profile?storeSlug=${storeSlug}`, swrfetcher);
+  const [openModal, setOpenModal] = React.useState(true);
+  const [copied, setCopied] = React.useState(false);
+  const copyTimerRef = React.useRef<number | null>(null);
+
+  const { data, isLoading } = useSWR(
+    `/api/profile?storeSlug=${storeSlug}`,
+    swrfetcher
+  );
 
   const vendor = data?.data;
   const vendorAvailability = vendor?.store?.availability?.weekly;
+
+  React.useEffect(() => {
+    return () => {
+      if (copyTimerRef.current) {
+        clearTimeout(copyTimerRef.current);
+      }
+    };
+  }, []);
+
+  const handleCopy = async () => {
+    const slug = vendor?.store?.slug;
+    const base = "bringthisfood.com/store";
+    const textToCopy = slug ? `${base}/${slug}` : base;
+
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      setCopied(true);
+      if (copyTimerRef.current) {
+        clearTimeout(copyTimerRef.current);
+      }
+      copyTimerRef.current = window.setTimeout(() => {
+        setCopied(false);
+        copyTimerRef.current = null;
+      }, 5000);
+    } catch {
+      // Fallback for older browsers
+      const textarea = document.createElement("textarea");
+      textarea.value = textToCopy;
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand("copy");
+        setCopied(true);
+        if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+        copyTimerRef.current = window.setTimeout(() => {
+          setCopied(false);
+          copyTimerRef.current = null;
+        }, 5000);
+      } finally {
+        document.body.removeChild(textarea);
+      }
+    }
+  };
 
   return (
     <div className="col-start-center clamp-[px,5,12,@sm,@lg] clamp-[py,10,20,@sm,@lg] w-full">
@@ -221,6 +272,32 @@ const Profile = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
           </div>
         )}
       </div>
+
+      <DialogC open={openModal} setOpen={setOpenModal}>
+        <>
+          <div className="grid gap-3 text-[#1D2939] px-4">
+            <h3 className="font-semibold leading-normal text-[20px] text-center">
+              {vendor?.store?.name}
+            </h3>
+
+            <div className="grid grid-cols-2 border border-[#E6E8EC] divide-x divide-[#E6E8EC] rounded-[8px] py-0.5 px-1">
+              <p className="text-[#98A2B3] italic truncate text-sm px-2 py-[11px]">
+                bringthisfood.com/store
+              </p>
+              <p className="text-[#475467] text-sm px-2 py-[11px] font-medium">
+                {vendor?.store?.slug}
+              </p>
+            </div>
+
+            <Button
+              onClick={handleCopy}
+              className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-[8px] text-[#59201A] text-sm font-semibold leading-5 py-[18px] mt-5"
+            >
+              {copied ? "Url copied to clipboard" : "Copy Url"}
+            </Button>
+          </div>
+        </>
+      </DialogC>
     </div>
   );
 };

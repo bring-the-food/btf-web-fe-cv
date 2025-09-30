@@ -105,6 +105,7 @@ export default function Home({
 
       setCookie(null, "userDetails", JSON.stringify(details), {
         path: "/",
+        HttpOnly: true,
       });
 
       setLoading(false);
@@ -177,6 +178,8 @@ export default function Home({
       <DialogC open={openModal} hasNoClose={process === "phoneInput"}>
         {process === "phoneInput" ? (
           <>
+              <Link href={"/"} className="absolute top-4 left-4 text-xs hover:underline">Back</Link>
+
             <div className="bg-white w-fit rounded-full -mt-16 clamp-[px,0.875rem,1.125rem,@sm,@lg] clamp-[py,5,6,@sm,@lg] mx-auto">
               <Image
                 className="clamp-[w,3.8125rem,5rem,@sm,@lg]"

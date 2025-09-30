@@ -39,11 +39,8 @@ const Food = ({
   setEditPackIndex,
   onActionsComplete,
 }: dataProps) => {
-  const [isAdd, setIsAdd] = React.useState(true);
-  const [quantity, setQuantity] = React.useState(0);
   const [packIndex, setPackIndex] = React.useState<number | null>(null);
 
-  // helper: total count for this item across all packs
   const getTotalPackItemCountFromCart = (c: any, itemId: string) => {
     const packs = c?.packs ?? [];
     return packs.reduce(
@@ -71,30 +68,34 @@ const Food = ({
     return -1;
   };
 
-  // sync UI quantity / isAdd / packIndex from cart prop
   React.useEffect(() => {
     if (!cart) return;
     if (type === "combo") {
-      const q = cart?.combos?.[data.id]?.count ?? 0;
-      setQuantity(q);
-      setIsAdd(q === 0);
       setPackIndex(null);
     } else {
-      // if an editPackIndex is provided, show quantity only for that pack so packs don't mix
       if (typeof editPackIndex === "number" && editPackIndex >= 0) {
-        const q = cart?.packs?.[editPackIndex]?.[data.id]?.count ?? 0;
-        setQuantity(q);
-        setIsAdd(q === 0);
         setPackIndex(editPackIndex);
       } else {
-        const q = getTotalPackItemCountFromCart(cart, data.id);
-        setQuantity(q);
-        setIsAdd(q === 0);
         const idx = findPackIndexContainingItem(cart, data.id);
         setPackIndex(idx >= 0 ? idx : null);
       }
     }
   }, [cart, data.id, type, editPackIndex]);
+
+  const getDisplayedQuantity = React.useCallback(
+    (c: any) => {
+      if (!c) return 0;
+      if (type === "combo") return c?.combos?.[data.id]?.count ?? 0;
+      if (typeof editPackIndex === "number" && editPackIndex >= 0) {
+        return c?.packs?.[editPackIndex]?.[data.id]?.count ?? 0;
+      }
+      return getTotalPackItemCountFromCart(c, data.id);
+    },
+    [type, data.id, editPackIndex]
+  );
+
+  const displayedQuantity = getDisplayedQuantity(cart);
+  const isAdd = displayedQuantity === 0;
 
   const handleAdd = async () => {
     const prev = cart;
@@ -112,7 +113,6 @@ const Food = ({
         }
         newCart = { ...prev, combos };
       } else {
-        // prefer explicit editPackIndex if provided (target that pack)
         const targetIndex =
           typeof editPackIndex === "number" && editPackIndex >= 0
             ? editPackIndex
@@ -135,7 +135,6 @@ const Food = ({
           newCart = { ...prev, packs };
           setPackIndex(targetIndex);
         } else {
-          // create a new pack with this item (no empty pack found)
           const packs = [...(prev.packs ?? [])];
           const index = packs.length;
           packs.push({ [data.id]: { count: 1 } } as Record<
@@ -144,35 +143,18 @@ const Food = ({
           >);
           newCart = { ...prev, packs };
           setPackIndex(index);
-          // if parent wants to record the new editing index keep it in sync
+
           setEditPackIndex?.(index);
         }
       }
 
-      // optimistic UI
       setCart(newCart);
 
-      // send to server
       await cartFunc.addToCart(storeId, newCart);
       onActionsComplete();
-
-      // reflect resulting qty
-      if (type === "combo") {
-        const q = newCart?.combos?.[data.id]?.count ?? 0;
-        setQuantity(q);
-        setIsAdd(q === 0);
-      } else {
-        // prefer pack-specific count when editing a pack
-        const q =
-          typeof editPackIndex === "number" && editPackIndex >= 0
-            ? newCart?.packs?.[editPackIndex]?.[data.id]?.count ?? 0
-            : getTotalPackItemCountFromCart(newCart, data.id);
-        setQuantity(q);
-        setIsAdd(q === 0);
-      }
     } catch (err) {
       console.error("Add to cart failed, reverting local state", err);
-      // revert optimistic update
+
       setCart(prev);
     }
   };
@@ -180,13 +162,6 @@ const Food = ({
   const handlePlusMinus = async (action: string) => {
     const delta = action === "plus" ? 1 : -1;
     const prev = cart;
-
-    // optimistic local quantity update displayed immediately
-    setQuantity((q) => {
-      const next = Math.max(0, q + delta);
-      if (next === 0) setIsAdd(true);
-      return next;
-    });
 
     try {
       let newCart = { ...prev };
@@ -202,9 +177,6 @@ const Food = ({
         }
         newCart = { ...prev, combos };
       } else {
-        // pack handling
-        // try to find a pack that contains this item
-        // prefer editPackIndex if provided
         let idx =
           typeof editPackIndex === "number" && editPackIndex >= 0
             ? editPackIndex
@@ -212,7 +184,6 @@ const Food = ({
         if (idx === -1) idx = packIndex ?? -1;
 
         if (idx === -1) {
-          // try to reuse an existing empty pack before creating a new one
           const emptyIndex = findEmptyPackIndex(prev);
           const targetEmpty =
             typeof editPackIndex === "number" && editPackIndex >= 0
@@ -239,9 +210,6 @@ const Food = ({
             setPackIndex(index);
             setEditPackIndex?.(index);
           } else {
-            // decrement with no pack -> nothing to do
-            // revert displayed quantity
-            setQuantity((q) => Math.max(0, q - delta * -1)); // revert change
             return;
           }
         } else {
@@ -260,45 +228,14 @@ const Food = ({
         }
       }
 
-      // optimistic UI
       setCart(newCart);
 
-      // send to server
       await cartFunc.addToCart(storeId, newCart);
       onActionsComplete();
-
-      // update displayed quantity from resulting cart
-      if (type === "combo") {
-        const q = newCart?.combos?.[data.id]?.count ?? 0;
-        setQuantity(q);
-        setIsAdd(q === 0);
-      } else {
-        // prefer pack-specific count when editing a pack
-        const q =
-          typeof editPackIndex === "number" && editPackIndex >= 0
-            ? newCart?.packs?.[editPackIndex]?.[data.id]?.count ?? 0
-            : getTotalPackItemCountFromCart(newCart, data.id);
-        setQuantity(q);
-        setIsAdd(q === 0);
-      }
     } catch (err) {
       console.error("Update cart failed, reverting local state", err);
-      // revert optimistic update
-      setCart(prev);
 
-      // restore displayed quantity from prev
-      if (type === "combo") {
-        const q = prev?.combos?.[data.id]?.count ?? 0;
-        setQuantity(q);
-        setIsAdd(q === 0);
-      } else {
-        const q =
-          typeof editPackIndex === "number" && editPackIndex >= 0
-            ? prev?.packs?.[editPackIndex]?.[data.id]?.count ?? 0
-            : getTotalPackItemCountFromCart(prev, data.id);
-        setQuantity(q);
-        setIsAdd(q === 0);
-      }
+      setCart(prev);
     }
   };
 
@@ -356,7 +293,7 @@ const Food = ({
             >
               <Icon icon="c_minus" size={16} />
             </button>
-            <span>{quantity}</span>
+            <span>{displayedQuantity}</span>
             <button
               className="hover:bg-[#f8e3a8]"
               onClick={() => handlePlusMinus("plus")}

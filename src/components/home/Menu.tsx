@@ -201,9 +201,9 @@ const Menu = ({
           <div className="md:flex md:justify-between md:items-center md:space-x-4">
             <Search value={searchValue} setValue={setSearchValue} />
 
-            <div className="start md:space-x-4">
+            <div className="start space-x-2.5 md:space-x-4">
               <button
-                className={`cursor-pointer clamp-[text,sm,base,@sm,@lg] clamp-[py,1.5,2,@sm,@lg] clamp-[px,2,3,@sm,@lg] whitespace-nowrap ${
+                className={`cursor-pointer clamp-[text,sm,base,@sm,@lg] clamp-[py,1.5,2,@sm,@lg] clamp-[px,2,3,@sm,@lg] whitespace-nowrap inline-flex items-center ${
                   active === "My Cart"
                     ? "bg-[#FFF0C7] text-[#59201A] rounded-[4px]"
                     : "text-[#98A2B3]"
@@ -217,7 +217,10 @@ const Menu = ({
                   );
                 }}
               >
-                My Cart
+                <span>My Cart</span>
+                <span className="bg-[#FFF0C7] inline-block size-4 ml-1 center text-center rounded-full text-xs">
+                  {summary?.items?.count}
+                </span>
               </button>
 
               <div className="clamp-[h,5,6,@sm,@lg] clamp-[w,0.0625rem,0.5,@sm,@lg] bg-[#F2F4F7]" />

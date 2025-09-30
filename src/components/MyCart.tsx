@@ -188,25 +188,34 @@ const MyCart = ({
         ))}
 
       {(comboItems?.length === 0 && packItems?.length === 0) ||
-        (!comboItems && !packItems && (
-          <div>
-            <p className="text-center my-20 clamp-[text,sm,lg,@sm,@lg]">
-              No Items in cart
-            </p>
-          </div>
-        ))}
+        (!comboItems && !packItems ? (
+          <div className="col-center my-20">
+            <Icon icon="emptyCart" size={160} />
 
-      <Button
-        onClick={handleStartNewPack}
-        className="text-[#59201A] rounded-full clamp-[text,xs,sm,@sm,@lg] font-medium bg-[#FFF9E9] hover:bg-[#fcf2d8] !clamp-[py,3,4,@sm,@lg] !clamp-[px,4,6,@sm,@lg] cursor-pointer space-x-[2.5px] h-auto"
-      >
-        <Icon
-          icon="add"
-          size={10}
-          className="clamp-[size,0.625rem,0.75rem,@sm,@lg]"
-        />
-        <span>Start new pack</span>
-      </Button>
+            <p className="text-center mt-4 clamp-[text,sm,lg,@sm,@lg]">
+              Your cart is empty
+            </p>
+
+            <Button
+              onClick={handleStartNewPack}
+              className="text-[#59201A] hover:bg-[#fdb420] w-full max-w-sm bg-[#FFC247] rounded-[8px] !clamp-[py,1.125rem,1.375rem,@sm,@lg] clamp-[text,sm,base,@sm,@lg] font-semibold leading-5 clamp-[mt,2.5rem,3.125rem,@sm,@lg]"
+            >
+              Add items to cart
+            </Button>
+          </div>
+        ) : (
+          <Button
+            onClick={handleStartNewPack}
+            className="text-[#59201A] rounded-full clamp-[text,xs,sm,@sm,@lg] font-medium bg-[#FFF9E9] hover:bg-[#fcf2d8] !clamp-[py,3,4,@sm,@lg] !clamp-[px,4,6,@sm,@lg] cursor-pointer space-x-[2.5px] h-auto"
+          >
+            <Icon
+              icon="add"
+              size={10}
+              className="clamp-[size,0.625rem,0.75rem,@sm,@lg]"
+            />
+            <span>Start new pack</span>
+          </Button>
+        ))}
     </div>
   );
 };
