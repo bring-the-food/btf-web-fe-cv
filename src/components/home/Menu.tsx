@@ -218,9 +218,11 @@ const Menu = ({
                 }}
               >
                 <span>My Cart</span>
-                <span className="bg-[#FFF0C7] inline-block size-4 ml-1 center text-center rounded-full text-xs">
-                  {summary?.items?.count}
-                </span>
+                {summary?.items?.count && (
+                  <span className="bg-[#FFF0C7] inline-block size-4 ml-1 center text-center rounded-full text-xs">
+                    {summary?.items?.count}
+                  </span>
+                )}
               </button>
 
               <div className="clamp-[h,5,6,@sm,@lg] clamp-[w,0.0625rem,0.5,@sm,@lg] bg-[#F2F4F7]" />

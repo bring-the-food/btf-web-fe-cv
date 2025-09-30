@@ -8,14 +8,13 @@ import { swrfetcher } from "@/lib/swrfetcher";
 import { currencyFormatter, koboToNaira } from "@/lib/formatCurrency";
 import { Loader2Icon } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import React, { use } from "react";
 import useSWR from "swr";
 
 const Profile = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   const { storeSlug } = use(params);
 
-  const [openModal, setOpenModal] = React.useState(true);
+  const [openModal, setOpenModal] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
   const copyTimerRef = React.useRef<number | null>(null);
 
@@ -117,17 +116,17 @@ const Profile = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                 </div>
               </div>
 
-              {/* /${storeSlug} */}
-              <Link href={`/?tab=cart`}>
-                <Button className="text-[#A46900] rounded-full clamp-[text,xs,sm,@sm,@lg] font-semibold bg-[#FFF9E9] hover:bg-[#fcf2d8] !clamp-[py,1.5,2,@sm,@lg] !clamp-[px,2,4,@sm,@lg] cursor-pointer space-x-[2px] h-auto">
-                  <span>Refer Vendor</span>
-                  <Icon
-                    icon="share"
-                    size={12}
-                    className="clamp-[size,3,4,@sm,@lg]"
-                  />
-                </Button>
-              </Link>
+              <Button
+                onClick={() => setOpenModal(true)}
+                className="text-[#A46900] rounded-full clamp-[text,xs,sm,@sm,@lg] font-semibold bg-[#FFF9E9] hover:bg-[#fcf2d8] !clamp-[py,1.5,2,@sm,@lg] !clamp-[px,2,4,@sm,@lg] cursor-pointer space-x-[2px] h-auto"
+              >
+                <span>Refer Vendor</span>
+                <Icon
+                  icon="share"
+                  size={12}
+                  className="clamp-[size,3,4,@sm,@lg]"
+                />
+              </Button>
             </div>
 
             <div className="clamp-[mt,2,3,@sm,@lg] space-y-2">

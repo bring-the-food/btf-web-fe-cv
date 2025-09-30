@@ -44,7 +44,7 @@ const Pallet = ({
 }) => {
   return (
     <div className={cn(!isFirst ? "mt-12" : "", "start-start space-x-2")}>
-      <p className="text-[#475467] clamp-[text,0.625rem,0.75rem,@sm,@lg] w-[75px]">
+      <p className="text-[#475467] clamp-[text,0.625rem,0.75rem,@sm,@lg] w-[85px]">
         {isCompleted ? date : ""}
       </p>
 

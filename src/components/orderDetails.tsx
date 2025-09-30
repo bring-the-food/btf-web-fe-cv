@@ -98,7 +98,7 @@ const OrderDetails = ({ data }: { data: any }) => {
       setLoading(false);
     }
   };
-
+  
   return (
     <div>
       {data?.order?.rider && (
@@ -106,8 +106,11 @@ const OrderDetails = ({ data }: { data: any }) => {
           <div className="start clamp-[pt,4,6,@sm,@lg] clamp-[pb,3.5,5,@sm,@lg]">
             <Image
               className="clamp-[size,12,20,@sm,@lg] rounded-full object-center"
-              src={data?.order?.rider?.picture.url}
-              alt={"placeholder logo"}
+              src={
+                data?.order?.rider?.picture.url ??
+                "/images/logo_placeholder.png"
+              }
+              alt={data?.order?.rider?.name ?? "placeholder logo"}
               width={48}
               height={48}
               priority
