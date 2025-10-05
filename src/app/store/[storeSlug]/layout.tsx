@@ -19,7 +19,7 @@ export default function RootLayout({
         <div className="mx-auto max-w-[1024px] pb-[83px] bg-white">
           {children}
         </div>
-        <Toaster richColors />
+        <Toaster richColors position="top-right" />
         <Footer />
       </main>
     </>
