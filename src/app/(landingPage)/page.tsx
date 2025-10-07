@@ -183,32 +183,32 @@ const Pallet = ({
 }) => {
   return (
     <div>
-      <div className="bg-[#310909] rounded-full col-center clamp-[pt,7,8] clamp-[pb,5,6] clamp-[px,1.3rem,2.6875rem] clamp-[size,14rem,18rem]">
-        <div className="bg-[#FFE7B0] clamp-[size,4rem,6.5rem] rounded-full center">
-          <Icon
-            icon={icon}
-            size={46.117645263671875}
-            className="clamp-[size,1.625rem,2.875rem]"
-          />
-        </div>
+      <Dialog
+        trigger={
+          <button className="rounded-full">
+            <div className="bg-[#310909] hover:bg-[#200606] transition-colors rounded-full col-center clamp-[pt,7,8] clamp-[pb,5,6] clamp-[px,1.3rem,2.6875rem] clamp-[size,14rem,18rem]">
+              <div className="bg-[#FFE7B0] clamp-[size,4rem,6.5rem] rounded-full center">
+                <Icon
+                  icon={icon}
+                  size={46.117645263671875}
+                  className="clamp-[size,1.625rem,2.875rem]"
+                />
+              </div>
 
-        <p className="text-[#FFF9E9] clamp-[text,sm,base] leading-normal font-medium clamp-[mt,5,6] clamp-[mb,6,7] text-center">
-          {desc}
-        </p>
+              <p className="text-[#FFF9E9] clamp-[text,sm,base] leading-normal font-medium clamp-[mt,5,6] clamp-[mb,6,7] text-center">
+                {desc}
+              </p>
 
-        <Dialog
-          trigger={
-            <button>
               <Icon icon="share_light" size={24} className="clamp-[size,5,6]" />
-            </button>
-          }
-          header={header}
-          desc={descD}
-          isDownload
-          downloadRes={setUnderCModal}
-          showCloseButton={false}
-        />
-      </div>
+            </div>
+          </button>
+        }
+        header={header}
+        desc={descD}
+        isDownload
+        downloadRes={setUnderCModal}
+        showCloseButton={false}
+      />
       <h5 className="font-caprasimo lg:leading-[37.12px] tracking-[0.32px] clamp-[text,1.5rem,2rem] clamp-[mt,6,8] text-center">
         {title}
       </h5>
