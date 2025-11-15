@@ -52,7 +52,7 @@ const FeaturedVendor = ({ trigger, header, open, setOpen }: DialogProps) => {
                     href={`/store/${vendor?.slug}`}
                     className="block"
                   >
-                    <button className="start w-full hover:bg-gray-50 bg-white border border-[#E4E7EC] px-3 py-6 lg:px-4 lg:py-7 rounded-[8px] lg:rounded-[16px] space-x-1.5 lg:space-x-3">
+                    <button className="start w-full hover:bg-gray-50 bg-white border border-[#E4E7EC] px-3 py-6 lg:px-4 lg:py-7 rounded-xl lg:rounded-[16px] space-x-1.5 lg:space-x-3">
                       <Image
                         src={
                           vendor?.picture?.url ?? "/images/food_placeholder.png"
@@ -68,7 +68,7 @@ const FeaturedVendor = ({ trigger, header, open, setOpen }: DialogProps) => {
                       </p>
 
                       {vendor?.category && (
-                        <p className="bg-[#FFE7B0] rounded-full border border-[#FFF0C7] py-1 px-2 lg:py-1.5 lg:px-4 text-[8px] lg:text-xs font-semibold leading-normal hidden sm:inline-block">
+                        <p className="bg-[#FFE7B0] rounded-full border border-[#FFF0C7] py-1 px-2 lg:py-1.5 lg:px-4 text-xl lg:text-xs font-semibold leading-normal hidden sm:inline-block">
                           {vendor?.category}
                         </p>
                       )}

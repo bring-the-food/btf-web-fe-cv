@@ -198,7 +198,7 @@ const MyCart = ({
 
             <Button
               onClick={handleStartNewPack}
-              className="text-[#59201A] hover:bg-[#fdb420] w-full max-w-sm bg-[#FFC247] rounded-[8px] !clamp-[py,1.125rem,1.375rem,@sm,@lg] clamp-[text,sm,base,@sm,@lg] font-semibold leading-5 clamp-[mt,2.5rem,3.125rem,@sm,@lg]"
+              className="text-[#59201A] hover:bg-[#fdb420] w-full max-w-sm bg-[#FFC247] rounded-xl !clamp-[py,1.125rem,1.375rem,@sm,@lg] clamp-[text,sm,base,@sm,@lg] font-semibold leading-5 clamp-[mt,2.5rem,3.125rem,@sm,@lg]"
             >
               Add items to cart
             </Button>

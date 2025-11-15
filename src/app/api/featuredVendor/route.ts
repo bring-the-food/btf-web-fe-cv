@@ -1,7 +1,6 @@
 import { fetchData } from "@/lib/fetcher";
-import { NextRequest } from "next/server";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   // const { searchParams } = new URL(request.url);
 
   // const storeSlug = searchParams.get("storeSlug");

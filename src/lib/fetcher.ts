@@ -27,7 +27,7 @@ export async function fetchData(url: string, method: string, data?: any) {
       .catch((err) => {
         return {
           status: err?.response?.status || 400,
-          data: err.response.data || { status: err.response.status || 400 },
+          data: err?.response?.data || { status: err?.response?.status || 400 },
         };
       });
   } else if (method === "POST") {

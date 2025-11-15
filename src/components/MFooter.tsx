@@ -161,7 +161,7 @@ const Li = ({
           {href ? <Link href={href}>{label}</Link> : label}
 
           {commingSoon && (
-            <span className="bg-[#FFE7B0] font-jakart font-medium text-[8px] rounded-full py-[7px] px-[5.5px] ml-2">
+            <span className="bg-[#FFE7B0] font-jakart font-medium text-xl rounded-full py-[7px] px-[5.5px] ml-2">
               Coming Soon
             </span>
           )}

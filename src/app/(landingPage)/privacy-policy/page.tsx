@@ -2,7 +2,12 @@ import { Metadata } from "next";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | BTF",
+  title: "Privacy Policy",
+  // description: "Welcome to our amazing website",
+  openGraph: {
+    title: "Privacy Policy",
+    // description: "Welcome to our amazing website",
+  },
 };
 
 const Page = () => {

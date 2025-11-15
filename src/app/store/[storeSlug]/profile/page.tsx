@@ -279,7 +279,7 @@ const Profile = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
               {vendor?.store?.name}
             </h3>
 
-            <div className="grid grid-cols-2 border border-[#E6E8EC] divide-x divide-[#E6E8EC] rounded-[8px] py-0.5 px-1">
+            <div className="grid grid-cols-2 border border-[#E6E8EC] divide-x divide-[#E6E8EC] rounded-xl py-0.5 px-1">
               <p className="text-[#98A2B3] italic truncate text-sm px-2 py-[11px]">
                 bringthisfood.com/store
               </p>
@@ -290,7 +290,7 @@ const Profile = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
 
             <Button
               onClick={handleCopy}
-              className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-[8px] text-[#59201A] text-sm font-semibold leading-5 py-[18px] mt-5"
+              className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-xl text-[#59201A] text-sm font-semibold leading-5 py-[18px] mt-5"
             >
               {copied ? "Url copied to clipboard" : "Copy Url"}
             </Button>

@@ -10,6 +10,7 @@ import useSWR from "swr";
 import { swrfetcher } from "@/lib/swrfetcher";
 import { koboToNaira } from "@/lib/formatCurrency";
 import moment from "moment";
+import { cn } from "@/lib/utils";
 
 const Orders = ({
   storeSlug,
@@ -57,7 +58,7 @@ const EmptyOrder = ({ storeSlug }: { storeSlug: string }) => {
       </p>
 
       <Link href={`/store/${storeSlug}?page=menu`} className="w-full center">
-        <Button className="bg-[#FFC247] text-[#59201A] cursor-pointer w-full max-w-sm rounded-[8px] clamp-[text,sm,base,@sm,@lg] font-semibold leading-5 !clamp-[py,1.125rem,1.375rem,@sm,@lg] clamp-[mt,4,8,@sm,@lg] hover:bg-[#FFC247]/90">
+        <Button className="bg-[#FFC247] text-[#59201A] cursor-pointer w-full max-w-sm rounded-xl clamp-[text,sm,base,@sm,@lg] font-semibold leading-5 clamp-[py,1.125rem,1.375rem,@sm,@lg]! clamp-[mt,4,8,@sm,@lg] hover:bg-[#FFC247]/90">
           Start a new order
         </Button>
       </Link>
@@ -69,7 +70,7 @@ const OrderCard = ({ storeSlug, data }: { storeSlug: string; data: any }) => {
   const isCompleted = data?.status === "complete";
 
   return (
-    <div className="border border-[#E4E7EC] rounded-[8px] p-3.5">
+    <div className="border border-[#E4E7EC] rounded-xl p-3.5">
       <div className="between">
         <p className="inline-grid">
           <span className="text-[#1D2939] text-sm font-medium">
@@ -89,18 +90,39 @@ const OrderCard = ({ storeSlug, data }: { storeSlug: string; data: any }) => {
         </p>
       </div>
 
-      <p className="inline-grid my-4">
-        <span className="text-[#1D2939] text-xs">
-          {data?.combos?.length > 0
-            ? `${data?.combos?.[0]?.count}x ${data?.combos?.[0]?.name}`
-            : `${data?.packs?.[0]?.[0]?.count}x ${data?.packs?.[0]?.[0]?.name}`}
-        </span>
-        {data?.summary?.items?.count > 1 && (
-          <span className="text-[#98A2B3] text-[10px] mt-1">
-            +{data?.summary?.items?.count - 1} more item(s)
+      <div className="between">
+        <p className="inline-grid my-4">
+          <span className="text-[#1D2939] text-xs">
+            {data?.combos?.length > 0
+              ? `${data?.combos?.[0]?.count}x ${data?.combos?.[0]?.name}`
+              : `${data?.packs?.[0]?.[0]?.count}x ${data?.packs?.[0]?.[0]?.name}`}
           </span>
-        )}
-      </p>
+          {data?.summary?.items?.count > 1 && (
+            <span className="text-[#98A2B3] text-[10px] mt-1">
+              +{data?.summary?.items?.count - 1} more item(s)
+            </span>
+          )}
+        </p>
+
+        <div>
+          <p
+            className={cn(
+              data?.status === "ongoing" &&
+                "text-[#B54708] bg-[#FFFAEB] border-[#FEDF89]",
+              data?.status === "complete"
+                ? "text-[#027A48] bg-[#A6F4C51A] border-[#A6F4C5]"
+                : "text-[#B42318] bg-[#FEF3F2] borer-[#FECDCA]",
+              "capitalize border rounded-full px-2 font-medium text-[10px] leading-[18px]"
+            )}
+          >
+            {data?.status === "ongoing"
+              ? "pending"
+              : data?.status === "complete"
+              ? "successful"
+              : data?.status}
+          </p>
+        </div>
+      </div>
 
       <div className="w-full h-px border-t border-[#E4E7EC] border-dashed" />
 

@@ -13,6 +13,7 @@ import React from "react";
 import { orderFunc } from "./functions/order";
 import LoadingButton from "./LoadingButton";
 import { mutate } from "swr";
+import { cn } from "@/lib/utils";
 
 const TrackOrder = ({ data }: { data: any }) => {
   const [openModal, setOpenModal] = React.useState(false);
@@ -72,12 +73,35 @@ const TrackOrder = ({ data }: { data: any }) => {
 
   return (
     <div>
-      <h6 className="text-[#1D2939] font-semibold clamp-[mt,5,8,@sm,@lg] clamp-[text,base,lg,@sm,@lg] capitalize">
-        {data?.order?.customer?.name}
-      </h6>
-      <p className="text-[#475467] clamp-[text,xs,sm,@sm,@lg] font-inter mt-2">
-        Your order will be delivered shortly
-      </p>
+      <div className="between">
+        <div>
+          <h6 className="text-[#1D2939] font-semibold clamp-[mt,5,8,@sm,@lg] clamp-[text,base,lg,@sm,@lg] capitalize">
+            {data?.order?.customer?.name}
+          </h6>
+          <p className="text-[#475467] clamp-[text,xs,sm,@sm,@lg] font-inter mt-2">
+            Your order will be delivered shortly
+          </p>
+        </div>
+
+        <div>
+          <p
+            className={cn(
+              data?.order?.status === "ongoing" &&
+                "text-[#B54708] bg-[#FFFAEB] border-[#FEDF89]",
+              data?.order?.status === "complete"
+                ? "text-[#027A48] bg-[#A6F4C51A] border-[#A6F4C5]"
+                : "text-[#B42318] bg-[#FEF3F2] borer-[#FECDCA]",
+              "capitalize border rounded-full px-2 font-medium text-[10px] leading-[18px]"
+            )}
+          >
+            {data?.order?.status === "ongoing"
+              ? "pending"
+              : data?.order?.status === "complete"
+              ? "successful"
+              : data?.order?.status}
+          </p>
+        </div>
+      </div>
       <h5 className="text-[#59201A] font-semibold clamp-[text,sm,base,@sm,@lg] clamp-[my,6,9,@sm,@lg]">
         Order ID. {data?.order?.slug}
       </h5>
@@ -233,14 +257,14 @@ const TrackOrder = ({ data }: { data: any }) => {
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
               placeholder="+234 XXXXXXXXXX"
-              className="text-[#1E2024] text-sm leading-5 font-normal tracking-[12%] !px-3 !py-4 !rounded-[8px] h-auto"
+              className="text-[#1E2024] text-sm leading-5 font-normal tracking-[12%] !px-3 !py-4 !rounded-xl h-auto"
             />
           </div>
 
           <LoadingButton
             isLoading={loading}
             onClick={handlePhoneInput}
-            className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-[8px] text-[#59201A] text-sm font-semibold leading-5 py-[18px]"
+            className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-xl text-[#59201A] text-sm font-semibold leading-5 py-[18px]"
           >
             Update
           </LoadingButton>

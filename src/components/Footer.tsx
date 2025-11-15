@@ -1,9 +1,8 @@
 "use client"
 
+import Dialog from "@/components/DialgC";
 import Image from "next/image";
 import React from "react";
-import { Button } from "./ui/button";
-import Dialog from "@/components/DialgC";
 
 const Footer = () => {
   const [underCModal, setUnderCModal] = React.useState(false);
@@ -18,7 +17,7 @@ const Footer = () => {
         priority
         className="clamp-[w,5.0625rem,7.9375rem,@sm,@lg] mx-auto"
       />
-      <div className="flex flex-col justify-between md:space-x-10 md:flex-row mx-auto max-w-[1024px] clamp-[mt,2.5,8,@sm,@lg] md:mt-16">
+      <div className="md:flex md:justify-center md:space-x-20 lg:space-x-40 md:flex-row mx-auto max-w-5xl clamp-[mt,2.5,8,@sm,@lg] md:mt-16">
         <div className="">
           <h4 className="font-caprasimo text-[32px] leading-[44.8px] text-[#310909] text-center md:text-left">
             Get your Food and <br /> Groceries ASAP
@@ -29,34 +28,7 @@ const Footer = () => {
           </p>
         </div>
 
-        <div className="space-y-4 md:space-y-6 flex flex-col items-center clamp-[mt,6,10,@sm,@lg] clamp-[mb,10,16,@sm,@lg] md:my-0">
-          <Button
-            onClick={() => setUnderCModal(true)}
-            className="space-x-2.5 font-medium text-sm leading-normal text-[#FFF9E9] font-jakart py-3.5 px-[17px]"
-          >
-            <Image
-              src="/svg/playstore.svg"
-              alt="playstore"
-              width={17.305557250976562}
-              height={18.999780654907227}
-            />
-            <span>Download on Google Play</span>
-          </Button>
-          <Button
-            onClick={() => setUnderCModal(true)}
-            className="space-x-2.5 font-medium text-sm leading-normal text-[#FFF9E9] font-jakart py-3.5 px-[22px]"
-          >
-            <Image
-              src="/svg/iphone.svg"
-              alt="iphone"
-              width={17.305557250976562}
-              height={18.999780654907227}
-            />
-            <span>Download on App Store</span>
-          </Button>
-        </div>
-
-        <div>
+        <div className="mt-20 md:mt-0">
           <div className="space-y-3 font-caprasimo">
             <p className="text-caprasimo text-base leading-[21.12px] tracking-[0.32px] center text-[#310909] space-x-2">
               <Image src="/svg/call.svg" alt="call" width={20} height={20} />

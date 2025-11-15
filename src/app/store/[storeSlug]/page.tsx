@@ -206,7 +206,7 @@ export default function Home({
                   Phone number<span className="text-[#F6211A]">*</span>
                 </Label>
 
-                <div className="start space-x-1 border text-sm leading-5 font-normal tracking-[12%] px-3 py-4 rounded-[8px]">
+                <div className="start space-x-1 border text-sm leading-5 font-normal tracking-[12%] px-3 py-4 rounded-xl">
                   <span className="text-[#1E2024]">+234</span>
                   <input
                     value={phoneNumber}
@@ -220,7 +220,7 @@ export default function Home({
               <LoadingButton
                 isLoading={loading}
                 onClick={handlePhoneInput}
-                className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-[8px] text-[#59201A] text-sm font-semibold leading-5 py-[18px] "
+                className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-xl text-[#59201A] text-sm font-semibold leading-5 py-[18px] "
               >
                 Continue
               </LoadingButton>
@@ -262,7 +262,7 @@ export default function Home({
               <LoadingButton
                 isLoading={loading}
                 onClick={handleVerfyPhone}
-                className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-[8px] text-[#59201A] text-sm font-semibold leading-5 py-[18px]"
+                className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-xl text-[#59201A] text-sm font-semibold leading-5 py-[18px]"
               >
                 Verify phone number
               </LoadingButton>

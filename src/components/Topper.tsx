@@ -24,7 +24,7 @@ const Topper = ({
       {/* indicator shown above the main topper when editing a pack */}
       {typeof editPackIndex === "number" && editPackIndex >= 0 && (
         <Tooltip>
-          <div className="pointer-events-auto w-full max-w-xl bg-[#FFE6DD] text-[#F95B1E] rounded-[8px] between">
+          <div className="pointer-events-auto w-full max-w-xl bg-[#FFE6DD] text-[#F95B1E] rounded-xl between">
             {isEditing ? (
               <TooltipTrigger className="w-full ">
                 <div className="between clamp-[px,2,4,@sm,@lg] w-full clamp-[py,1.125rem,1.375rem,@sm,lg]">
