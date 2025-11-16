@@ -3,10 +3,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 interface Transaction {
   id: string;
-  status: "success" | "pending" | "failed";
-  amount: number;
   type: "payment" | "deposit" | "withdrawal";
-  // other transaction properties
+  payment?: {
+    status: "success" | "pending" | "failed";
+  };
+  summary: {
+    bill: {
+      amount: number;
+    };
+  };
 }
 
 interface WebSocketMessage {
@@ -18,6 +23,10 @@ export const usePaymentListener = (
   accessToken: string | null,
   onSuccess: () => void
 ) => {
+  const ws = useRef<WebSocket | null>(null);
+  const reconnectTimeout = useRef<NodeJS.Timeout | null>(null);
+  const tokenRef = useRef(accessToken);
+
   const [isConnected, setIsConnected] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<
@@ -26,173 +35,147 @@ export const usePaymentListener = (
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const ws = useRef<WebSocket | null>(null);
+  // Keep token updated without rebuilding callbacks
+  useEffect(() => {
+    tokenRef.current = accessToken;
+  }, [accessToken]);
 
   const connectWebSocket = useCallback(() => {
-    if (!accessToken) {
-      console.log("❌ No access token provided");
+    const token = tokenRef.current;
+    if (!token) {
+      console.log("❌ No access token available");
       return;
     }
 
-    if (ws.current?.readyState === WebSocket.OPEN) {
-      console.log("✅ WebSocket already connected");
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      console.log("⚡ WebSocket already connected");
       return;
     }
-
-    setError(null);
-    setTransaction(null);
 
     const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL as string;
 
-    console.log("🚀 Connecting to WebSocket...", socketUrl);
+    console.log("🚀 Starting WebSocket connection to:", socketUrl);
     setConnectionStatus("connecting");
+    setError(null);
 
-    try {
-      ws.current = new WebSocket(socketUrl);
+    const socket = new WebSocket(socketUrl);
+    ws.current = socket;
 
-      ws.current.onopen = () => {
-        console.log("✅ WebSocket connected successfully");
-        setIsConnected(true);
-        setConnectionStatus("connected");
-        setError(null);
+    socket.onopen = () => {
+      console.log("✅ WebSocket connected");
+      setIsConnected(true);
+      setConnectionStatus("connected");
 
-        // Send authentication immediately after connection
-        console.log("🔐 Sending authentication...");
-        const authMessage = {
-          action: "authenticate",
-          token: accessToken,
-        };
-        ws.current?.send(JSON.stringify(authMessage));
-        console.log("📤 Authentication message sent");
+      const authMessage = {
+        action: "authenticate",
+        token,
       };
+      console.log("🔐 Sending authentication...");
+      socket.send(JSON.stringify(authMessage));
+    };
 
-      ws.current.onmessage = (event) => {
-        try {
-          const message: WebSocketMessage = JSON.parse(event.data);
-          console.log(
-            "📨 Received message type:",
-            message.type,
-            "data:",
-            message.data
-          );
+    socket.onmessage = (event) => {
+      try {
+        const message: WebSocketMessage = JSON.parse(event.data);
 
-          switch (message.type) {
-            case "authenticate":
-              console.log("🔑 Authentication response received");
-              if (message.data) {
-                setIsAuthenticated(true);
-                console.log("✅ WebSocket authenticated successfully");
-              } else {
-                console.error("❌ WebSocket authentication failed");
-                setError("Authentication failed");
+        switch (message.type) {
+          case "authenticate":
+            console.log("🔑 Auth response received");
+            if (message.data) {
+              setIsAuthenticated(true);
+              console.log("✅ Auth success");
+            } else {
+              console.log("❌ Auth failed");
+              setError("Authentication failed");
+            }
+            break;
+
+          case "transaction.update":
+            console.log("💰 Transaction update:", message.data);
+            if (message.data?.transaction) {
+              const tx = message.data.transaction;
+              setTransaction(tx);
+
+              // Respecting user's request to keep this exact condition
+              if (tx.payment?.status === "success") {
+                onSuccess();
               }
-              break;
+            }
+            break;
 
-            case "transaction.update":
-              console.log("💰 Transaction update received");
-              if (message.data?.transaction) {
-                const transaction = message.data.transaction;
-                setTransaction(transaction);
-                console.log("💾 Transaction data stored:", transaction);
+          case "error":
+            console.error("⚠️ WS Error:", message.data);
+            setError(message.data?.message || "WebSocket error");
+            break;
 
-                // Check if this is a successful payment transaction
-                if (
-                  transaction.status === "success" &&
-                  (transaction.type === "payment" ||
-                    transaction.type === "deposit")
-                ) {
-                  onPaymentSuccess(transaction);
-                }
-              }
-              break;
-
-            case "error":
-              console.error("❌ WebSocket error message:", message);
-              setError(message.data?.message || "WebSocket error occurred");
-              break;
-
-            default:
-              console.log("📨 Received message type:", message.type);
-          }
-        } catch (error) {
-          console.error(
-            "❌ Error parsing WebSocket message:",
-            error,
-            event.data
-          );
-          setError("Failed to parse WebSocket message");
+          default:
+            console.log("📨 Unknown message type:", message.type);
         }
-      };
+      } catch (err) {
+        console.error("❌ Failed to parse message:", err);
+        setError("Failed to parse WebSocket message");
+      }
+    };
 
-      ws.current.onerror = (error) => {
-        console.error("❌ WebSocket error:", error);
-        setConnectionStatus("error");
-        setError("WebSocket connection error");
-      };
-
-      ws.current.onclose = (event) => {
-        console.log("🔴 WebSocket closed:", event.code, event.reason);
-        setIsConnected(false);
-        setIsAuthenticated(false);
-        setConnectionStatus("disconnected");
-
-        // Auto-reconnect after delay if not closed normally
-        if (event.code !== 1000) {
-          setError("Connection lost. Reconnecting...");
-          setTimeout(() => {
-            console.log("🔄 Attempting to reconnect...");
-            connectWebSocket();
-          }, 3000);
-        }
-      };
-    } catch (error) {
-      console.error("❌ Error creating WebSocket:", error);
+    socket.onerror = (err) => {
+      console.error("❌ WebSocket error:", err);
       setConnectionStatus("error");
-      setError("Failed to create WebSocket connection");
-    }
-  }, [accessToken]);
+      setError("WebSocket connection error");
+    };
+
+    socket.onclose = (event) => {
+      console.log("🔴 WebSocket closed:", event.code, event.reason);
+
+      setIsConnected(false);
+      setIsAuthenticated(false);
+      setConnectionStatus("disconnected");
+
+      // Auto-reconnect unless clean (1000)
+      if (event.code !== 1000) {
+        console.log("🔄 Scheduling reconnect...");
+        // setError("Connection lost. Reconnecting...");
+
+        reconnectTimeout.current = setTimeout(() => {
+          connectWebSocket(); // stable reference
+        }, 3000);
+      }
+    };
+  }, []);
 
   const disconnectWebSocket = useCallback(() => {
+    console.log("🛑 Disconnect requested");
+
+    if (reconnectTimeout.current) {
+      clearTimeout(reconnectTimeout.current);
+    }
+
     if (ws.current) {
-      console.log("🛑 Disconnecting WebSocket...");
       ws.current.close(1000, "Manual disconnect");
       ws.current = null;
     }
   }, []);
 
-  const onPaymentSuccess = (transaction: Transaction) => {
-    // Implement your success page logic here
-    console.log("Show success page for transaction:", transaction);
-
-    onSuccess();
-  };
-
-  // Connect when accessToken is available
+  // Run only once on mount
   useEffect(() => {
-    if (accessToken) {
-      connectWebSocket();
-    }
+    connectWebSocket();
+    return () => disconnectWebSocket();
+  }, [connectWebSocket, disconnectWebSocket]);
 
-    return () => {
-      disconnectWebSocket();
-    };
-  }, [accessToken, connectWebSocket, disconnectWebSocket]);
-
-  // Manual reconnect function
   const reconnect = useCallback(() => {
+    console.log("🔄 Manual reconnect");
     disconnectWebSocket();
     setError(null);
     setTransaction(null);
-    setTimeout(() => connectWebSocket(), 100);
-  }, [connectWebSocket, disconnectWebSocket]);
+    setTimeout(() => connectWebSocket(), 150);
+  }, [disconnectWebSocket, connectWebSocket]);
 
   return {
     isConnected,
     isAuthenticated,
     connectionStatus,
-    reconnect,
-    disconnect: disconnectWebSocket,
     transaction,
     error,
+    reconnect,
+    disconnect: disconnectWebSocket,
   };
 };

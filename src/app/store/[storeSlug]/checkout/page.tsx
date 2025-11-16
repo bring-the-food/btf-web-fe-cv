@@ -63,11 +63,11 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
     swrfetcher
   );
 
-  React.useEffect(() => {
-    if (Object.keys(cartData?.data?.cart ?? {}).length === 0) {
-      router.push(`/store/${storeSlug}?page=orders`);
-    }
-  }, [cartData?.data?.cart, router, storeSlug]);
+  // React.useEffect(() => {
+  //   if (Object.keys(cartData?.data?.cart ?? {}).length === 0) {
+  //     router.push(`/store/${storeSlug}?page=orders`);
+  //   }
+  // }, [cartData?.data?.cart, router, storeSlug]);
 
   const handlePhoneInput = () => {
     setOpenModal(false);
@@ -108,11 +108,15 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
 
   const accessToken = userParsed?.tokens?.tokens?.access;
 
-  const { transaction, error } = usePaymentListener(accessToken, () => {
+  const { transaction, error, isAuthenticated } = usePaymentListener(accessToken, () => {
     setIsSuccess("true");
   });
-  console.log("🚀 ~ Checkout ~ error:", error);
-  console.log("🚀 ~ Checkout ~ transaction:", transaction);
+
+  React.useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
 
   return (
     <div className="col-start-center clamp-[px,5,12,@sm,@lg] clamp-[py,10,20,@sm,@lg] w-full">
@@ -398,7 +402,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
             </h6>
             <p className="text-[#717680] clamp-[text,base,xl,@sm,@lg] leading-6 clamp-[mt,1.5,3,@sm,@lg] text-center">
               Your payment of{" "}
-              {koboToNaira(cartData?.data?.cart?.summary?.bill?.amount ?? 0)} is
+              {koboToNaira(transaction?.summary?.bill?.amount ?? 0)} is
               successful. You <br /> can proceed to track your order
             </p>
 
