@@ -8,6 +8,7 @@ import React from "react";
 
 export default function Home() {
   const [underCModal, setUnderCModal] = React.useState(false);
+  console.log('----process-env-client', {all: process.env, foc: process.env.BASE_URL, soc: process.env.NEXT_PUBLIC_SOCKET_URL});
 
   return (
     <>
