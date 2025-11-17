@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
   const { telephone, code } = body;
 
   const response = await fetchData(
-    `${process.env.BASE_URL}/otp/verify`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/otp/verify`,
     "POST",
     {
       telephone,

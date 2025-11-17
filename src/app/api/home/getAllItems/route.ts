@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
 
   const response = await fetchData(
     buildUrlWithParams(
-      `${process.env.BASE_URL}/store/${storeId}/menu/items`,
+      `${process.env.NEXT_PUBLIC_BASE_URL}/store/${storeId}/menu/items`,
       filteredParams(params)
     ),
     "GET"

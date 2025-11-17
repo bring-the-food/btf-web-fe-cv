@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   const orderId = searchParams.get("orderId");
 
   const response = await fetchData(
-    `${process.env.BASE_URL}/order/${orderId}`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/order/${orderId}`,
     "GET"
   );
 

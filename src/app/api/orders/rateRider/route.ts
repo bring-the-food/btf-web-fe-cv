@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
   const payload = body;
 
   const response = await fetchData(
-    `${process.env.BASE_URL}/user/${userId}/review`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/user/${userId}/review`,
     "POST",
     payload
   );

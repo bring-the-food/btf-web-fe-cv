@@ -5,7 +5,7 @@ export async function GET() {
 
   // const storeSlug = searchParams.get("storeSlug");
 
-  const response = await fetchData(`${process.env.BASE_URL}/stores`, "GET");
+  const response = await fetchData(`${process.env.NEXT_PUBLIC_BASE_URL}/stores`, "GET");
 
   return Response.json(response?.data, {
     status: response?.status,

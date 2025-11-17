@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   const storeSlug = searchParams.get("storeSlug");
 
   const response = await fetchData(
-    `${process.env.BASE_URL}/slug/store/${storeSlug}`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/slug/store/${storeSlug}`,
     "GET"
   );
 

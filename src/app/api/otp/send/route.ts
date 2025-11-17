@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   const { telephone, reason } = body;
 
-  const response = await fetchData(`${process.env.BASE_URL}/otp`, "POST", {
+  const response = await fetchData(`${process.env.NEXT_PUBLIC_BASE_URL}/otp`, "POST", {
     telephone,
     reason,
   });

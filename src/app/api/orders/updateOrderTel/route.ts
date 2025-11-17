@@ -9,7 +9,7 @@ export async function PUT(request: NextRequest) {
   const payload = body;
 
   const response = await fetchData(
-    `${process.env.BASE_URL}/order/${orderId}/delivery`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/order/${orderId}/delivery`,
     "PUT",
     payload
   );

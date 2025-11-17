@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   const storeId = searchParams.get("storeId");
 
   const response = await fetchData(
-    `${process.env.BASE_URL}/store/${storeId}/cart`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/store/${storeId}/cart`,
     "GET"
   );
 

@@ -1,7 +1,7 @@
 import { fetchData } from "@/lib/fetcher";
 export async function GET() {
   const response = await fetchData(
-    `${process.env.BASE_URL}/stores/featured`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/stores/featured`,
     "GET"
   );
 
