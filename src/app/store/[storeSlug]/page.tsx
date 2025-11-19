@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import WalletBal from "@/components/WalletBal";
 import { swrfetcher } from "@/lib/swrfetcher";
 import Image from "next/image";
 import Link from "next/link";
@@ -131,6 +132,8 @@ export default function Home({
       </Link>
 
       <div className="w-full">
+        <WalletBal />
+
         <Tabs value={active} className="w-full">
           <TabsList>
             <TabsTrigger
@@ -178,7 +181,12 @@ export default function Home({
       <DialogC open={openModal} hasNoClose={process === "phoneInput"}>
         {process === "phoneInput" ? (
           <>
-              <Link href={"/"} className="absolute top-4 left-4 text-xs hover:underline">Back</Link>
+            <Link
+              href={"/"}
+              className="absolute top-4 left-4 text-xs hover:underline"
+            >
+              Back
+            </Link>
 
             <div className="bg-white w-fit rounded-full -mt-16 clamp-[px,0.875rem,1.125rem,@sm,@lg] clamp-[py,5,6,@sm,@lg] mx-auto">
               <Image

@@ -120,7 +120,7 @@ export const usePaymentListener = (
     socket.onerror = (err) => {
       console.error("❌ WebSocket error:", err);
       setConnectionStatus("error");
-      setError("WebSocket connection error");
+      // setError("WebSocket connection error");
     };
 
     socket.onclose = (event) => {

@@ -19,7 +19,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { usePaymentListener } from "@/hookes/usePaymentListener";
+import { usePaymentListener } from "@/hooks/usePaymentListener";
 import { koboToNaira } from "@/lib/formatCurrency";
 import { swrfetcher } from "@/lib/swrfetcher";
 import { Loader2Icon } from "lucide-react";
@@ -31,6 +31,8 @@ import React from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
 import { oau, offCampus } from "../../../../../data/locations";
+import { walletFunc } from "@/components/functions/wallet";
+import PaymentMethod from "@/components/PaymentMethod";
 
 const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   const router = useRouter();
@@ -51,6 +53,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   const [isSuccess, setIsSuccess] = React.useState("false");
   const [loading, setLoading] = React.useState(false);
   const [checoutResponse, setChecoutResponse] = React.useState<any>(null);
+  const [paymentMethod, setPaymentMethod] = React.useState("");
 
   const { data, isLoading: profileLoading } = useSWR(
     `/api/profile?storeSlug=${storeSlug}`,
@@ -90,15 +93,27 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
           message: "",
         },
         payment: {
-          method: "single-transfer",
+          method:
+            paymentMethod === "One Time Transfer"
+              ? "single-transfer"
+              : "wallet",
         },
       })
       .then((res) => {
-        if (window) {
-          window.scrollTo(0, 0);
-          // setMakePayment
-          setChecoutResponse(res?.data);
-          setIsSuccess("make_payment");
+        if (paymentMethod === "One Time Transfer") {
+          if (window) {
+            window.scrollTo(0, 0);
+            // setMakePayment
+            setChecoutResponse(res?.data);
+            setIsSuccess("make_payment");
+          }
+        } else {
+          if (res?.data?.data?.order?.payment?.status === "success") {
+            setChecoutResponse(res?.data);
+            setIsSuccess("true");
+          } else {
+            toast.error("Payment Failed");
+          }
         }
       })
       .finally(() => {
@@ -108,7 +123,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
 
   const accessToken = userParsed?.tokens?.tokens?.access;
 
-  const { transaction, error, isAuthenticated } = usePaymentListener(accessToken, () => {
+  const { transaction, error } = usePaymentListener(accessToken, () => {
     setIsSuccess("true");
   });
 
@@ -117,6 +132,25 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
       toast.error(error);
     }
   }, [error]);
+
+  const handleCheckPaymentStatus = async () => {
+    setLoading(true);
+
+    const transactionId = checoutResponse?.data?.transaction?.id;
+    if (transactionId) {
+      const res = await walletFunc.getTransaction(transactionId);
+
+      if (res?.data?.data?.transaction?.payment?.status === "success") {
+        setIsSuccess("true");
+      } else if (res?.data?.data?.transaction?.payment?.status === "pending") {
+        toast("Payment Pending");
+      } else {
+        toast.error("Payment Failed");
+      }
+    }
+
+    setLoading(false);
+  };
 
   return (
     <div className="col-start-center clamp-[px,5,12,@sm,@lg] clamp-[py,10,20,@sm,@lg] w-full">
@@ -190,7 +224,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
 
                       {/*  */}
                       <Link href={`/store/${storeSlug}/?tab=My Cart`}>
-                        <Button className="text-[#A46900] rounded-full clamp-[text,xs,sm,@sm,@lg] font-semibold bg-[#FFF9E9] hover:bg-[#fcf2d8] clamp-[py,15,2,@sm,@lg]! clamp-[px,2,4,@sm,@lg]! cursor-pointer space-x-0.5 h-auto">
+                        <Button className="text-[#A46900] rounded-full clamp-[text,xs,sm,@sm,@lg] font-semibold bg-[#FFF9E9] hover:bg-[#fcf2d8] clamp-[py,1.5,2,@sm,@lg]! clamp-[px,2,4,@sm,@lg]! cursor-pointer space-x-0.5 h-auto">
                           <Icon
                             icon="right"
                             size={12}
@@ -254,6 +288,16 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
 
                     <div className="mt-2">
                       <OrderSummary summary={cartData?.data?.cart?.summary} />
+                    </div>
+                  </div>
+
+                  <div className="text-[#1D2939]">
+                    <h4 className="font-semibold clamp-[text,base,lg,@sm,@lg]">
+                      Payment Method
+                    </h4>
+
+                    <div className="mt-2">
+                      <PaymentMethod setPaymentMethod={setPaymentMethod} />
                     </div>
                   </div>
 
@@ -355,7 +399,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                                   checoutResponse?.data?.beneficiary?.bank
                                     ?.account?.number
                                 );
-                                toast.info("Copied to clipboard");
+                                toast("Copied to clipboard");
                               }}
                             >
                               <Icon
@@ -367,6 +411,16 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                           </span>
                         </p>
                       </div>
+                    </div>
+
+                    <div className="center">
+                      <LoadingButton
+                        onClick={handleCheckPaymentStatus}
+                        isLoading={loading}
+                        className="bg-[#FFC247] hover:bg-[#fcb526] rounded-xl w-full max-w-[353] clamp-[mt,5,6,@sm,@lg] clamp-[py,1.125rem,1.375rem,@sm,@lg]! h-auto text-[#59201A] clamp-[text,sm,base,@sm,@lg] font-semibold"
+                      >
+                        I have made the payment
+                      </LoadingButton>
                     </div>
 
                     <div className="start space-x-2 bg-[#F95B1E0A] border border-[#F95B1E24] py-4 px-5 rounded-[6px] tracking-normal clamp-[my,6,8,@sm,@lg]">
@@ -402,8 +456,12 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
             </h6>
             <p className="text-[#717680] clamp-[text,base,xl,@sm,@lg] leading-6 clamp-[mt,1.5,3,@sm,@lg] text-center">
               Your payment of{" "}
-              {koboToNaira(transaction?.summary?.bill?.amount ?? 0)} is
-              successful. You <br /> can proceed to track your order
+              {koboToNaira(
+                paymentMethod !== "One Time Transfer"
+                  ? checoutResponse?.data?.order?.summary?.bill?.amount
+                  : transaction?.summary?.bill?.amount ?? 0
+              )}{" "}
+              is successful. You <br /> can proceed to track your order
             </p>
 
             <div className="center w-full">

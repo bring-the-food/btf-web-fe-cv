@@ -22,37 +22,37 @@ const OrderDetails = ({ data }: { data: any }) => {
 
   const timelineData = [
     {
-      title: "Order Received",
+      title: "Order received",
       desc: "Waiting for vendor to confirm your order",
       date: moment(data?.order?.trackings?.[0]?.dateCreated).format("lll"),
       isCompleted: data?.order?.trackings?.[0]?.status === "success",
     },
     {
-      title: "Vendor Accepted Order",
+      title: "Vendor accepted order",
       desc: "The vendor has confirm your order",
       date: moment(data?.order?.trackings?.[1]?.dateCreated).format("lll"),
       isCompleted: data?.order?.trackings?.[1]?.status === "success",
     },
     {
-      title: "You Order has been Packed",
+      title: "Your order has been packed",
       desc: "Your order is ready to be picked",
       date: moment(data?.order?.trackings?.[2]?.dateCreated).format("lll"),
       isCompleted: data?.order?.trackings?.[2]?.status === "success",
     },
     {
-      title: "Rider Accepted Order",
+      title: "Rider accepted order",
       desc: "Rider has picked your order",
       date: moment(data?.order?.trackings?.[3]?.dateCreated).format("lll"),
       isCompleted: data?.order?.trackings?.[3]?.status === "success",
     },
     {
-      title: "Order in Transit",
+      title: "Order in transit",
       desc: "Your order is on it's way to you",
       date: moment(data?.order?.trackings?.[4]?.dateCreated).format("lll"),
       isCompleted: data?.order?.trackings?.[4]?.status === "success",
     },
     {
-      title: "Order Complete",
+      title: "Order complete",
       desc: "",
       date: moment(data?.order?.trackings?.[5]?.dateCreated).format("lll"),
       isCompleted: data?.order?.trackings?.[5]?.status === "success",
@@ -156,7 +156,7 @@ const OrderDetails = ({ data }: { data: any }) => {
 
       <Button
         onClick={() => setOpenDrawer(true)}
-        className="text-[#A46900] w-full max-w-sm rounded-xl clamp-[text,sm,base,@sm,@lg] font-semibold bg-[#FFF9E9] hover:bg-[#fcf2d8] !clamp-[py,4,5,@sm,@lg] !clamp-[px,2,4,@sm,@lg] cursor-pointer space-x-[2px] h-auto"
+        className="text-[#A46900] w-full max-w-sm rounded-xl clamp-[text,sm,base,@sm,@lg] font-semibold bg-[#FFF9E9] hover:bg-[#fcf2d8] clamp-[py,4,5,@sm,@lg]! clamp-[px,2,4,@sm,@lg]! cursor-pointer space-x-[2px] h-auto"
       >
         <Icon icon="clock-fast-forward" className="size-[20px]" />
         View order timelime
@@ -177,7 +177,7 @@ const OrderDetails = ({ data }: { data: any }) => {
 
       <Button
         variant={"outline"}
-        className="text-[#D92D20] hover:text-[#D92D20] border border-[#D92D20] hover:bg-[#fbdddb]/20 font-inter clamp-[text,sm,base,@sm,@lg] font-semibold bg-transparent !clamp-[py,1.125rem,1.375rem,@sm,@lg] w-full max-w-sm h-auto rounded-xl"
+        className="text-[#D92D20] hover:text-[#D92D20] border border-[#D92D20] hover:bg-[#fbdddb]/20 font-inter clamp-[text,sm,base,@sm,@lg] font-semibold bg-transparent clamp-[py,1.125rem,1.375rem,@sm,@lg]! w-full max-w-sm h-auto rounded-xl"
       >
         Report an incident
       </Button>
@@ -234,7 +234,7 @@ const OrderDetails = ({ data }: { data: any }) => {
             <LoadingButton
               onClick={handleRateRider}
               isLoading={loading}
-              className="bg-[#FFC247] hover:bg-[#fcb526] rounded-xl w-full max-w-[353] clamp-[mt,5,6,@sm,@lg] !clamp-[py,1.125rem,1.375rem,@sm,@lg] h-auto text-[#59201A] clamp-[text,sm,base,@sm,@lg] font-semibold"
+              className="bg-[#FFC247] hover:bg-[#fcb526] rounded-xl w-full max-w-[353] clamp-[mt,5,6,@sm,@lg] clamp-[py,1.125rem,1.375rem,@sm,@lg]! h-auto text-[#59201A] clamp-[text,sm,base,@sm,@lg] font-semibold"
             >
               Submit Feedback
             </LoadingButton>

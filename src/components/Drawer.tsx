@@ -11,7 +11,7 @@ import * as React from "react";
 
 type DrawerCProps = {
   open: boolean;
-  setOpen: (open: boolean) => void;
+  setOpen?: (open: boolean) => void;
   hasNoClose?: boolean;
   trigger?: React.ReactNode;
   children?: React.ReactNode;

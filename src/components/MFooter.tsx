@@ -95,7 +95,7 @@ const MFooter = () => {
       </div>
 
       <div className="bg-[#FFE7B0]">
-        <div className="container_fluid col-center sm:!flex-row sm:flex sm:!justify-between py-6 sm:py-3 text-xs sm:text-sm clamp-[leading,0.78rem,1.12rem] tracking-[0.42px] space-y-8 sm:space-y-0">
+        <div className="container_fluid col-center sm:flex-row! sm:flex sm:justify-between! py-6 sm:py-3 text-xs sm:text-sm clamp-[leading,0.78rem,1.12rem] tracking-[0.42px] space-y-8 sm:space-y-0">
           <p>2025 © Bring This Food Logistics</p>
           <div className="end space-x-4">
             <Link className="hover:underline" href={"/terms-of-use"}>
@@ -161,7 +161,7 @@ const Li = ({
           {href ? <Link href={href}>{label}</Link> : label}
 
           {commingSoon && (
-            <span className="bg-[#FFE7B0] font-jakart font-medium text-xl rounded-full py-[7px] px-[5.5px] ml-2">
+            <span className="bg-[#FFE7B0] font-jakart font-medium clamp-[text,0.5rem,0.625rem,@sm,@lg] rounded-full py-[7px] clamp-[px,0.3438rem,0.5313rem,@sm,@lg] ml-2">
               Coming Soon
             </span>
           )}

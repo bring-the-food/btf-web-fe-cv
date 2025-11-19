@@ -77,7 +77,7 @@ const OrderCard = ({ storeSlug, data }: { storeSlug: string; data: any }) => {
             {data?.store?.name}
           </span>
           <span className="text-[#98A2B3] text-xs mt-1 uppercase">
-            {moment(data?.dateCreated).format("lll")}
+            {moment(data?.dateCreated).format("MMM D, h:mm A")}
           </span>
         </p>
         <p className="inline-grid text-right">
@@ -161,7 +161,7 @@ const OrderCard = ({ storeSlug, data }: { storeSlug: string; data: any }) => {
             <span className="text-[#1D2939]">
               {moment(
                 findLatestSuccess(data?.trackings)?.tracking?.dateCreated
-              ).format("lll")}
+              ).format("MMM D, h:mm A")}
             </span>{" "}
             {findLatestSuccess(data?.trackings)?.humanReadable && (
               <span className="">-</span>
@@ -220,11 +220,11 @@ function findLatestSuccess(
 
 function transformToHumanReadable(type: string): string {
   const typeMap: { [key: string]: string } = {
-    "store-received": "Order Received",
-    "store-accepted": "Vendor Accepted Order",
-    "store-packed": "You Order has been Packed",
-    "rider-accepted": "Rider Accepted Order",
-    "rider-in-transit": "Order in Transit",
+    "store-received": "Order received",
+    "store-accepted": "Vendor accepted rrder",
+    "store-packed": "Your order has been packed",
+    "rider-accepted": "Rider accepted order",
+    "rider-in-transit": "Order in transit",
     delivered: "Order Complete",
   };
 
