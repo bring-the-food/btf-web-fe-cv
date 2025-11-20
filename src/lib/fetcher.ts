@@ -12,7 +12,10 @@ export async function fetchData(url: string, method: string, data?: any) {
     userDetails && JSON.parse(userDetails?.value ?? "")?.tokens?.tokens?.access;
 
   const config = {
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "x-platform-client-type": "web",
+    },
   };
 
   if (method === "GET") {
