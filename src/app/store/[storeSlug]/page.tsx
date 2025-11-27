@@ -18,7 +18,9 @@ import { swrfetcher } from "@/lib/swrfetcher";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { parseCookies, setCookie } from "nookies";
+import { parseCookies, setCookie, destroyCookie } from "nookies";
+import { LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import React, { use } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
@@ -106,6 +108,7 @@ export default function Home({
 
       setCookie(null, "userDetails", JSON.stringify(details), {
         path: "/",
+        maxAge: 30 * 24 * 60 * 60,
         HttpOnly: true,
       });
 
@@ -118,18 +121,35 @@ export default function Home({
     }
   };
 
+  const handleLogout = () => {
+    destroyCookie(null, "userDetails", { path: "/" });
+    router.refresh();
+  };
+
   return (
     <div className="col-start-center clamp-[px,5,12,@sm,@lg] clamp-[py,10,20,@sm,@lg] w-full">
-      <Link href={"/"}>
-        <Image
-          className="clamp-[mb,3.5,8,@sm,@lg] clamp-[w,3.8125rem,8rem,@sm,@lg]"
-          src="/svg/logo.svg"
-          alt="Bring this food logo"
-          width={61}
-          height={48}
-          priority
-        />
-      </Link>
+      <div className="w-full relative flex justify-center items-center clamp-[mb,3.5,8,@sm,@lg]">
+        <Link href={"/"}>
+          <Image
+            className="clamp-[w,3.8125rem,8rem,@sm,@lg]"
+            src="/svg/logo.svg"
+            alt="Bring this food logo"
+            width={61}
+            height={48}
+            priority
+          />
+        </Link>
+        {userDetails && (
+          <Button
+            onClick={handleLogout}
+            variant="ghost"
+            className="absolute right-0 text-[#59201A] hover:bg-[#ffc24733] hover:text-[#59201A] gap-2"
+          >
+            <LogOut size={20} />
+            Logout
+          </Button>
+        )}
+      </div>
 
       <div className="w-full">
         <WalletBal />
