@@ -68,6 +68,7 @@ export const usePaymentListener = (
 
       const authMessage = {
         action: "authenticate",
+        "x-platform-client-type": "web",
         token,
       };
       console.log("🔐 Sending authentication...");
