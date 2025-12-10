@@ -69,6 +69,24 @@ export async function fetchData(url: string, method: string, data?: any) {
           },
         };
       });
+  } else if (method === "DELETE") {
+    return await axios
+      .delete(url, config)
+      .then((response) => {
+        return {
+          status: response?.status || 400,
+          data: response?.data,
+        };
+      })
+      .catch((err) => {
+        return {
+          status: err.response ? err.response.status : 500,
+          data: err.response?.data || {
+            status: err.response?.status || 500,
+            message: err.message,
+          },
+        };
+      });
   }
 
   return response;

@@ -43,6 +43,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   const userParsed = userDetails && JSON?.parse(userDetails);
 
   const [openModal, setOpenModal] = React.useState(false);
+  const [openModalOrderId, setOpenModalOrderId] = React.useState(false);
   const [openDrawer, setOpenDrawer] = React.useState(false);
   const [phoneNumber, setPhoneNumber] = React.useState("");
   const [location, setLocation] = React.useState({
@@ -53,7 +54,9 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   const [isSuccess, setIsSuccess] = React.useState("false");
   const [loading, setLoading] = React.useState(false);
   const [checoutResponse, setChecoutResponse] = React.useState<any>(null);
-  const [paymentMethod, setPaymentMethod] = React.useState("");
+  const [checoutResponseExternal, setChecoutResponseExternal] =
+    React.useState<any>(null);
+  const [paymentMethod, setPaymentMethod] = React.useState("One Time Transfer");
 
   const { data, isLoading: profileLoading } = useSWR(
     `/api/profile?storeSlug=${storeSlug}`,
@@ -82,8 +85,10 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
     }
   }, [userParsed?.telephone]);
 
-  const handlePayment = async () => {
+  const handlePayment = async (method?: string) => {
     setLoading(true);
+
+    const paymentMethodToUse = method || paymentMethod;
 
     await cartFunc
       .checkout(vendor?.store?.id, {
@@ -94,25 +99,32 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
         },
         payment: {
           method:
-            paymentMethod === "One Time Transfer"
+            paymentMethodToUse === "One Time Transfer"
               ? "single-transfer"
+              : paymentMethodToUse === "external"
+              ? "external"
               : "wallet",
         },
       })
       .then((res) => {
-        if (paymentMethod === "One Time Transfer") {
-          if (window) {
-            window.scrollTo(0, 0);
-            // setMakePayment
-            setChecoutResponse(res?.data);
-            setIsSuccess("make_payment");
-          }
+        if (paymentMethodToUse === "external") {
+          setChecoutResponseExternal(res?.data);
+          setOpenModalOrderId(true);
         } else {
-          if (res?.data?.data?.order?.payment?.status === "success") {
-            setChecoutResponse(res?.data);
-            setIsSuccess("true");
+          if (paymentMethodToUse === "One Time Transfer") {
+            if (window) {
+              window.scrollTo(0, 0);
+              // setMakePayment
+              setChecoutResponse(res?.data);
+              setIsSuccess("make_payment");
+            }
           } else {
-            toast.error("Payment Failed");
+            if (res?.data?.data?.order?.payment?.status === "success") {
+              setChecoutResponse(res?.data);
+              setIsSuccess("true");
+            } else {
+              toast.error("Payment Failed");
+            }
           }
         }
       })
@@ -301,13 +313,25 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                     </div>
                   </div>
 
-                  <div className="center">
+                  <div className="col-center space-y-2.5">
                     <LoadingButton
                       isLoading={loading}
-                      onClick={handlePayment}
+                      onClick={() => handlePayment()}
                       className="text-[#59201A] hover:bg-[#fdb420] w-full max-w-sm bg-[#FFC247] rounded-xl clamp-[py,1.125rem,1.375rem,@sm,@lg]! clamp-[text,sm,base,@sm,@lg] font-semibold leading-5 clamp-[mt,4.4375rem,4.6875rem,@sm,@lg]"
+                      disabled={!location?.description}
                     >
                       Make Payment
+                    </LoadingButton>
+
+                    <LoadingButton
+                      variant={"ghost"}
+                      isLoading={loading}
+                      onClick={() => handlePayment("external")}
+                      className="w-full max-w-sm clamp-[py,1.125rem,1.375rem,@sm,@lg]! clamp-[text,sm,base,@sm,@lg] font-semibold leading-5"
+                      disabled={!location?.description}
+                    >
+                      Generate Order ID
+                      <Icon icon="arrow-right" size={16} />
                     </LoadingButton>
                   </div>
                 </div>
@@ -476,6 +500,59 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
         </>
       )}
 
+      <DialogC open={openModalOrderId} setOpen={setOpenModalOrderId}>
+        <div className="grid gap-4 text-[#1D2939] mt-4 text-center px-4">
+          <div>
+            <Image
+              className="clamp-[w,3rem,4.25rem,@sm,@lg] scale-125 mx-auto"
+              src="/svg/success.svg"
+              alt="success logo"
+              width={48}
+              height={48}
+            />
+
+            <h3 className="font-semibold leading-normal text-[20px]">
+              Order ID created
+            </h3>
+          </div>
+          <p className="text-[#475467] text-sm leading-5 font-normal">
+            Your order ID has been created. Share this ID with your vendor to
+            complete payment
+          </p>
+
+          <div className="mt-5 mb-6 between bg-[#F8F9FB] border border-[#E6E8EC] px-3 py-2 rounded-[6px]">
+            <p className="text-[#1D2939] clamp-[text,xs,sm,@sm,@lg] font-semibold inline-grid text-left">
+              <span className="mb-1 text-[#98A2B3] clamp-[text,0.5rem,0.625rem,@sm,@lg] font-normal">
+                Order ID
+              </span>
+              <span>{checoutResponseExternal?.data?.order?.slug}</span>
+            </p>
+
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(
+                  checoutResponseExternal?.data?.order?.slug
+                );
+                toast("Copied to clipboard");
+              }}
+            >
+              <Icon
+                icon="copyy"
+                size={20}
+                className="clamp-[w,1.25rem,1.3rem,@sm,@lg]"
+              />
+            </button>
+          </div>
+
+          <Button
+            onClick={() => router.push(`/store/${storeSlug}?page=orders`)}
+            className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-xl text-[#59201A] text-sm font-semibold leading-5 py-[18px]"
+          >
+            Continue
+          </Button>
+        </div>
+      </DialogC>
+
       <DialogC open={openModal} setOpen={setOpenModal}>
         <div className="grid gap-4 text-[#1D2939] mt-4 text-center px-4">
           <h3 className="font-semibold leading-normal text-[20px]">
@@ -572,6 +649,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
           <Button
             onClick={() => setOpenDrawer(false)}
             className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-xl text-[#59201A] text-sm font-semibold leading-5 py-[18px]"
+            disabled={!location?.street || !location?.description}
           >
             Save Location
           </Button>

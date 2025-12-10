@@ -37,7 +37,7 @@ export default function RootLayout({
 
             <FeaturedVendor
               trigger={
-                <Button className="bg-[#FCF3D9] hover:bg-[#fdeec6] text-[#310909] clamp-[mt,7,9] clamp-[leading,1rem,1.44rem] clamp-[text,base,lg] tracking-[0.36px] font-semibold !clamp-[py,4,6] !clamp-[px,5rem,6.25rem]">
+                <Button className="bg-[#FCF3D9] hover:bg-[#fdeec6] text-[#310909] clamp-[mt,7,9] clamp-[leading,1rem,1.44rem] clamp-[text,base,lg] tracking-[0.36px] font-semibold clamp-[py,4,6]! clamp-[px,5rem,6.25rem]!">
                   Order Now
                 </Button>
               }

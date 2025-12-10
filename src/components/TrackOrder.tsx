@@ -14,6 +14,7 @@ import { orderFunc } from "./functions/order";
 import LoadingButton from "./LoadingButton";
 import { mutate } from "swr";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 const TrackOrder = ({ data }: { data: any }) => {
   const [openModal, setOpenModal] = React.useState(false);
@@ -36,37 +37,49 @@ const TrackOrder = ({ data }: { data: any }) => {
     {
       title: "Order Received",
       desc: "Waiting for vendor to confirm your order",
-      date: moment(data?.order?.trackings?.[0]?.dateCreated).format("lll"),
+      date: moment(data?.order?.trackings?.[0]?.dateCreated).format(
+        "MMM DD, YYYY hh:mm A"
+      ),
       isCompleted: data?.order?.trackings?.[0]?.status === "success",
     },
     {
       title: "Vendor Accepted Order",
       desc: "The vendor has confirm your order",
-      date: moment(data?.order?.trackings?.[1]?.dateCreated).format("lll"),
+      date: moment(data?.order?.trackings?.[1]?.dateCreated).format(
+        "MMM DD, YYYY hh:mm A"
+      ),
       isCompleted: data?.order?.trackings?.[1]?.status === "success",
     },
     {
       title: "You Order has been Packed",
       desc: "Your order is ready to be picked",
-      date: moment(data?.order?.trackings?.[2]?.dateCreated).format("lll"),
+      date: moment(data?.order?.trackings?.[2]?.dateCreated).format(
+        "MMM DD, YYYY hh:mm A"
+      ),
       isCompleted: data?.order?.trackings?.[2]?.status === "success",
     },
     {
       title: "Rider Accepted Order",
       desc: "Rider has picked your order",
-      date: moment(data?.order?.trackings?.[3]?.dateCreated).format("lll"),
+      date: moment(data?.order?.trackings?.[3]?.dateCreated).format(
+        "MMM DD, YYYY hh:mm A"
+      ),
       isCompleted: data?.order?.trackings?.[3]?.status === "success",
     },
     {
       title: "Order in Transit",
       desc: "Your order is on it's way to you",
-      date: moment(data?.order?.trackings?.[4]?.dateCreated).format("lll"),
+      date: moment(data?.order?.trackings?.[4]?.dateCreated).format(
+        "MMM DD, YYYY hh:mm A"
+      ),
       isCompleted: data?.order?.trackings?.[4]?.status === "success",
     },
     {
       title: "Order Complete",
       desc: "",
-      date: moment(data?.order?.trackings?.[5]?.dateCreated).format("lll"),
+      date: moment(data?.order?.trackings?.[5]?.dateCreated).format(
+        "MMM DD, YYYY hh:mm A"
+      ),
       isCompleted: data?.order?.trackings?.[5]?.status === "success",
     },
   ];
@@ -257,7 +270,7 @@ const TrackOrder = ({ data }: { data: any }) => {
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
               placeholder="+234 XXXXXXXXXX"
-              className="text-[#1E2024] text-sm leading-5 font-normal tracking-[12%] !px-3 !py-4 !rounded-xl h-auto"
+              className="text-[#1E2024] text-sm leading-5 font-normal tracking-[12%] px-3! py-4! rounded-xl! h-auto"
             />
           </div>
 

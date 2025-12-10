@@ -5,13 +5,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import Image from "next/image";
-import React from "react";
-import Icon from "./Icon";
 import { swrfetcher } from "@/lib/swrfetcher";
-import useSWR from "swr";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
+import React from "react";
+import useSWR from "swr";
+import Icon from "./Icon";
 
 type DialogProps = {
   trigger?: React.ReactNode;
@@ -44,7 +43,7 @@ const FeaturedVendor = ({ trigger, header, open, setOpen }: DialogProps) => {
               <Loader2Icon className="animate-spin clamp-[size,8,14,@sm,@lg] clamp-[my,20,32,@sm,@lg] mx-auto" />
             </div>
           ) : (
-            <div className="mt-4 lg:mt-8 space-y-3 lg:space-y-6 overflow-y-auto lg:pr-7 flex-grow">
+            <div className="mt-4 lg:mt-8 space-y-3 lg:space-y-6 overflow-y-auto lg:pr-7 grow">
               {data?.data?.map((vendor: any, index: number) => {
                 return (
                   <Link
@@ -52,15 +51,15 @@ const FeaturedVendor = ({ trigger, header, open, setOpen }: DialogProps) => {
                     href={`/store/${vendor?.slug}`}
                     className="block"
                   >
-                    <button className="start w-full hover:bg-gray-50 bg-white border border-[#E4E7EC] px-3 py-6 lg:px-4 lg:py-7 rounded-xl lg:rounded-[16px] space-x-1.5 lg:space-x-3">
-                      <Image
+                    <button className="start w-full hover:bg-gray-50 bg-[#FFEAE7B2] border border-[#E4E7EC] px-3 py-6 lg:px-4 lg:py-7 rounded-xl lg:rounded-2xl space-x-1.5 lg:space-x-3">
+                      <img
                         src={
                           vendor?.picture?.url ?? "/images/food_placeholder.png"
                         }
                         width={60}
                         height={60}
                         alt={vendor?.name?.at(0)}
-                        className="rounded-full object-cover size-8 lg:!size-12 bg-gray-300 overflow-hidden text-center center font-bold lg:text-2xl"
+                        className="rounded-full object-cover size-8 lg:size-12! bg-gray-300 overflow-hidden text-center center font-bold lg:text-2xl"
                       />
 
                       <p className="text-[#310909] text-base lg:text-[28px] font-semibold lg:not-only:leading-[50.4px] tracking-[0.32px]">
@@ -76,7 +75,7 @@ const FeaturedVendor = ({ trigger, header, open, setOpen }: DialogProps) => {
                       <Icon
                         icon="c_right"
                         size={32}
-                        className="!size-5 lg:size-[28px] ml-auto"
+                        className="size-5! lg:size-7 ml-auto"
                       />
                     </button>
                   </Link>

@@ -205,7 +205,7 @@ const Menu = ({
               <button
                 className={`cursor-pointer clamp-[text,sm,base,@sm,@lg] clamp-[py,1.5,2,@sm,@lg] clamp-[px,2,3,@sm,@lg] whitespace-nowrap inline-flex items-center ${
                   active === "My Cart"
-                    ? "bg-[#FFF0C7] text-[#59201A] rounded-[4px]"
+                    ? "bg-[#FFF0C7] text-[#59201A] rounded-lg"
                     : "text-[#98A2B3]"
                 }`}
                 onClick={() => {
@@ -219,7 +219,7 @@ const Menu = ({
               >
                 <span>My Cart</span>
                 {summary?.items?.count && (
-                  <span className="bg-[#FFF0C7] inline-block size-4 ml-1 center text-center rounded-full text-xs">
+                  <span className="bg-[#98A2B3] text-[#FFF0C7] inline-block size-5 ml-1 center text-center rounded-full text-sm font-bold">
                     {summary?.items?.count}
                   </span>
                 )}
@@ -227,14 +227,14 @@ const Menu = ({
 
               <div className="clamp-[h,5,6,@sm,@lg] clamp-[w,0.0625rem,0.5,@sm,@lg] bg-[#F2F4F7]" />
 
-              <div className="start space-x-3 overflow-x-auto no-scrollbar pt-2 pb-3 mt-2 clamp-[mr,-6,-8,@sm,@lg] clamp-[pr,4,5,@sm,@lg]">
+              <div className="start space-x-3 overflow-x-auto no-scrollbar pt-2 pb-3 mt-2 clamp-[mr,-6,-8,@sm,@lg] xl:mr-0! clamp-[pr,4,5,@sm,@lg] max-w-120">
                 {filter.map((item) => {
                   return (
                     <div key={item?.id} className="start">
                       <button
                         className={`cursor-pointer clamp-[text,sm,base,@sm,@lg] clamp-[py,1.5,2,@sm,@lg] clamp-[px,2,3,@sm,@lg] whitespace-nowrap ${
                           active === item.label
-                            ? "bg-[#FFF0C7] text-[#59201A] rounded-[4px]"
+                            ? "bg-[#FFF0C7] text-[#59201A] rounded-lg"
                             : "text-[#98A2B3]"
                         }`}
                         onClick={() => {
@@ -282,6 +282,7 @@ const Menu = ({
           ) : (
             <FoodList
               storeId={vendor?.store?.id}
+              category={vendor?.store?.category}
               setCart={setCart}
               cart={cart}
               editPackIndex={editPackIndex}
@@ -304,6 +305,7 @@ const Menu = ({
 
         {summary?.items?.count && (
           <Topper
+            category={vendor?.store?.category}
             isEditing={isEditing}
             onEditing={() => {
               setActive("My Cart");

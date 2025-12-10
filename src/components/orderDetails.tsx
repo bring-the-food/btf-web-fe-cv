@@ -24,37 +24,57 @@ const OrderDetails = ({ data }: { data: any }) => {
     {
       title: "Order received",
       desc: "Waiting for vendor to confirm your order",
-      date: moment(data?.order?.trackings?.[0]?.dateCreated).format("lll"),
+      date: moment(data?.order?.trackings?.[0]?.dateCreated).format(
+        "MMM DD, YYYY hh:mm A"
+      ),
       isCompleted: data?.order?.trackings?.[0]?.status === "success",
     },
     {
       title: "Vendor accepted order",
       desc: "The vendor has confirm your order",
-      date: moment(data?.order?.trackings?.[1]?.dateCreated).format("lll"),
+      date: moment(data?.order?.trackings?.[1]?.dateCreated).format(
+        "MMM DD, YYYY hh:mm A"
+      ),
       isCompleted: data?.order?.trackings?.[1]?.status === "success",
     },
     {
       title: "Your order has been packed",
       desc: "Your order is ready to be picked",
-      date: moment(data?.order?.trackings?.[2]?.dateCreated).format("lll"),
+      date: moment(data?.order?.trackings?.[2]?.dateCreated).format(
+        "MMM DD, YYYY hh:mm A"
+      ),
       isCompleted: data?.order?.trackings?.[2]?.status === "success",
     },
-    {
-      title: "Rider accepted order",
-      desc: "Rider has picked your order",
-      date: moment(data?.order?.trackings?.[3]?.dateCreated).format("lll"),
-      isCompleted: data?.order?.trackings?.[3]?.status === "success",
-    },
-    {
-      title: "Order in transit",
-      desc: "Your order is on it's way to you",
-      date: moment(data?.order?.trackings?.[4]?.dateCreated).format("lll"),
-      isCompleted: data?.order?.trackings?.[4]?.status === "success",
-    },
+    ...(data?.order?.store?.manuallyCompleted
+      ? []
+      : [
+          {
+            title: "Rider accepted order",
+            desc: "Rider has picked your order",
+            date: moment(data?.order?.trackings?.[3]?.dateCreated).format(
+              "MMM DD, YYYY hh:mm A"
+            ),
+            isCompleted: data?.order?.trackings?.[3]?.status === "success",
+          },
+        ]),
+    ...(data?.order?.store?.manuallyCompleted
+      ? []
+      : [
+          {
+            title: "Order in transit",
+            desc: "Your order is on it's way to you",
+            date: moment(data?.order?.trackings?.[4]?.dateCreated).format(
+              "MMM DD, YYYY hh:mm A"
+            ),
+            isCompleted: data?.order?.trackings?.[4]?.status === "success",
+          },
+        ]),
     {
       title: "Order complete",
       desc: "",
-      date: moment(data?.order?.trackings?.[5]?.dateCreated).format("lll"),
+      date: moment(data?.order?.trackings?.[5]?.dateCreated).format(
+        "MMM DD, YYYY hh:mm A"
+      ),
       isCompleted: data?.order?.trackings?.[5]?.status === "success",
     },
   ];
@@ -79,7 +99,7 @@ const OrderDetails = ({ data }: { data: any }) => {
         timelines?.[1]?.location?.street +
         ", " +
         timelines?.[1]?.location?.city,
-      desc: moment(timelines?.[1]?.dateCreated).format("ddd, Do MMM, YYYY"),
+      desc: <span className="text-[#379A06]">Completed</span>,
       date: moment(timelines?.[1]?.dateCreated).format("LT"),
       isCompleted: timelines?.[1]?.status === "success",
     },
@@ -98,16 +118,46 @@ const OrderDetails = ({ data }: { data: any }) => {
       setLoading(false);
     }
   };
-  
+
+  const handleRateVendor = async () => {
+    try {
+      setLoading(true);
+      await orderFunc.rateVendor(data?.order?.store?.id, {
+        text: review,
+        rating: rating as number,
+      });
+      setLoading(false);
+      setOpenRateDrawer(false);
+    } catch {
+      setLoading(false);
+    }
+  };
+
+  const start = moment(timelines?.[0]?.dateCreated);
+  const end = moment(timelines?.[1]?.dateCreated);
+
+  const duration = moment.duration(end.diff(start));
+
+  const seconds = Math.floor(duration.asSeconds());
+  const minutes = Math.floor(duration.asMinutes());
+
+  let readable;
+
+  if (minutes > 0) {
+    readable = `${minutes} min ${seconds % 60} sec`;
+  } else {
+    readable = `${seconds} sec`;
+  }
+
   return (
     <div>
-      {data?.order?.rider && (
+      {!data?.order?.store?.manuallyCompleted && data?.order?.rider && (
         <div className="between">
           <div className="start clamp-[pt,4,6,@sm,@lg] clamp-[pb,3.5,5,@sm,@lg]">
             <Image
               className="clamp-[size,12,20,@sm,@lg] rounded-full object-center"
               src={
-                data?.order?.rider?.picture.url ??
+                data?.order?.rider?.picture?.url ??
                 "/images/logo_placeholder.png"
               }
               alt={data?.order?.rider?.name ?? "placeholder logo"}
@@ -139,6 +189,44 @@ const OrderDetails = ({ data }: { data: any }) => {
         </div>
       )}
 
+      {data?.order?.store?.manuallyCompleted && data?.order?.store && (
+        <div className="between">
+          <div className="start clamp-[pt,4,6,@sm,@lg] clamp-[pb,3.5,5,@sm,@lg]">
+            <Image
+              className="clamp-[size,12,20,@sm,@lg] rounded-full object-center"
+              src={
+                data?.order?.store?.picture?.url ??
+                "/images/logo_placeholder.png"
+              }
+              alt={data?.order?.store?.name ?? "placeholder logo"}
+              width={48}
+              height={48}
+              priority
+            />
+
+            <div className="clamp-[ml,3,5,@sm,@lg]">
+              <h6 className="text-[#101828] font-semibold clamp-[text,base,xl,@sm,@lg] leading-none">
+                {data?.order?.store?.name}
+              </h6>
+
+              <p
+                className={`clamp-[text,sm,base,@sm,@lg] clamp-[mt,1,2,@sm,@lg] text-[#667085] capitalize`}
+              >
+                Vendor
+              </p>
+            </div>
+          </div>
+
+          <Button
+            onClick={() => setOpenRateDrawer(true)}
+            variant={"ghost"}
+            className="clamp-[text,sm,base,@sm,@lg] font-semibold"
+          >
+            <span>Rate Vendor</span>
+          </Button>
+        </div>
+      )}
+
       <h5 className="text-[#59201A] font-semibold clamp-[text,sm,base,@sm,@lg] clamp-[my,8,10,@sm,@lg]">
         Order ID. {data?.order?.slug}
       </h5>
@@ -156,9 +244,9 @@ const OrderDetails = ({ data }: { data: any }) => {
 
       <Button
         onClick={() => setOpenDrawer(true)}
-        className="text-[#A46900] w-full max-w-sm rounded-xl clamp-[text,sm,base,@sm,@lg] font-semibold bg-[#FFF9E9] hover:bg-[#fcf2d8] clamp-[py,4,5,@sm,@lg]! clamp-[px,2,4,@sm,@lg]! cursor-pointer space-x-[2px] h-auto"
+        className="text-[#A46900] w-full max-w-sm rounded-xl clamp-[text,sm,base,@sm,@lg] font-semibold bg-[#FFF9E9] hover:bg-[#fcf2d8] clamp-[py,4,5,@sm,@lg]! clamp-[px,2,4,@sm,@lg]! cursor-pointer space-x-0.5 h-auto"
       >
-        <Icon icon="clock-fast-forward" className="size-[20px]" />
+        <Icon icon="clock-fast-forward" className="size-5" />
         View order timelime
       </Button>
 
@@ -186,7 +274,7 @@ const OrderDetails = ({ data }: { data: any }) => {
         <div className="p-5">
           <div className="grid gap-2">
             <h3 className="text-[#475467] text-base">Total Time</h3>
-            <p className="text-[#101828] text-xl font-semibold">40 mins</p>
+            <p className="text-[#101828] text-xl font-semibold">{readable}</p>
           </div>
 
           <div className="clamp-[mt,6,8,@sm,@lg]">
@@ -199,10 +287,12 @@ const OrderDetails = ({ data }: { data: any }) => {
         <div className="p-5">
           <div className="grid gap-2 text-center">
             <h3 className="text-[#101828] text-xl font-semibold">
-              Rate your rider
+              Rate your{" "}
+              {data?.order?.store?.manuallyCompleted ? "vendor" : "rider"}
             </h3>
             <p className="text-[#475467] text-base mt-2">
-              What do you think about your rider
+              What do you think about your{" "}
+              {data?.order?.store?.manuallyCompleted ? "vendor" : "rider"}
             </p>
           </div>
 
@@ -232,7 +322,11 @@ const OrderDetails = ({ data }: { data: any }) => {
             />
 
             <LoadingButton
-              onClick={handleRateRider}
+              onClick={
+                data?.order?.store?.manuallyCompleted
+                  ? handleRateVendor
+                  : handleRateRider
+              }
               isLoading={loading}
               className="bg-[#FFC247] hover:bg-[#fcb526] rounded-xl w-full max-w-[353] clamp-[mt,5,6,@sm,@lg] clamp-[py,1.125rem,1.375rem,@sm,@lg]! h-auto text-[#59201A] clamp-[text,sm,base,@sm,@lg] font-semibold"
             >

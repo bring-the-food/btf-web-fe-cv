@@ -253,7 +253,7 @@ const Food = ({
             </div>
           )}
         </div>
-        <p className="clamp-[mt,1,2,@sm,@lg] text-[#98A2B3] clamp-[text,xs,sm,@sm,@lg] leading-normal font-jakart !clamp-[pr,5,6,@sm,@lg]">
+        <p className="clamp-[mt,1,2,@sm,@lg] text-[#98A2B3] clamp-[text,xs,sm,@sm,@lg] leading-normal font-jakart clamp-[pr,5,6,@sm,@lg]!">
           {data?.description}
         </p>
 
@@ -262,9 +262,9 @@ const Food = ({
         </p>
       </div>
 
-      <div className="clamp-[max-w,7rem,10rem,@sm,@lg] w-full clamp-[h,7rem,10rem,@sm,@lg] clamp-[rounded,0.25rem,0.5rem,@sm,@lg] overflow-hidden clamp-[max-h,7rem,10rem,@sm,@lg] relative min-w-[112px]">
+      <div className="clamp-[max-w,7rem,10rem,@sm,@lg] w-full clamp-[h,7rem,10rem,@sm,@lg] clamp-[rounded,0.25rem,0.5rem,@sm,@lg] overflow-hidden clamp-[max-h,7rem,10rem,@sm,@lg] relative min-w-28">
         <Image
-          className="size-full object-cover object-center"
+          className="size-full object-cover object-center bg-[#FFEAE7B2]"
           src={data?.picture?.url ?? "/images/food_placeholder.png"}
           alt={data?.name ?? "food placeholder"}
           width={112}

@@ -10,6 +10,7 @@ const Topper = ({
   totalPriceLabel,
   isEditing,
   onEditing,
+  category,
 }: {
   storeSlug: string;
   editPackIndex?: number | null;
@@ -18,6 +19,7 @@ const Topper = ({
   totalPriceLabel?: string | number;
   isEditing?: boolean;
   onEditing?: () => void;
+  category: string;
 }) => {
   return (
     <div className="fixed inset-x-0 clamp-[bottom,4,8,@sm,@lg] flex flex-col items-center pointer-events-none w-full z-50 gap-3 px-5">
@@ -70,12 +72,14 @@ const Topper = ({
             )}
           </div>
 
-          <TooltipContent>
-            <p>
-              Imagine a “pack” as a container for one person&lsquo;s meal or a
-              takeaway. Go to cart to manage your orders.
-            </p>
-          </TooltipContent>
+          {category !== "groceries" && (
+            <TooltipContent>
+              <p>
+                Imagine a “pack” as a container for one person&lsquo;s meal or a
+                takeaway. Go to cart to manage your orders.
+              </p>
+            </TooltipContent>
+          )}
         </Tooltip>
       )}
 

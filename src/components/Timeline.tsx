@@ -6,7 +6,7 @@ const Timeline = ({
 }: {
   timelineData: {
     title: string;
-    desc: string;
+    desc: string | React.ReactNode;
     date: string;
     isCompleted?: boolean;
   }[];
@@ -37,7 +37,7 @@ const Pallet = ({
   isCompleted,
 }: {
   title: string;
-  desc: string;
+  desc: string | React.ReactNode;
   date: string;
   isFirst: boolean;
   isCompleted: boolean;

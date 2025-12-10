@@ -1,17 +1,27 @@
 "use client";
 
 import Back from "@/components/Back";
+import { orderFunc } from "@/components/functions/order";
 import Loader from "@/components/Loader";
+import LoadingButton from "@/components/LoadingButton";
 import OrderDetails from "@/components/orderDetails";
 import TrackOrder from "@/components/TrackOrder";
+import { Button } from "@/components/ui/button";
 import { swrfetcher } from "@/lib/swrfetcher";
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import useSWR from "swr";
 
-const Page = ({ params }: { params: Promise<{ orderId: string }> }) => {
+const Page = ({
+  params,
+}: {
+  params: Promise<{ orderId: string; storeSlug: string }>;
+}) => {
+  const router = useRouter();
+
   const { orderId } = React.use(params);
+  const { storeSlug } = React.use(params);
 
   const { data, isLoading } = useSWR(
     `/api/orders/getOrder?orderId=${orderId}`,
@@ -23,12 +33,24 @@ const Page = ({ params }: { params: Promise<{ orderId: string }> }) => {
   const urlstatus = searchParams.get("status");
 
   const [status, setStatus] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
     if (urlstatus) {
       setStatus(urlstatus);
     }
   }, [urlstatus]);
+
+  const handleCancelOrder = async () => {
+    try {
+      setLoading(true);
+      await orderFunc.cancelOrder(data?.data?.order?.id);
+      router.push(`/store/${storeSlug}/?page=orders`);
+      setLoading(false);
+    } catch {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="col-start-center clamp-[px,5,12,@sm,@lg] clamp-[py,10,20,@sm,@lg] w-full">
@@ -48,6 +70,17 @@ const Page = ({ params }: { params: Promise<{ orderId: string }> }) => {
           <h4 className="text-[#1D2939] font-semibold clamp-[text,sm,lg,@sm,@lg] leading-normal text-center mr-auto clamp-[ml,0,-8,@sm,@lg]">
             Order Tracking
           </h4>
+
+          {status !== "IsCompleted" && (
+            <LoadingButton
+              isLoading={loading}
+              onClick={handleCancelOrder}
+              className={"clamp-[text,0.625rem,xs,@sm,@lg]"}
+              size={"sm"}
+            >
+              Cancel Order
+            </LoadingButton>
+          )}
         </div>
 
         <Loader state={isLoading}>
