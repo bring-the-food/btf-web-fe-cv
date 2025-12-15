@@ -178,9 +178,13 @@ const Profile = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                   <span className="text-[#1D2939] mt-1">
                     {vendor?.store?.delivery?.price ? (
                       <>
-                        {currencyFormatter(vendor?.store?.delivery?.price?.min)}{" "}
+                        {currencyFormatter(
+                          vendor?.store?.delivery?.price?.min?.amount
+                        )}{" "}
                         -{" "}
-                        {currencyFormatter(vendor?.store?.delivery?.price?.max)}{" "}
+                        {currencyFormatter(
+                          vendor?.store?.delivery?.price?.max?.amount
+                        )}{" "}
                       </>
                     ) : (
                       "--"

@@ -21,9 +21,13 @@ const WalletBal = () => {
   const { userDetails } = parseCookies();
   const userParsed = userDetails && JSON?.parse(userDetails);
 
-  const { data, mutate } = useSWR(`/api/wallet/getWallet`, swrfetcher);
+  const { data, mutate } = useSWR(
+    userDetails ? `/api/wallet/getWallet` : null,
+    swrfetcher
+  );
 
   const [loading, setLoading] = React.useState(false);
+  const [isCheckingPayment, setIsCheckingPayment] = React.useState(false);
   const [amount, setAmount] = React.useState(0);
   const [openAmountDrawer, setOpenAmountDrawer] = React.useState(false);
   const [openPaymentDrawer, setOpenPaymentDrawer] = React.useState(false);
@@ -52,7 +56,7 @@ const WalletBal = () => {
 
   const handleCheckPaymentStatus = async () => {
     setLoading(true);
-
+    let paymentSuccessful = false;
     const transactionId = paymentDetails?.data?.transaction?.id;
     if (transactionId) {
       const res = await walletFunc.getTransaction(transactionId);
@@ -60,15 +64,18 @@ const WalletBal = () => {
       if (res?.data?.data?.transaction?.payment?.status === "success") {
         toast.success("Payment Successful");
         setOpenPaymentDrawer(false);
-        setPaymentDetails(null);
         mutate();
+        paymentSuccessful = true;
       } else if (res?.data?.data?.transaction?.payment?.status === "pending") {
         toast("Payment Pending");
       } else {
         toast.error("Payment Failed");
       }
     }
-
+    // Only clear details if payment was successful
+    if (paymentSuccessful) {
+      setPaymentDetails(null);
+    }
     setLoading(false);
   };
 
@@ -78,8 +85,26 @@ const WalletBal = () => {
     }
   }, [error]);
 
+  const handleAddMoneyClick = () => {
+    // If we have payment details and they haven't expired, show them again.
+    if (
+      paymentDetails &&
+      paymentDetails?.data?.beneficiary?.expiryDate &&
+      new Date(paymentDetails.data.beneficiary.expiryDate) > new Date()
+    ) {
+      setOpenPaymentDrawer(true);
+    } else {
+      // Otherwise, start the flow to get a new account.
+      // If there were expired details, clear them.
+      if (paymentDetails) {
+        setPaymentDetails(null);
+      }
+      setOpenAmountDrawer(true);
+    }
+  };
+
   return (
-    <div className="between bg-[#FFF9E9] border border-[#FFDB93] rounded-[8px] clamp-[px,3,4,@sm,@lg] clamp-[py,2.5,3.5,@sm,@lg] clamp-[mb,5,6,@sm,@lg]">
+    <div className="between bg-[#FFF9E9] border border-[#FFDB93] rounded-xl clamp-[px,3,4,@sm,@lg] clamp-[py,2.5,3.5,@sm,@lg] clamp-[mb,5,6,@sm,@lg]">
       <div className="start space-x-2 md:space-x-3">
         <div className="bg-[#FFC247] p-2 rounded-full ">
           <Icon
@@ -104,7 +129,8 @@ const WalletBal = () => {
       </div>
 
       <Button
-        onClick={() => setOpenAmountDrawer(true)}
+        onClick={handleAddMoneyClick}
+        disabled={isCheckingPayment}
         className="bg-[#FFC247] hover:bg-[#ffb92c] font-medium clamp-[text,sm,base,@sm,@lg] text-[#59201A] clamp-[px,3,4,@sm,@lg] clamp-[py,2,3,@sm,@lg] "
       >
         <Icon icon="add" size={14} className="clamp-[size,3.5,4,@sm,@lg]" />
@@ -147,7 +173,10 @@ const WalletBal = () => {
         </div>
       </DrawerC>
 
-      <DrawerC open={openPaymentDrawer}>
+      <DrawerC
+        open={openPaymentDrawer}
+        setOpen={setOpenPaymentDrawer}
+      >
         <div className="p-5">
           <h4 className="text-[#1D2939] font-semibold clamp-[text,sm,lg,@sm,@lg] leading-normal text-center mr-auto clamp-[ml,0,-8,@sm,@lg]">
             Account Information

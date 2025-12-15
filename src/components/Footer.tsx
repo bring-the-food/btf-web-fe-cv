@@ -1,12 +1,7 @@
-"use client"
-
-import Dialog from "@/components/DialgC";
 import Image from "next/image";
 import React from "react";
 
 const Footer = () => {
-  const [underCModal, setUnderCModal] = React.useState(false);
-  
   return (
     <footer className="bg-[#FFF9E9] clamp-[px,5,12,@sm,@lg] clamp-[pt,10,20,@sm,@lg] clamp-[pb,2,4,@sm,@lg]">
       <Image
@@ -33,7 +28,9 @@ const Footer = () => {
             <p className="text-caprasimo text-base leading-[21.12px] tracking-[0.32px] center text-[#310909] space-x-2">
               <Image src="/svg/call.svg" alt="call" width={20} height={20} />
               <a
-                href="tel:+2349036908590"
+                href="https://wa.me/2349036908590"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="font-semibold hover:underline"
               >
                 09036908690
@@ -55,25 +52,31 @@ const Footer = () => {
               Follow Us
             </h6>
             <div className="center space-x-2 mt-5">
-              <div className="bg-[#310909] size-10 rounded-full center">
-                <Image
-                  src="/svg/instagram.svg"
-                  alt="instagram"
-                  width={20}
-                  height={20}
-                />
-              </div>
-              <div className="bg-[#310909] size-10 rounded-full center">
-                <Image
-                  src="/svg/facebook.svg"
-                  alt="facebook"
-                  width={20}
-                  height={20}
-                />
-              </div>
-              <div className="bg-[#310909] size-10 rounded-full center">
-                <Image src="/svg/x.svg" alt="x" width={20} height={20} />
-              </div>
+              <a href="#" aria-label="Instagram">
+                <div className="bg-[#310909] size-10 rounded-full center">
+                  <Image
+                    src="/svg/instagram.svg"
+                    alt="instagram"
+                    width={20}
+                    height={20}
+                  />
+                </div>
+              </a>
+              <a href="#" aria-label="Facebook">
+                <div className="bg-[#310909] size-10 rounded-full center">
+                  <Image
+                    src="/svg/facebook.svg"
+                    alt="facebook"
+                    width={20}
+                    height={20}
+                  />
+                </div>
+              </a>
+              <a href="#" aria-label="X">
+                <div className="bg-[#310909] size-10 rounded-full center">
+                  <Image src="/svg/x.svg" alt="x" width={20} height={20} />
+                </div>
+              </a>
             </div>
           </div>
         </div>
@@ -89,14 +92,6 @@ const Footer = () => {
           </p>
         </div>
       </div>
-
-      <Dialog
-        header={"Applications are under construction"}
-        desc={"Thank you for wanting to join the movement!"}
-        open={underCModal}
-        setOpen={setUnderCModal}
-        showCloseButton={false}
-      />
     </footer>
   );
 };

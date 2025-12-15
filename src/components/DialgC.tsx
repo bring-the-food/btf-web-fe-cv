@@ -52,7 +52,7 @@ const DialogC = ({
               <div className="clamp-[gap,4,6] mt-8 grid lg:grid-cols-2 w-fit mx-auto">
                 <Button
                   onClick={downloadRes}
-                  className="!py-[18px] px-4 text-sm lg:text-base font-medium"
+                  className="py-[18px]! px-4 text-sm lg:text-base font-medium"
                 >
                   <Icon
                     icon="playstore"
@@ -63,7 +63,7 @@ const DialogC = ({
                 </Button>
                 <Button
                   onClick={downloadRes}
-                  className="!py-[18px] px-4 text-sm lg:text-base font-medium"
+                  className="py-[18px]! px-4 text-sm lg:text-base font-medium"
                 >
                   <Icon
                     icon="iphone"
@@ -77,7 +77,7 @@ const DialogC = ({
               <Link
                 href={`https://wa.me/2349036908590?text=Hi%2C%20I%27ll%20like%20to%20inquire%20about%20Bring%20This%20Food`}
               >
-                <Button className="!py-[18px] text-sm lg:text-base font-medium mt-8 px-[89px]">
+                <Button className="py-[18px]! text-sm lg:text-base font-medium mt-8 px-[89px]">
                   Contact Us
                 </Button>
               </Link>

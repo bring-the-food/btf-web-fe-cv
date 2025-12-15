@@ -67,7 +67,12 @@ const EmptyOrder = ({ storeSlug }: { storeSlug: string }) => {
 };
 
 const OrderCard = ({ storeSlug, data }: { storeSlug: string; data: any }) => {
-  const isCompleted = data?.status === "complete";
+  const isRejected = data?.trackings?.some(
+    (tracking: any) => tracking.type === "store-rejected"
+  );
+  const effectiveStatus = isRejected ? "rejected" : data?.status;
+
+  const isCompleted = effectiveStatus === "complete";
 
   return (
     <div className="border border-[#E4E7EC] rounded-xl p-3.5">
@@ -104,22 +109,23 @@ const OrderCard = ({ storeSlug, data }: { storeSlug: string; data: any }) => {
           )}
         </p>
 
+        {/* status badge */}
         <div>
           <p
             className={cn(
-              data?.status === "ongoing" &&
+              effectiveStatus === "ongoing" &&
                 "text-[#B54708] bg-[#FFFAEB] border-[#FEDF89]",
-              data?.status === "complete"
+              effectiveStatus === "complete"
                 ? "text-[#027A48] bg-[#A6F4C51A] border-[#A6F4C5]"
                 : "text-[#B42318] bg-[#FEF3F2] borer-[#FECDCA]",
               "capitalize border rounded-full px-2 font-medium text-[10px] leading-[18px]"
             )}
           >
-            {data?.status === "ongoing"
+            {effectiveStatus === "ongoing"
               ? "pending"
-              : data?.status === "complete"
+              : effectiveStatus === "complete"
               ? "successful"
-              : data?.status}
+              : effectiveStatus}
           </p>
         </div>
       </div>
@@ -139,21 +145,32 @@ const OrderCard = ({ storeSlug, data }: { storeSlug: string; data: any }) => {
         ))}
       </div>
 
-      {isCompleted ? (
+      {effectiveStatus !== "ongoing" ? (
         <div className="between">
-          <p className=" text-sm font-medium text-[#057F3E]">Completed</p>
-
-          <Link
-            href={`/store/${storeSlug}/order/track/${data?.id}?status=IsCompleted`}
+          <p
+            className={cn(
+              effectiveStatus === "complete"
+                ? "text-[#057F3E]"
+                : "text-[#B42318]",
+              "text-sm font-medium"
+            )}
           >
-            <Button
-              variant={"ghost"}
-              className="text-[#59201A] font-medium text-xs"
+            {effectiveStatus === "complete" ? "Completed" : "Rejected"}
+          </p>
+
+          {isCompleted && (
+            <Link
+              href={`/store/${storeSlug}/order/track/${data?.id}?status=IsCompleted`}
             >
-              View Details
-              <Icon icon="chevron-down" className="size-[14px] ml-1" />
-            </Button>
-          </Link>
+              <Button
+                variant={"ghost"}
+                className="text-[#59201A] font-medium text-xs"
+              >
+                View Details
+                <Icon icon="chevron-down" className="size-3.5 ml-1" />
+              </Button>
+            </Link>
+          )}
         </div>
       ) : (
         <div className="between">
@@ -177,7 +194,7 @@ const OrderCard = ({ storeSlug, data }: { storeSlug: string; data: any }) => {
               className="text-[#59201A] font-medium text-xs"
             >
               Track
-              <Icon icon="chevron-down" className="size-[14px] ml-1" />
+              <Icon icon="chevron-down" className="size-3.5 ml-1" />
             </Button>
           </Link>
         </div>

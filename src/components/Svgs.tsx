@@ -8,6 +8,7 @@ type FaceProps = {
   width?: number;
   height?: number;
   className?: string;
+  "aria-label": string;
 };
 const FaceButton = ({
   children,
@@ -17,6 +18,7 @@ const FaceButton = ({
   width = 41,
   height = 40,
   className = "",
+  "aria-label": ariaLabel,
 }: FaceProps) => {
   const color = active ? "#FDB022" : strokeColor ?? "#98A2B3";
   const svg = React.isValidElement(children)
@@ -24,6 +26,7 @@ const FaceButton = ({
         width,
         height,
         stroke: color,
+        "aria-hidden": "true",
       })
     : children;
   return (
@@ -32,6 +35,7 @@ const FaceButton = ({
       onClick={onClick}
       className={`cursor-pointer transition-colors duration-200 p-0 m-0 bg-transparent border-0 ${className}`}
       aria-pressed={active ? "true" : "false"}
+      aria-label={ariaLabel}
     >
       {svg}
     </button>
@@ -47,7 +51,12 @@ export const SadFace = ({
   active: boolean;
   onClick?: () => void;
 }) => (
-  <FaceButton strokeColor={strokeColor} active={active} onClick={onClick}>
+  <FaceButton
+    strokeColor={strokeColor}
+    active={active}
+    onClick={onClick}
+    aria-label="Sad"
+  >
     <svg
       viewBox="0 0 41 40"
       fill="none"
@@ -73,7 +82,12 @@ export const NeutralFace = ({
   active: boolean;
   onClick?: () => void;
 }) => (
-  <FaceButton strokeColor={strokeColor} active={active} onClick={onClick}>
+  <FaceButton
+    strokeColor={strokeColor}
+    active={active}
+    onClick={onClick}
+    aria-label="Neutral"
+  >
     <svg
       viewBox="0 0 41 40"
       fill="none"
@@ -99,7 +113,12 @@ export const SmileFace = ({
   active: boolean;
   onClick?: () => void;
 }) => (
-  <FaceButton strokeColor={strokeColor} active={active} onClick={onClick}>
+  <FaceButton
+    strokeColor={strokeColor}
+    active={active}
+    onClick={onClick}
+    aria-label="Happy"
+  >
     <svg
       viewBox="0 0 41 40"
       fill="none"
@@ -125,7 +144,12 @@ export const FrownFace = ({
   active: boolean;
   onClick?: () => void;
 }) => (
-  <FaceButton strokeColor={strokeColor} active={active} onClick={onClick}>
+  <FaceButton
+    strokeColor={strokeColor}
+    active={active}
+    onClick={onClick}
+    aria-label="Frown"
+  >
     <svg
       viewBox="0 0 41 40"
       fill="none"
@@ -151,7 +175,12 @@ export const HappyFace = ({
   active: boolean;
   onClick?: () => void;
 }) => (
-  <FaceButton strokeColor={strokeColor} active={active} onClick={onClick}>
+  <FaceButton
+    strokeColor={strokeColor}
+    active={active}
+    onClick={onClick}
+    aria-label="Very Happy"
+  >
     <svg
       viewBox="0 0 41 40"
       fill="none"

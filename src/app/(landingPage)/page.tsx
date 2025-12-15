@@ -23,7 +23,7 @@ export default function Home() {
         <div className="clamp-[gap,4,6] clamp-[mt,8,9] grid md:grid-cols-2 w-fit mx-auto">
           <Button
             onClick={() => setUnderCModal(true)}
-            className="!clamp-[py,1.125rem,1.375rem,@sm,lg] !clamp-[px,1rem,1.25rem,@sm,lg] clamp-[text,base,lg] font-medium"
+            className="clamp-[py,1.125rem,1.375rem,@sm,lg]! clamp-[px,1rem,1.25rem,@sm,lg]! clamp-[text,base,lg] font-medium"
           >
             <Icon
               icon="playstore"
@@ -34,7 +34,7 @@ export default function Home() {
           </Button>
           <Button
             onClick={() => setUnderCModal(true)}
-            className="!clamp-[py,1.125rem,1.375rem,@sm,lg] !clamp-[px,1rem,1.25rem,@sm,lg] clamp-[text,base,lg] font-medium"
+            className="clamp-[py,1.125rem,1.375rem,@sm,lg]! clamp-[px,1rem,1.25rem,@sm,lg]! clamp-[text,base,lg] font-medium"
           >
             <Icon icon="iphone" h={18.999780654907227} w={17.305557250976562} />
             Download on App Store
@@ -42,7 +42,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="bg-[url('/images/mobile_phone.png')] sm:h-[350px] md:h-[400px] clamp-[h,12.5rem,25rem]  xl:h-[650px] max-w-[1560px] xl:mx-auto bg-[50%_0.5%]  sm:bg-[50%_8.5%] bg-cover" />
+      <div className="bg-[url('/images/mobile_phone.png')] sm:h-[350px] md:h-[400px] clamp-[h,12.5rem,25rem]  xl:h-[650px] max-w-[1560px] xl:mx-auto bg-position-[50%_0.5%]  sm:bg-position-[50%_8.5%] bg-cover" />
 
       <div className="bg-[#FFF9E9]">
         <div className="container_fluid clamp-[py,5.625rem,8.5rem] ">
@@ -51,7 +51,7 @@ export default function Home() {
           </h4>
 
           <div>
-            <div className="space-y-10 lg:space-y-0 lg:space-x-10 clamp-[mt,12,20] col-center lg:!flex-row lg:!justify-between">
+            <div className="space-y-10 lg:space-y-0 lg:space-x-10 clamp-[mt,12,20] col-center lg:flex-row! lg:justify-between!">
               <Pallet
                 icon="store"
                 desc="Focus on making delicious food. We handle the rest!"
@@ -84,9 +84,9 @@ export default function Home() {
       <div className="bg-[#FFE7B0]">
         <div className="container_fluid clamp-[py,4.625rem,7.75rem] grid lg:grid-cols-2 gap-y-20 lg:gap-x-10 xl:gap-x-[148px]">
           <div>
-            <h5 className="font-caprasimo clamp-[text,2rem,4rem] clamp-[leading,2.5rem,4.64rem] text-center lg:text-left">
+            <h2 className="font-caprasimo clamp-[text,2rem,4rem] clamp-[leading,2.5rem,4.64rem] text-center lg:text-left">
               Good Food. <br /> Great Vibes.
-            </h5>
+            </h2>
             <p className="clamp-[mt,2,3] clamp-[leading,1.2rem,1.44rem] clamp-[text,sm,lg] text-center lg:text-left">
               We partner with brands and people you&apos;ll <br /> love to bring
               authentic flavours home.
@@ -129,24 +129,24 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-2 clamp-[gap,3,6] items-stretch ">
             <Image
-              className="row-span-2 object-cover rounded lg:rounded-[24px] w-full"
+              className="row-span-2 object-cover rounded lg:rounded-3xl w-full"
               src="/images/Image.png"
-              alt="Bring this food logo"
+              alt=""
               width={282}
               height={609.75}
             />
             <Image
-              className="object-cover rounded lg:rounded-[24px] w-full"
+              className="object-cover rounded lg:rounded-3xl w-full"
               src="/images/Image-1.png"
-              alt="Bring this food logo"
+              alt=""
               width={282}
               height={292.8800048828125}
               priority
             />
             <Image
-              className="object-cover rounded lg:rounded-[24px] w-full"
+              className="object-cover rounded lg:rounded-3xl w-full"
               src="/images/Image-2.png"
-              alt="Bring this food logo"
+              alt=""
               width={282}
               height={292.8800048828125}
               priority
