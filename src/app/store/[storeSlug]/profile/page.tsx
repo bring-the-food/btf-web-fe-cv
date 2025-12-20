@@ -191,7 +191,7 @@ const Profile = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                     )}
                   </span>
                 </p>
-                <div className="bg-[#F2F4F7] clamp-[h,5,6,@sm,@lg] w-px" />
+                {/* <div className="bg-[#F2F4F7] clamp-[h,5,6,@sm,@lg] w-px" />
                 <p className="col-start clamp-[text,xs,sm,@sm,@lg] font-medium">
                   <span className="text-[#98A2B3] ">Expect In</span>
                   <span className="text-[#1D2939] mt-1">
@@ -204,7 +204,7 @@ const Profile = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                       "--"
                     )}
                   </span>
-                </p>
+                </p> */}
               </div>
             </div>
 

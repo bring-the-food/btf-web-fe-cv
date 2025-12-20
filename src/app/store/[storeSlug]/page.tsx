@@ -123,7 +123,7 @@ export default function Home({
 
   const handleLogout = () => {
     destroyCookie(null, "userDetails", { path: "/" });
-    router.refresh();
+    router.push("/");
   };
 
   return (

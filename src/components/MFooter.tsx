@@ -94,7 +94,7 @@ const MFooter = () => {
                 rel="noopener noreferrer"
                 className="font-semibold hover:underline"
               >
-                09036908690
+                09036908590
               </a>
             </p>
             <p className="font-caprasimo text-base leading-[21.12px] tracking-[0.32px] start text-[#310909] space-x-2">

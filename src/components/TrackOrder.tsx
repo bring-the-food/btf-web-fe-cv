@@ -45,42 +45,42 @@ const TrackOrder = ({ data }: { data: any }) => {
     {
       title: "Vendor Accepted Order",
       desc: "The vendor has confirm your order",
-      date: moment(data?.order?.trackings?.[1]?.dateCreated).format(
-        "MMM DD, YYYY hh:mm A"
-      ),
-      isCompleted: data?.order?.trackings?.[1]?.status === "success",
-    },
-    {
-      title: "You Order has been Packed",
-      desc: "Your order is ready to be picked",
       date: moment(data?.order?.trackings?.[2]?.dateCreated).format(
         "MMM DD, YYYY hh:mm A"
       ),
       isCompleted: data?.order?.trackings?.[2]?.status === "success",
     },
     {
-      title: "Rider Accepted Order",
-      desc: "Rider has picked your order",
+      title: "You Order has been Packed",
+      desc: "Your order is ready to be picked",
       date: moment(data?.order?.trackings?.[3]?.dateCreated).format(
         "MMM DD, YYYY hh:mm A"
       ),
       isCompleted: data?.order?.trackings?.[3]?.status === "success",
     },
     {
-      title: "Order in Transit",
-      desc: "Your order is on it's way to you",
+      title: "Rider Accepted Order",
+      desc: "Rider has picked your order",
       date: moment(data?.order?.trackings?.[4]?.dateCreated).format(
         "MMM DD, YYYY hh:mm A"
       ),
       isCompleted: data?.order?.trackings?.[4]?.status === "success",
     },
     {
-      title: "Order Complete",
-      desc: "",
+      title: "Order in Transit",
+      desc: "Your order is on it's way to you",
       date: moment(data?.order?.trackings?.[5]?.dateCreated).format(
         "MMM DD, YYYY hh:mm A"
       ),
       isCompleted: data?.order?.trackings?.[5]?.status === "success",
+    },
+    {
+      title: "Order Complete",
+      desc: "",
+      date: moment(data?.order?.trackings?.[6]?.dateCreated).format(
+        "MMM DD, YYYY hh:mm A"
+      ),
+      isCompleted: data?.order?.trackings?.[6]?.status === "success",
     },
   ];
 

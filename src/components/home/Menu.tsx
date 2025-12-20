@@ -47,6 +47,44 @@ const Menu = ({
   const [editPackIndex, setEditPackIndex] = React.useState<number | null>(null);
   const [isEditing, setIsEditing] = React.useState<boolean>(false);
 
+  // Scroll state for filter tabs (show buttons + gradients only when needed)
+  const scrollRef = React.useRef<HTMLDivElement | null>(null);
+  const [hasOverflow, setHasOverflow] = React.useState(false);
+  const [canScrollLeft, setCanScrollLeft] = React.useState(false);
+  const [canScrollRight, setCanScrollRight] = React.useState(false);
+
+  const updateScrollState = React.useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    const overflow = scrollWidth > clientWidth + 1;
+    setHasOverflow(overflow);
+    setCanScrollLeft(scrollLeft > 5);
+    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 5);
+  }, []);
+
+  React.useEffect(() => {
+    updateScrollState();
+    const el = scrollRef.current;
+    if (!el) return;
+    const onScroll = () => updateScrollState();
+    el.addEventListener("scroll", onScroll, { passive: true });
+    const ro = new ResizeObserver(updateScrollState);
+    ro.observe(el);
+    window.addEventListener("resize", updateScrollState);
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      ro.disconnect();
+      window.removeEventListener("resize", updateScrollState);
+    };
+  }, [updateScrollState]);
+
+  const scrollByAmount = (amount: number) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: amount, behavior: "smooth" });
+  };
+
   React.useEffect(() => {
     if (cart?.packs?.length > 0) {
       setEditPackIndex(cart?.packs?.length - 1);
@@ -187,6 +225,13 @@ const Menu = ({
     ...mappedCats,
   ];
 
+  // Run a layout-check after the filter list changes so the scroll buttons
+  // and gradients are correctly shown on initial load (handles fetch/populate timing)
+  React.useEffect(() => {
+    const raf = requestAnimationFrame(updateScrollState);
+    return () => cancelAnimationFrame(raf);
+  }, [filter.length, updateScrollState]);
+
   const menuCatItemsWithCategory = menuCatItemsData?.data?.map((it: any) => ({
     ...it,
     category: { ...(it?.category ?? {}), id: categoryId },
@@ -227,35 +272,111 @@ const Menu = ({
 
               <div className="clamp-[h,5,6,@sm,@lg] clamp-[w,0.0625rem,0.5,@sm,@lg] bg-[#F2F4F7]" />
 
-              <div className="start space-x-3 overflow-x-auto no-scrollbar pt-2 pb-3 mt-2 clamp-[mr,-6,-8,@sm,@lg] xl:mr-0! clamp-[pr,4,5,@sm,@lg] max-w-120">
-                {filter.map((item) => {
-                  return (
-                    <div key={item?.id} className="start">
-                      <button
-                        className={`cursor-pointer clamp-[text,sm,base,@sm,@lg] clamp-[py,1.5,2,@sm,@lg] clamp-[px,2,3,@sm,@lg] whitespace-nowrap ${
-                          active === item.label
-                            ? "bg-[#FFF0C7] text-[#59201A] rounded-lg"
-                            : "text-[#98A2B3]"
-                        }`}
-                        onClick={() => {
-                          setActive(item.label);
-                          if (item.id !== "All" && item.id !== "Combos") {
-                            setCategoryId(item.id);
-                          } else if (item.id === "Combos") {
-                            setUrl("getComboItems");
-                          }
-                          router.push(
-                            getUpdatedUrl({
-                              tab: item.label,
-                            })
-                          );
-                        }}
+              <div className="relative">
+                {/* Scrollable tabs */}
+                <div
+                  ref={scrollRef}
+                  className="start space-x-3 overflow-x-auto no-scrollbar pt-2 pb-3 mt-2 clamp-[mr,-6,-8,@sm,@lg] xl:mr-0! clamp-[pr,4,5,@sm,@lg] max-w-120"
+                  onScroll={() => {
+                    if (typeof updateScrollState === "function")
+                      updateScrollState();
+                  }}
+                >
+                  {filter.map((item) => {
+                    return (
+                      <div key={item?.id} className="start">
+                        <button
+                          className={`cursor-pointer clamp-[text,sm,base,@sm,@lg] clamp-[py,1.5,2,@sm,@lg] clamp-[px,2,3,@sm,@lg] whitespace-nowrap ${
+                            active === item.label
+                              ? "bg-[#FFF0C7] text-[#59201A] rounded-lg"
+                              : "text-[#98A2B3]"
+                          }`}
+                          onClick={() => {
+                            setActive(item.label);
+                            if (item.id !== "All" && item.id !== "Combos") {
+                              setCategoryId(item.id);
+                            } else if (item.id === "Combos") {
+                              setUrl("getComboItems");
+                            }
+                            router.push(
+                              getUpdatedUrl({
+                                tab: item.label,
+                              })
+                            );
+                          }}
+                        >
+                          {item.label}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Left gradient + nav button */}
+                {hasOverflow && canScrollLeft && (
+                  <>
+                    <div
+                      className="pointer-events-none hidden md:block absolute left-0 top-0 bottom-0 w-10"
+                      style={{
+                        background:
+                          "linear-gradient(to right, rgb(209 207 200 / 95%), rgba(255, 240, 199, 0))",
+                      }}
+                    />
+                    <button
+                      aria-label="Scroll left"
+                      className="hidden md:inline-flex items-center justify-center absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white text-[#59201A] shadow-md rounded-full p-2"
+                      onClick={() => scrollByAmount(-220)}
+                    >
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
                       >
-                        {item.label}
-                      </button>
-                    </div>
-                  );
-                })}
+                        <path
+                          d="M15 18l-6-6 6-6"
+                          stroke="#59201A"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </button>
+                  </>
+                )}
+
+                {/* Right gradient + nav button */}
+                {hasOverflow && canScrollRight && (
+                  <>
+                    <div
+                      className="pointer-events-none hidden md:block absolute right-0 top-0 bottom-0 w-10"
+                      style={{
+                        background:
+                          "linear-gradient(to left, rgb(209 207 200 / 95%), rgba(255, 240, 199, 0))",
+                      }}
+                    />
+                    <button
+                      aria-label="Scroll right"
+                      className="hidden md:inline-flex items-center justify-center absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white text-[#59201A] shadow-md rounded-full p-2"
+                      onClick={() => scrollByAmount(220)}
+                    >
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <path
+                          d="M9 6l6 6-6 6"
+                          stroke="#59201A"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>

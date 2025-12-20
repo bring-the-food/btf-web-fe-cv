@@ -3,6 +3,7 @@
 import Back from "@/components/Back";
 import { orderFunc } from "@/components/functions/order";
 import Loader from "@/components/Loader";
+import { DialogC } from "@/components/Dialog";
 import LoadingButton from "@/components/LoadingButton";
 import OrderDetails from "@/components/orderDetails";
 import TrackOrder from "@/components/TrackOrder";
@@ -34,6 +35,7 @@ const Page = ({
 
   const [status, setStatus] = React.useState("");
   const [loading, setLoading] = React.useState(false);
+  const [openCancelModal, setOpenCancelModal] = React.useState(false);
 
   React.useEffect(() => {
     if (urlstatus) {
@@ -45,6 +47,7 @@ const Page = ({
     try {
       setLoading(true);
       await orderFunc.cancelOrder(data?.data?.order?.id);
+      setOpenCancelModal(false);
       router.push(`/store/${storeSlug}/?page=orders`);
       setLoading(false);
     } catch {
@@ -74,7 +77,7 @@ const Page = ({
           {status !== "IsCompleted" && (
             <LoadingButton
               isLoading={loading}
-              onClick={handleCancelOrder}
+              onClick={() => setOpenCancelModal(true)}
               className={"clamp-[text,0.625rem,xs,@sm,@lg]"}
               size={"sm"}
             >
@@ -87,6 +90,35 @@ const Page = ({
           {status !== "IsCompleted" && <TrackOrder data={data?.data} />}
           {status === "IsCompleted" && <OrderDetails data={data?.data} />}
         </Loader>
+
+        <DialogC open={openCancelModal} setOpen={setOpenCancelModal}>
+          <div className="grid gap-4 text-[#1D2939] mt-4 text-center px-4">
+            <h3 className="font-semibold leading-normal text-[20px]">
+              Cancel Order
+            </h3>
+            <p className="text-[#475467] text-sm leading-5 font-normal">
+              Are you sure you want to cancel this order? This action cannot be
+              undone.
+            </p>
+
+            <div className="grid gap-3 mt-5 mb-2 md:grid-cols-2">
+              <button
+                onClick={() => setOpenCancelModal(false)}
+                className="rounded-lg border border-[#E9EAEB] py-3 text-sm font-semibold text-[#344054]"
+              >
+                Keep Order
+              </button>
+
+              <LoadingButton
+                isLoading={loading}
+                onClick={handleCancelOrder}
+                className="bg-red-700 hover:bg-red-800 cursor-pointer rounded-lg text-white text-sm font-semibold py-3"
+              >
+                Yes, Cancel Order
+              </LoadingButton>
+            </div>
+          </div>
+        </DialogC>
       </div>
     </div>
   );

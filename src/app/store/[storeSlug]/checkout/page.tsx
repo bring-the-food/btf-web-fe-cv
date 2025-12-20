@@ -33,6 +33,12 @@ import useSWR from "swr";
 import { oau, offCampus } from "../../../../../data/locations";
 import { walletFunc } from "@/components/functions/wallet";
 import PaymentMethod from "@/components/PaymentMethod";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
+import Back from "@/components/Back";
 
 const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   const router = useRouter();
@@ -179,12 +185,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
         <>
           <div className="w-full">
             <div className="clamp-[my,1.3125rem,1.5625rem,@sm,@lg] center w-full">
-              <button
-                className="mr-auto hover:bg-gray-100 p-1 rounded"
-                onClick={() => router.back()}
-              >
-                <Icon icon="left" size={16} />
-              </button>
+              <Back />
 
               <h4 className="text-[#1D2939] font-semibold clamp-[text,sm,lg,@sm,@lg] leading-normal text-center mr-auto clamp-[ml,0,-8,@sm,@lg]">
                 Checkout
@@ -314,25 +315,72 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                   </div>
 
                   <div className="col-center space-y-2.5">
-                    <LoadingButton
-                      isLoading={loading}
-                      onClick={() => handlePayment()}
-                      className="text-[#59201A] hover:bg-[#fdb420] w-full max-w-sm bg-[#FFC247] rounded-xl clamp-[py,1.125rem,1.375rem,@sm,@lg]! clamp-[text,sm,base,@sm,@lg] font-semibold leading-5 clamp-[mt,4.4375rem,4.6875rem,@sm,@lg]"
-                      disabled={!location?.description}
-                    >
-                      Make Payment
-                    </LoadingButton>
+                    {/* Make Payment - show tooltip when disabled because no delivery address */}
+                    {!location?.description ? (
+                      <Tooltip>
+                        <TooltipTrigger className="w-full max-w-sm clamp-[mt,4.4375rem,4.6875rem,@sm,@lg]">
+                          <div className="w-full">
+                            <LoadingButton
+                              isLoading={loading}
+                              onClick={() => handlePayment()}
+                              className="text-[#59201A] hover:bg-[#fdb420] w-full max-w-sm bg-[#FFC247] rounded-xl clamp-[py,1.125rem,1.375rem,@sm,@lg]! clamp-[text,sm,base,@sm,@lg] font-semibold leading-5"
+                              disabled
+                            >
+                              Make Payment
+                            </LoadingButton>
+                          </div>
+                        </TooltipTrigger>
 
-                    <LoadingButton
-                      variant={"ghost"}
-                      isLoading={loading}
-                      onClick={() => handlePayment("external")}
-                      className="w-full max-w-sm clamp-[py,1.125rem,1.375rem,@sm,@lg]! clamp-[text,sm,base,@sm,@lg] font-semibold leading-5"
-                      disabled={!location?.description}
-                    >
-                      Generate Order ID
-                      <Icon icon="arrow-right" size={16} />
-                    </LoadingButton>
+                        <TooltipContent>
+                          <p>Please add a delivery address to enable payment</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      <LoadingButton
+                        isLoading={loading}
+                        onClick={() => handlePayment()}
+                        className="text-[#59201A] hover:bg-[#fdb420] w-full max-w-sm bg-[#FFC247] rounded-xl clamp-[py,1.125rem,1.375rem,@sm,@lg]! clamp-[text,sm,base,@sm,@lg] font-semibold leading-5"
+                      >
+                        Make Payment
+                      </LoadingButton>
+                    )}
+
+                    {/* Generate Order ID - show tooltip when disabled */}
+                    {!location?.description ? (
+                      <Tooltip>
+                        <TooltipTrigger className="w-full max-w-sm">
+                          <div className="w-full">
+                            <LoadingButton
+                              variant={"ghost"}
+                              isLoading={loading}
+                              onClick={() => handlePayment("external")}
+                              className="w-full max-w-sm clamp-[py,1.125rem,1.375rem,@sm,@lg]! clamp-[text,sm,base,@sm,@lg] font-semibold leading-5"
+                              disabled
+                            >
+                              Generate Order ID
+                              <Icon icon="arrow-right" size={16} />
+                            </LoadingButton>
+                          </div>
+                        </TooltipTrigger>
+
+                        <TooltipContent>
+                          <p>
+                            Please add a delivery address to generate an order
+                            ID
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      <LoadingButton
+                        variant={"ghost"}
+                        isLoading={loading}
+                        onClick={() => handlePayment("external")}
+                        className="w-full max-w-sm clamp-[py,1.125rem,1.375rem,@sm,@lg]! clamp-[text,sm,base,@sm,@lg] font-semibold leading-5"
+                      >
+                        Generate Order ID
+                        <Icon icon="arrow-right" size={16} />
+                      </LoadingButton>
+                    )}
                   </div>
                 </div>
               </>
@@ -345,12 +393,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
         <>
           <div className="w-full">
             <div className="clamp-[my,1.3125rem,1.5625rem,@sm,@lg] center w-full">
-              <button
-                className="mr-auto hover:bg-gray-100 p-1 rounded"
-                onClick={() => router.back()}
-              >
-                <Icon icon="left" size={16} />
-              </button>
+              <Back />
 
               <h4 className="text-[#1D2939] font-semibold clamp-[text,sm,lg,@sm,@lg] leading-normal text-center mr-auto clamp-[ml,0,-8,@sm,@lg]">
                 Checkout
@@ -646,13 +689,23 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
             </Accordion>
           </div>
 
-          <Button
-            onClick={() => setOpenDrawer(false)}
-            className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-xl text-[#59201A] text-sm font-semibold leading-5 py-[18px]"
-            disabled={!location?.street || !location?.description}
-          >
-            Save Location
-          </Button>
+          <Tooltip>
+            <TooltipTrigger className="w-full">
+              <Button
+                onClick={() => setOpenDrawer(false)}
+                className="bg-[#FFC247] hover:bg-[#ffc247e5] w-full cursor-pointer rounded-xl text-[#59201A] text-sm font-semibold leading-5 py-[18px]"
+                disabled={!location?.street || !location?.description}
+              >
+                Save Location
+              </Button>
+            </TooltipTrigger>
+
+            {(!location?.street || !location?.description) && (
+              <TooltipContent>
+                <p>Please add a delivery street and description</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
         </div>
       </DrawerC>
     </div>

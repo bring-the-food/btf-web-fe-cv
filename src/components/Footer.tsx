@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 
 const Footer = () => {
@@ -33,7 +34,7 @@ const Footer = () => {
                 rel="noopener noreferrer"
                 className="font-semibold hover:underline"
               >
-                09036908690
+                09036908590
               </a>
             </p>
             <p className="text-caprasimo text-base leading-[21.12px] tracking-[0.32px] center text-[#310909] space-x-2">
@@ -85,7 +86,7 @@ const Footer = () => {
       <div>
         <div className="space-y-5 md:space-y-8 clamp-[py,5,8,@sm,@lg] md:mt-12">
           <p className="text-[#310909] clamp-[text,sm,base,@sm,@lg] leading-[17.92px] tracking-[0.42px] font-jakart text-center">
-            Powered by <span className="font-semibold ">Bringthisfood</span>
+            Powered by <Link href="/" className="hover:underline font-semibold ">Bringthisfood</Link>
           </p>
           <p className="text-[#310909] clamp-[text,sm,base,@sm,@lg] leading-[17.92px] tracking-[0.42px] font-jakart text-center">
             2025 © All rights reserved

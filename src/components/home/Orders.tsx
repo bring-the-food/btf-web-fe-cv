@@ -133,16 +133,18 @@ const OrderCard = ({ storeSlug, data }: { storeSlug: string; data: any }) => {
       <div className="w-full h-px border-t border-[#E4E7EC] border-dashed" />
 
       <div className="between space-x-2 mt-5 mb-4">
-        {Array.from({ length: data?.trackings?.length }, (_, i) => (
-          <div
-            key={i}
-            className={`h-[3px] w-full rounded-full ${
-              isCompleted || i <= findLatestSuccess(data?.trackings)?.index
-                ? "bg-[#FFC247]"
-                : "bg-[#F2F4F7]"
-            }`}
-          />
-        ))}
+        {Array.from({ length: data?.trackings?.length }, (_, i) => {
+          return (
+            <div
+              key={i}
+              className={`h-[3px] w-full rounded-full ${
+                isCompleted || i <= findLatestSuccess(data?.trackings)?.index
+                  ? "bg-[#FFC247]"
+                  : "bg-[#F2F4F7]"
+              }`}
+            />
+          );
+        })}
       </div>
 
       {effectiveStatus !== "ongoing" ? (
@@ -238,7 +240,7 @@ function findLatestSuccess(
 function transformToHumanReadable(type: string): string {
   const typeMap: { [key: string]: string } = {
     "store-received": "Order received",
-    "store-accepted": "Vendor accepted rrder",
+    "store-accepted": "Vendor accepted order",
     "store-packed": "Your order has been packed",
     "rider-accepted": "Rider accepted order",
     "rider-in-transit": "Order in transit",
