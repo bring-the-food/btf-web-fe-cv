@@ -3,6 +3,7 @@
 import Image from "next/image";
 import React from "react";
 import Icon from "./Icon";
+import FeaturedVendor from "@/components/FeaturedVendor";
 import Link from "next/link";
 import Dialog from "@/components/DialgC";
 
@@ -126,10 +127,16 @@ const MFooter = () => {
 
           <ul className="mt-[22px] space-y-2.5">
             <Li label="About" href={"/about"} />
-            <Li
-              label="Order Now"
-              href={`https://wa.me/2349036908590?text=Hi%2C%20I%27ll%20like%20to%20inquire%20about%20Bring%20This%20Food`}
-            />
+            <li>
+              <FeaturedVendor
+                trigger={
+                  <button className="font-caprasimo text-base leading-[21.12px] tracking-[0.32px] text-[#310909]">
+                    Order Now
+                  </button>
+                }
+                header="Order Now"
+              />
+            </li>
             <Li label="Vendors" isVendor setUnderCModal={setUnderCModal} />
             <Li label="Riders" isRider setUnderCModal={setUnderCModal} />
           </ul>

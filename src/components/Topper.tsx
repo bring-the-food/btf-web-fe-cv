@@ -50,25 +50,27 @@ const Topper = ({
                 </div>
               </TooltipTrigger>
             ) : (
-              <div className="between clamp-[px,2,4,@sm,@lg] w-full clamp-[py,1.125rem,1.375rem,@sm,lg]">
-                <p className="clamp-[text,xs,sm,@sm,@lg] leading-5 font-medium start">
-                  <Icon
-                    icon="info"
-                    size={15.416666984558105}
-                    className="mr-1"
-                  />
-                  You are now filling pack {editPackIndex + 1}
-                </p>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={onStartNewPack}
-                    className="bg-[#FFFCFB] text-[#310909] rounded-full p-2 text-[10px] font-semibold hover:bg-[#fcf4f2] pointer-events-auto center"
-                  >
-                    <Icon icon="c_plus" size={12} className="mr-1" />
-                    Start new pack
-                  </button>
+              category !== "groceries" && (
+                <div className="between clamp-[px,2,4,@sm,@lg] w-full clamp-[py,1.125rem,1.375rem,@sm,lg]">
+                  <p className="clamp-[text,xs,sm,@sm,@lg] leading-5 font-medium start">
+                    <Icon
+                      icon="info"
+                      size={15.416666984558105}
+                      className="mr-1"
+                    />
+                    You are now filling pack {editPackIndex + 1}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={onStartNewPack}
+                      className="bg-[#FFFCFB] text-[#310909] rounded-full p-2 text-[10px] font-semibold hover:bg-[#fcf4f2] pointer-events-auto center"
+                    >
+                      <Icon icon="c_plus" size={12} className="mr-1" />
+                      Start new pack
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )
             )}
           </div>
 

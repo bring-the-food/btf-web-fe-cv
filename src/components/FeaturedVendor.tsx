@@ -67,8 +67,8 @@ const FeaturedVendor = ({ trigger, header, open, setOpen }: DialogProps) => {
                       </p>
 
                       {vendor?.category && (
-                        <p className="bg-[#FFE7B0] rounded-full border border-[#FFF0C7] py-1 px-2 lg:py-1.5 lg:px-4 text-xl lg:text-xs font-semibold leading-normal hidden sm:inline-block">
-                          {vendor?.category}
+                        <p className="bg-[#FFE7B0] rounded-full border border-[#FFF0C7] py-1 px-2 lg:py-1.5 lg:px-4 text-xl lg:text-xs font-semibold leading-normal hidden sm:inline-block capitalize">
+                          {vendor?.category?.toLowerCase()}
                         </p>
                       )}
 

@@ -1,6 +1,7 @@
 "use client";
 
 import Dialog from "@/components/DialgC";
+import FeaturedVendor from "@/components/FeaturedVendor";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
 import Image from "next/image";
@@ -13,11 +14,15 @@ const MenuItems = ({
   setIsMenuOpen,
   underCModal,
   setUnderCModal,
+  featuredOpen,
+  setFeaturedOpen,
 }: {
   isDesktop?: boolean;
   setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
   underCModal: boolean;
   setUnderCModal: React.Dispatch<React.SetStateAction<boolean>>;
+  featuredOpen?: boolean;
+  setFeaturedOpen?: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const handleLinkClick = () => {
     setIsMenuOpen(false);
@@ -31,13 +36,12 @@ const MenuItems = ({
         </Link>
       </li>
       <li>
-        <Link
-          target="_blank"
-          rel="noopener noreferrer"
-          href={`https://wa.me/2349036908590?text=Hi%2C%20I%27ll%20like%20to%20inquire%20about%20Bring%20This%20Food`}
-        >
-          Order Now
-        </Link>
+        <FeaturedVendor
+          trigger={<button onClick={handleLinkClick}>Order Now</button>}
+          header="Order Now"
+          open={featuredOpen}
+          setOpen={setFeaturedOpen}
+        />
       </li>
       {isDesktop && (
         <Link href={"/"}>
@@ -86,6 +90,7 @@ const MenuItems = ({
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [underCModal, setUnderCModal] = React.useState(false);
+  const [featuredOpen, setFeaturedOpen] = React.useState(false);
 
   React.useEffect(() => {
     if (isMenuOpen) {
@@ -113,6 +118,8 @@ const Navbar = () => {
               setIsMenuOpen={setIsMenuOpen}
               underCModal={underCModal}
               setUnderCModal={setUnderCModal}
+              featuredOpen={featuredOpen}
+              setFeaturedOpen={setFeaturedOpen}
             />
           </ul>
         </div>
@@ -156,6 +163,8 @@ const Navbar = () => {
             setIsMenuOpen={setIsMenuOpen}
             underCModal={underCModal}
             setUnderCModal={setUnderCModal}
+            featuredOpen={featuredOpen}
+            setFeaturedOpen={setFeaturedOpen}
           />
         </ul>
       </div>
