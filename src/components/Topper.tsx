@@ -28,7 +28,7 @@ const Topper = ({
         <Tooltip>
           <div className="pointer-events-auto w-full max-w-xl bg-[#FFE6DD] text-[#F95B1E] rounded-xl between">
             {isEditing ? (
-              <TooltipTrigger className="w-full ">
+              <TooltipTrigger asChild className="w-full ">
                 <div className="between clamp-[px,2,4,@sm,@lg] w-full clamp-[py,1.125rem,1.375rem,@sm,lg]">
                   <p className="clamp-[text,xs,sm,@sm,@lg] leading-5 font-medium start">
                     <Icon

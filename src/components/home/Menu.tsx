@@ -383,6 +383,8 @@ const Menu = ({
 
           {active === "My Cart" ? (
             <MyCart
+              category={vendor?.store?.category}
+              storeSlug={storeSlug}
               storeId={vendor?.store?.id}
               setCart={setCart}
               cart={cart}

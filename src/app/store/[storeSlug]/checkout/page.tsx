@@ -300,7 +300,10 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                     </h4>
 
                     <div className="mt-2">
-                      <OrderSummary summary={cartData?.data?.cart?.summary} />
+                      <OrderSummary
+                        category={vendor?.store?.category}
+                        summary={cartData?.data?.cart?.summary}
+                      />
                     </div>
                   </div>
 
@@ -318,7 +321,10 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                     {/* Make Payment - show tooltip when disabled because no delivery address */}
                     {!location?.description ? (
                       <Tooltip>
-                        <TooltipTrigger className="w-full max-w-sm clamp-[mt,4.4375rem,4.6875rem,@sm,@lg]">
+                        <TooltipTrigger
+                          asChild
+                          className="w-full max-w-sm clamp-[mt,4.4375rem,4.6875rem,@sm,@lg]"
+                        >
                           <div className="w-full">
                             <LoadingButton
                               isLoading={loading}
@@ -348,7 +354,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                     {/* Generate Order ID - show tooltip when disabled */}
                     {!location?.description ? (
                       <Tooltip>
-                        <TooltipTrigger className="w-full max-w-sm">
+                        <TooltipTrigger asChild className="w-full max-w-sm">
                           <div className="w-full">
                             <LoadingButton
                               variant={"ghost"}
@@ -690,7 +696,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
           </div>
 
           <Tooltip>
-            <TooltipTrigger className="w-full">
+            <TooltipTrigger asChild className="w-full">
               <Button
                 onClick={() => setOpenDrawer(false)}
                 className="bg-[#FFC247] hover:bg-[#ffc247e5] w-full cursor-pointer rounded-xl text-[#59201A] text-sm font-semibold leading-5 py-[18px]"

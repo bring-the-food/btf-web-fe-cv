@@ -7,6 +7,7 @@ import useSWR from "swr";
 import { koboToNaira } from "@/lib/formatCurrency";
 import { cartFunc } from "./functions/cart";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const MyCart = ({
   storeId,
@@ -15,17 +16,23 @@ const MyCart = ({
   onNewPack,
   onEditPack,
   onActionsComplete,
+  category,
+  storeSlug,
 }: {
+  storeSlug: string;
   storeId: string;
   setCart?: any;
   cart?: {
     combos: Record<string, { count: number }>;
     packs: Array<Record<string, { count: number }>>;
   };
+  category?: string;
   onNewPack?: (index: number) => void;
   onEditPack?: (index: number) => void;
   onActionsComplete: () => void;
 }) => {
+  const router = useRouter();
+
   const { data, mutate } = useSWR(
     `/api/cart/getCarts?storeId=${storeId}`,
     swrfetcher
@@ -176,11 +183,12 @@ const MyCart = ({
         packItems.map((pack: any, idx: number) => (
           <CartContent
             key={idx}
-            title={`Pack ${idx + 1}`}
-            hasEdit
+            title={`${category === "food" ? `Pack ${idx + 1}` : "Groceries"}`}
+            hasEdit={category === "food"}
             data={pack}
             onEdit={() => onEditPack?.(idx)}
             onDuplicate={() => handleDuplicatePack(idx)}
+            hasNoDuplicate={category !== "food"}
             onDelete={() => handleDeletePack(idx)}
             onItemMinus={(id: string) => handleChangePackItem(idx, id, -1)}
             onItemPlus={(id: string) => handleChangePackItem(idx, id, 1)}
@@ -204,17 +212,37 @@ const MyCart = ({
             </Button>
           </div>
         ) : (
-          <Button
-            onClick={handleStartNewPack}
-            className="text-[#59201A] rounded-full clamp-[text,xs,sm,@sm,@lg] font-medium bg-[#FFF9E9] hover:bg-[#fcf2d8] clamp-[py,3,4,@sm,@lg]! clamp-[px,4,6,@sm,@lg]! cursor-pointer space-x-[2.5px] h-auto"
-          >
-            <Icon
-              icon="add"
-              size={10}
-              className="clamp-[size,0.625rem,0.75rem,@sm,@lg]"
-            />
-            <span>Start new pack</span>
-          </Button>
+          <div>
+            {category !== "groceries" ? (
+              <Button
+                onClick={handleStartNewPack}
+                className="text-[#59201A] rounded-full clamp-[text,xs,sm,@sm,@lg] font-medium bg-[#FFF9E9] hover:bg-[#fcf2d8] clamp-[py,3,4,@sm,@lg]! clamp-[px,4,6,@sm,@lg]! cursor-pointer space-x-[2.5px] h-auto"
+              >
+                <Icon
+                  icon="add"
+                  size={10}
+                  className="clamp-[size,0.625rem,0.75rem,@sm,@lg]"
+                />
+                <span>Start new pack</span>
+              </Button>
+            ) : (
+              <>
+                {/* <Button
+                  onClick={() => {
+                    router.push(`/store/${storeSlug}?tab=All`);
+                  }}
+                  className="text-[#59201A] rounded-full clamp-[text,xs,sm,@sm,@lg] font-medium bg-[#FFF9E9] hover:bg-[#fcf2d8] clamp-[py,3,4,@sm,@lg]! clamp-[px,4,6,@sm,@lg]! cursor-pointer space-x-[2.5px] h-auto"
+                >
+                  <Icon
+                    icon="add"
+                    size={10}
+                    className="clamp-[size,0.625rem,0.75rem,@sm,@lg]"
+                  />
+                  <span>Browse items</span>
+                </Button> */}
+              </>
+            )}
+          </div>
         ))}
     </div>
   );

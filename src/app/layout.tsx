@@ -105,6 +105,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
+        suppressHydrationWarning
         className={`${caprasimo.variable} ${jakarta.variable} antialiased bg-white`}
       >
         {children}
