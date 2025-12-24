@@ -1,13 +1,12 @@
 "use client";
 
 import Back from "@/components/Back";
+import { DialogC } from "@/components/Dialog";
 import { orderFunc } from "@/components/functions/order";
 import Loader from "@/components/Loader";
-import { DialogC } from "@/components/Dialog";
 import LoadingButton from "@/components/LoadingButton";
 import OrderDetails from "@/components/orderDetails";
 import TrackOrder from "@/components/TrackOrder";
-import { Button } from "@/components/ui/button";
 import { swrfetcher } from "@/lib/swrfetcher";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -28,6 +27,12 @@ const Page = ({
     `/api/orders/getOrder?orderId=${orderId}`,
     swrfetcher
   );
+
+  const { data: vendorData } = useSWR(
+    `/api/profile?storeSlug=${storeSlug}`,
+    swrfetcher
+  );
+  const vendor = vendorData?.data;
 
   const searchParams = useSearchParams();
 
@@ -88,7 +93,12 @@ const Page = ({
 
         <Loader state={isLoading}>
           {status !== "IsCompleted" && <TrackOrder data={data?.data} />}
-          {status === "IsCompleted" && <OrderDetails data={data?.data} />}
+          {status === "IsCompleted" && (
+            <OrderDetails
+              category={vendor?.store?.category}
+              data={data?.data}
+            />
+          )}
         </Loader>
 
         <DialogC open={openCancelModal} setOpen={setOpenCancelModal}>

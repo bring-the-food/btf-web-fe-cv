@@ -27,7 +27,7 @@ const WalletBal = () => {
   );
 
   const [loading, setLoading] = React.useState(false);
-  const [isCheckingPayment, setIsCheckingPayment] = React.useState(false);
+  const [isCheckingPayment] = React.useState(false);
   const [amount, setAmount] = React.useState(0);
   const [openAmountDrawer, setOpenAmountDrawer] = React.useState(false);
   const [openPaymentDrawer, setOpenPaymentDrawer] = React.useState(false);

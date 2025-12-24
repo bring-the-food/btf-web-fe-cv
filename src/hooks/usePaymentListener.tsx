@@ -141,7 +141,7 @@ export const usePaymentListener = (
         }, 3000);
       }
     };
-  }, []);
+  }, [onSuccess]);
 
   const disconnectWebSocket = useCallback(() => {
     console.log("🛑 Disconnect requested");

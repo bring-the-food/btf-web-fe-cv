@@ -13,7 +13,7 @@ import { FrownFace, HappyFace, NeutralFace, SadFace, SmileFace } from "./Svgs";
 import { orderFunc } from "./functions/order";
 import LoadingButton from "./LoadingButton";
 
-const OrderDetails = ({ data }: { data: any }) => {
+const OrderDetails = ({ data, category }: { data: any, category: string }) => {
   const [openDrawer, setOpenDrawer] = React.useState(false);
   const [review, setReview] = React.useState("");
   const [rating, setRating] = React.useState<1 | 2 | 3 | 4 | 5 | null>(null);
@@ -259,7 +259,10 @@ const OrderDetails = ({ data }: { data: any }) => {
         </div>
 
         <div className="clamp-[mt,3,4,@sm,@lg]">
-          <OrderSummary summary={data?.order?.summary} />
+          <OrderSummary
+            category={category}
+            summary={data?.order?.summary}
+          />
         </div>
       </div>
 

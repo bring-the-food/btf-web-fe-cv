@@ -51,7 +51,12 @@ const FeaturedVendor = ({ trigger, header, open, setOpen }: DialogProps) => {
                     href={`/store/${vendor?.slug}`}
                     className="block"
                   >
-                    <div role="button" tabIndex={0} className="start w-full hover:bg-gray-50 bg-white border border-[#E4E7EC] px-3 py-6 lg:px-4 lg:py-7 rounded-xl lg:rounded-2xl space-x-1.5 lg:space-x-3">
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      className="start w-full hover:bg-gray-50 bg-white border border-[#E4E7EC] px-3 py-6 lg:px-4 lg:py-7 rounded-xl lg:rounded-2xl space-x-1.5 lg:space-x-3"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={
                           vendor?.picture?.url ?? "/images/food_placeholder.png"

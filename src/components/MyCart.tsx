@@ -1,13 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { koboToNaira } from "@/lib/formatCurrency";
+import { swrfetcher } from "@/lib/swrfetcher";
 import React from "react";
+import { toast } from "sonner";
+import useSWR from "swr";
+import { cartFunc } from "./functions/cart";
 import Icon from "./Icon";
 import { Button } from "./ui/button";
-import { swrfetcher } from "@/lib/swrfetcher";
-import useSWR from "swr";
-import { koboToNaira } from "@/lib/formatCurrency";
-import { cartFunc } from "./functions/cart";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 
 const MyCart = ({
   storeId,
@@ -17,7 +16,6 @@ const MyCart = ({
   onEditPack,
   onActionsComplete,
   category,
-  storeSlug,
 }: {
   storeSlug: string;
   storeId: string;
@@ -31,8 +29,6 @@ const MyCart = ({
   onEditPack?: (index: number) => void;
   onActionsComplete: () => void;
 }) => {
-  const router = useRouter();
-
   const { data, mutate } = useSWR(
     `/api/cart/getCarts?storeId=${storeId}`,
     swrfetcher

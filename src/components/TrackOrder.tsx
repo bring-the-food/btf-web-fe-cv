@@ -8,13 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { koboToNaira } from "@/lib/formatCurrency";
+import { cn } from "@/lib/utils";
 import moment from "moment";
 import React from "react";
+import { mutate } from "swr";
 import { orderFunc } from "./functions/order";
 import LoadingButton from "./LoadingButton";
-import { mutate } from "swr";
-import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
 
 const TrackOrder = ({ data }: { data: any }) => {
   const [openModal, setOpenModal] = React.useState(false);
