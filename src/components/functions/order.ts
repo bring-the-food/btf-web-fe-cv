@@ -59,4 +59,23 @@ const cancelOrder = async (orderId: string) => {
   }
 };
 
-export const orderFunc = { updateTel, rateRider, cancelOrder, rateVendor };
+const regeneratePayment = async (orderId: string, amount: number) => {
+  try {
+    const response = await axios.post(`/api/orders/regeneratePayment`, {
+      orderId,
+      amount,
+    });
+    return { data: response.data, status: response.status };
+  } catch (error: any) {
+    toast.error(error.response.data?.message || "Failed to regenerate payment");
+    throw { data: error.response.data, status: error.response.status };
+  }
+};
+
+export const orderFunc = {
+  updateTel,
+  rateRider,
+  cancelOrder,
+  rateVendor,
+  regeneratePayment,
+};

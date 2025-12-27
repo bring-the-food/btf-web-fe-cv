@@ -319,7 +319,7 @@ const Menu = ({
                       className="pointer-events-none hidden md:block absolute left-0 top-0 bottom-0 w-10"
                       style={{
                         background:
-                          "linear-gradient(to right, rgb(209 207 200 / 95%), rgba(255, 240, 199, 0))",
+                          "linear-gradient(to right, rgb(255 255 255 / 95%), rgba(255, 240, 199, 0))",
                       }}
                     />
                     <button
@@ -352,7 +352,7 @@ const Menu = ({
                       className="pointer-events-none hidden md:block absolute right-0 top-0 bottom-0 w-10"
                       style={{
                         background:
-                          "linear-gradient(to left, rgb(209 207 200 / 95%), rgba(255, 240, 199, 0))",
+                          "linear-gradient(to left, rgb(255 255 255 / 95%), rgba(255, 240, 199, 0))",
                       }}
                     />
                     <button

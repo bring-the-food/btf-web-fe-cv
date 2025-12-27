@@ -231,7 +231,11 @@ const TrackOrder = ({ data }: { data: any }) => {
             return (
               <Pallet
                 key={packIndex}
-                name={`Pack ${packIndex + 1}`}
+                name={
+                  data?.order?.store?.category === "groceries"
+                    ? "Groceries"
+                    : `Pack ${packIndex + 1}`
+                }
                 desc={desc}
                 price={totalPrice}
               />
