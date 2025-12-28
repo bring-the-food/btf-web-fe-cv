@@ -19,13 +19,28 @@ interface WebSocketMessage {
   data?: any;
 }
 
+const SOCKET_URLS = {
+  development: "wss://test-socket.bringthisfood.com",
+  production: "wss://socket.bringthisfood.com",
+};
+
+const HEARTBEAT_INTERVAL = 9 * 60 * 1000; // 9 minutes (documentation recommends < 10 minutes)
+const INITIAL_RECONNECT_DELAY = 1000;
+const MAX_RECONNECT_DELAY = 30000;
+
 export const usePaymentListener = (
   accessToken: string | null,
   onSuccess: () => void
 ) => {
   const ws = useRef<WebSocket | null>(null);
-  const reconnectTimeout = useRef<NodeJS.Timeout | null>(null);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const reconnectDelayRef = useRef(INITIAL_RECONNECT_DELAY);
+
+  // Stabilize props with refs
   const tokenRef = useRef(accessToken);
+  const onSuccessRef = useRef(onSuccess);
+  const manualCloseRef = useRef(false);
 
   const [isConnected, setIsConnected] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -35,140 +50,204 @@ export const usePaymentListener = (
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Keep token updated without rebuilding callbacks
+  // Keep refs in sync
   useEffect(() => {
-    tokenRef.current = accessToken;
-  }, [accessToken]);
+    onSuccessRef.current = onSuccess;
+  }, [onSuccess]);
+
+  const startHeartbeat = useCallback(() => {
+    if (heartbeatIntervalRef.current)
+      clearInterval(heartbeatIntervalRef.current);
+
+    heartbeatIntervalRef.current = setInterval(() => {
+      if (ws.current?.readyState === WebSocket.OPEN) {
+        console.log("💓 [WS] Sending heartbeat ping...");
+        ws.current.send(JSON.stringify({ action: "ping" }));
+      }
+    }, HEARTBEAT_INTERVAL);
+  }, []);
+
+  const stopHeartbeat = useCallback(() => {
+    if (heartbeatIntervalRef.current) {
+      clearInterval(heartbeatIntervalRef.current);
+      heartbeatIntervalRef.current = null;
+    }
+  }, []);
 
   const connectWebSocket = useCallback(() => {
     const token = tokenRef.current;
     if (!token) {
-      console.log("❌ No access token available");
+      console.log("❌ No access token available for WebSocket");
       return;
     }
 
-    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      console.log("⚡ WebSocket already connected");
+    // Avoid multiple connections
+    if (
+      ws.current &&
+      (ws.current.readyState === WebSocket.OPEN ||
+        ws.current.readyState === WebSocket.CONNECTING)
+    ) {
       return;
     }
 
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL as string;
+    manualCloseRef.current = false;
+    const socketUrl =
+      process.env.NEXT_PUBLIC_SOCKET_URL ||
+      (process.env.NODE_ENV === "production"
+        ? SOCKET_URLS.production
+        : SOCKET_URLS.development);
 
-    console.log("🚀 Starting WebSocket connection to:", socketUrl);
+    console.log("🚀 [WS] Connecting to:", socketUrl);
     setConnectionStatus("connecting");
-    setError(null);
 
     const socket = new WebSocket(socketUrl);
     ws.current = socket;
 
     socket.onopen = () => {
-      console.log("✅ WebSocket connected");
+      console.log("✅ [WS] Connected");
       setIsConnected(true);
       setConnectionStatus("connected");
+      reconnectDelayRef.current = INITIAL_RECONNECT_DELAY;
 
+      // Perform handshake
       const authMessage = {
         action: "authenticate",
         "x-platform-client-type": "web",
         token,
       };
-      console.log("🔐 Sending authentication...");
+
+      console.log("🔐 [WS] Sending handshake...");
       socket.send(JSON.stringify(authMessage));
+      startHeartbeat();
     };
 
     socket.onmessage = (event) => {
       try {
         const message: WebSocketMessage = JSON.parse(event.data);
+        console.log(`📩 Received [${message.type}]:`, message.data);
 
         switch (message.type) {
           case "authenticate":
-            console.log("🔑 Auth response received");
             if (message.data) {
               setIsAuthenticated(true);
-              console.log("✅ Auth success");
+              console.log("🔑 [WS] Auth Success");
             } else {
-              console.log("❌ Auth failed");
+              console.error("❌ [WS] Auth Fail");
               setError("Authentication failed");
             }
             break;
 
           case "transaction.update":
-            console.log("💰 Transaction update:", message.data);
             if (message.data?.transaction) {
               const tx = message.data.transaction;
               setTransaction(tx);
-
-              // Respecting user's request to keep this exact condition
               if (tx.payment?.status === "success") {
-                onSuccess();
+                onSuccessRef.current();
               }
             }
             break;
 
           case "error":
-            console.error("⚠️ WS Error:", message.data);
+            console.error("⚠️ [WS] Server Error:", message.data);
             setError(message.data?.message || "WebSocket error");
             break;
 
+          case "pong":
+            console.log("💓 [WS] Pong received");
+            break;
+
           default:
-            console.log("📨 Unknown message type:", message.type);
+            // Silence unknown messages or log for debugging
+            break;
         }
       } catch (err) {
-        console.error("❌ Failed to parse message:", err);
-        setError("Failed to parse WebSocket message");
+        console.error("❌ Failed to parse WebSocket message:", err);
       }
     };
 
     socket.onerror = (err) => {
       console.error("❌ WebSocket error:", err);
       setConnectionStatus("error");
-      // setError("WebSocket connection error");
     };
 
     socket.onclose = (event) => {
-      console.log("🔴 WebSocket closed:", event.code, event.reason);
-
+      console.log("🔴 [WS] Closed:", event.code, event.reason);
       setIsConnected(false);
       setIsAuthenticated(false);
       setConnectionStatus("disconnected");
+      stopHeartbeat();
 
-      // Auto-reconnect unless clean (1000)
-      if (event.code !== 1000) {
-        console.log("🔄 Scheduling reconnect...");
-        // setError("Connection lost. Reconnecting...");
+      // Only reconnect if it wasn't a manual close and we have a token
+      if (!manualCloseRef.current && tokenRef.current) {
+        console.log(
+          `🔄 [WS] Reconnecting in ${reconnectDelayRef.current}ms...`
+        );
+        if (reconnectTimeoutRef.current)
+          clearTimeout(reconnectTimeoutRef.current);
 
-        reconnectTimeout.current = setTimeout(() => {
-          connectWebSocket(); // stable reference
-        }, 3000);
+        reconnectTimeoutRef.current = setTimeout(() => {
+          reconnectDelayRef.current = Math.min(
+            reconnectDelayRef.current * 2,
+            MAX_RECONNECT_DELAY
+          );
+          connectWebSocket();
+        }, reconnectDelayRef.current);
       }
     };
-  }, [onSuccess]);
+  }, [startHeartbeat, stopHeartbeat]);
 
   const disconnectWebSocket = useCallback(() => {
-    console.log("🛑 Disconnect requested");
+    console.log("🛑 [WS] Disconnecting...");
+    manualCloseRef.current = true;
 
-    if (reconnectTimeout.current) {
-      clearTimeout(reconnectTimeout.current);
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
     }
+
+    stopHeartbeat();
 
     if (ws.current) {
       ws.current.close(1000, "Manual disconnect");
       ws.current = null;
     }
-  }, []);
+  }, [stopHeartbeat]);
 
-  // Run only once on mount
+  // Handle accessToken lifecycle
   useEffect(() => {
-    connectWebSocket();
+    // If token cleared, disconnect
+    if (!accessToken) {
+      disconnectWebSocket();
+      tokenRef.current = null;
+      return;
+    }
+
+    // If token actually changed, disconnect and reconnect
+    if (accessToken !== tokenRef.current) {
+      console.log("🎫 [WS] Token changed, re-initializing...");
+      disconnectWebSocket();
+      tokenRef.current = accessToken;
+      // Small delay to allow cleanup before new connection
+      const t = setTimeout(() => connectWebSocket(), 300);
+      return () => clearTimeout(t);
+    }
+
+    // First time connect if token exists
+    if (!ws.current && accessToken) {
+      connectWebSocket();
+    }
+  }, [accessToken, connectWebSocket, disconnectWebSocket]);
+
+  // Final cleanup on unmount
+  useEffect(() => {
     return () => disconnectWebSocket();
-  }, [connectWebSocket, disconnectWebSocket]);
+  }, [disconnectWebSocket]);
 
   const reconnect = useCallback(() => {
-    console.log("🔄 Manual reconnect");
     disconnectWebSocket();
-    setError(null);
-    setTransaction(null);
-    setTimeout(() => connectWebSocket(), 150);
-  }, [disconnectWebSocket, connectWebSocket]);
+    reconnectDelayRef.current = INITIAL_RECONNECT_DELAY;
+    setTimeout(connectWebSocket, 100);
+  }, [connectWebSocket, disconnectWebSocket]);
 
   return {
     isConnected,
