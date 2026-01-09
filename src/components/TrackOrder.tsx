@@ -23,7 +23,9 @@ const TrackOrder = ({ data }: { data: any }) => {
   const handlePhoneInput = async () => {
     try {
       setLoading(true);
-      await orderFunc.updateTel(data?.order?.id, { telephone: phoneNumber });
+      await orderFunc.updateTel(data?.order?.id, {
+        telephone: `+234${phoneNumber}`,
+      });
       mutate(`/api/orders/getOrder?orderId=${data?.order?.id}`);
       setLoading(false);
       setOpenModal(false);
@@ -268,13 +270,16 @@ const TrackOrder = ({ data }: { data: any }) => {
             >
               Phone number<span className="text-[#F6211A]">*</span>
             </Label>
-            <Input
-              id="phone"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              placeholder="+234 XXXXXXXXXX"
-              className="text-[#1E2024] text-sm leading-5 font-normal tracking-[12%] px-3! py-4! rounded-xl! h-auto"
-            />
+            <div className="text-[#1E2024] start space-x-1 border text-sm leading-5 font-normal tracking-[12%] px-3 py-4 rounded-xl">
+              <span className="text-[#1E2024]">+234</span>
+              <input
+                id="phone"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="XXXXXXXXXX"
+                className="w-full focus:outline-none h-auto"
+              />
+            </div>
           </div>
 
           <LoadingButton

@@ -24,6 +24,8 @@ import { Button } from "@/components/ui/button";
 import React, { use } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
+import Icon from "@/components/Icon";
+import { useChatListener } from "@/hooks/useChatListener";
 
 export default function Home({
   params,
@@ -46,6 +48,14 @@ export default function Home({
   const [active, setActive] = React.useState("menu");
   const [process, setProcess] = React.useState("phoneInput");
   const [loading, setLoading] = React.useState(false);
+  const [openNotificationModal, setOpenNotificationModal] =
+    React.useState(false);
+
+  const userParsed = userDetails ? JSON.parse(userDetails) : null;
+  const accessToken = userParsed?.tokens?.tokens?.access;
+
+  const { hasNewMessage, setHasNewMessage, latestData } =
+    useChatListener(accessToken);
 
   React.useEffect(() => {
     if (page) setActive(page);
@@ -128,7 +138,20 @@ export default function Home({
 
   return (
     <div className="col-start-center clamp-[px,5,12,@sm,@lg] clamp-[py,10,20,@sm,@lg] w-full">
-      <div className="w-full relative flex justify-center items-center clamp-[mb,3.5,8,@sm,@lg]">
+      <div className="w-full relative between clamp-[mb,3.5,8,@sm,@lg]">
+        {!hasNewMessage && <div />}
+
+        {hasNewMessage && (
+          <Button
+            onClick={() => setOpenNotificationModal(true)}
+            variant="ghost"
+            className="hover:bg-gray-100 p-1 relative"
+          >
+            <Icon icon="notification" size={24} />
+            <div className="size-3 bg-[#12B76A] rounded-full animate-pulse absolute top-0 right-0" />
+          </Button>
+        )}
+
         <Link href={"/"}>
           <Image
             className="clamp-[w,3.8125rem,8rem,@sm,@lg]"
@@ -143,7 +166,7 @@ export default function Home({
           <Button
             onClick={handleLogout}
             variant="ghost"
-            className="absolute right-0 text-[#59201A] hover:bg-[#ffc24733] hover:text-[#59201A] gap-2"
+            className="text-[#59201A] hover:bg-[#ffc24733] hover:text-[#59201A] gap-2"
           >
             <LogOut size={20} />
             Logout
@@ -297,6 +320,33 @@ export default function Home({
             </div>
           </>
         )}
+      </DialogC>
+
+      <DialogC open={openNotificationModal} setOpen={setOpenNotificationModal}>
+        <div className="grid gap-6 text-[#1D2939] mt-4 text-center px-4 pb-4">
+          <h3 className="font-semibold leading-tight text-[20px] text-[#101828]">
+            New Message Alert
+          </h3>
+          <p className="text-[#475467] text-sm font-normal">
+            You have a message from the vendor{" "}
+            <span className="font-medium text-[#475467]">
+              {latestData?.chat?.vendor?.store?.name ||
+                vendor?.store?.name ||
+                "the vendor"}
+            </span>
+            . please proceed to the mobile app to view and respond
+          </p>
+
+          <Button
+            onClick={() => {
+              setOpenNotificationModal(false);
+              setHasNewMessage(false);
+            }}
+            className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-xl text-[#59201A] text-sm font-semibold h-auto py-4 shadow-xs"
+          >
+            Continue
+          </Button>
+        </div>
       </DialogC>
     </div>
   );

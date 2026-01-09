@@ -87,7 +87,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
 
   React.useEffect(() => {
     if (userParsed?.telephone) {
-      setPhoneNumber(userParsed?.telephone);
+      setPhoneNumber(userParsed?.telephone.slice(4));
     }
   }, [userParsed?.telephone]);
 
@@ -100,7 +100,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
       .checkout(vendor?.store?.id, {
         delivery: {
           location: location,
-          telephone: phoneNumber,
+          telephone: `+234${phoneNumber}`,
           message: "",
         },
         payment: {
@@ -284,7 +284,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
 
                         <div>
                           <p className="text-[#1D2939] font-medium clamp-[text,sm,base,@sm,@lg]">
-                            {phoneNumber} will be called for pickup
+                            +234{phoneNumber} will be called for pickup
                           </p>
                           <p className="text-[#A46900] font-medium clamp-[text,0.625rem,xs,@sm,@lg] clamp-[mt,1,1.5,@sm,@lg]">
                             Update Phone Number
@@ -618,13 +618,16 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
             >
               Phone number<span className="text-[#F6211A]">*</span>
             </Label>
-            <Input
-              id="phone"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              placeholder="+234 XXXXXXXXXX"
-              className="text-[#1E2024] text-sm leading-5 font-normal tracking-[12%] px-3! py-4! rounded-xl! h-auto"
-            />
+            <div className="text-[#1E2024] start space-x-1 border text-sm leading-5 font-normal tracking-[12%] px-3 py-4 rounded-xl">
+              <span className="text-[#1E2024]">+234</span>
+              <input
+                id="phone"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="XXXXXXXXXX"
+                className="w-full focus:outline-none h-auto"
+              />
+            </div>
           </div>
 
           <Button

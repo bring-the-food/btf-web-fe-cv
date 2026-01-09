@@ -14,6 +14,7 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.bringthisfood.com"),
   title: {
     default: "Bring This Food",
     template: "%s | Bring This Food",
@@ -22,34 +23,34 @@ export const metadata: Metadata = {
     "Bring This Food connects customers with local vendors through reliable, tech-driven last-mile delivery — fast, professional service for customers, vendors and riders",
   keywords: [
     // Primary Keywords
-    'last-mile delivery platform',
-    'food delivery service',
-    'local vendor delivery',
-    'tech-driven delivery',
-    'reliable food delivery',
-    
+    "last-mile delivery platform",
+    "food delivery service",
+    "local vendor delivery",
+    "tech-driven delivery",
+    "reliable food delivery",
+
     // Customer-Focused
-    'food delivery near me',
-    'order food online',
-    'quick food delivery',
-    'fast food delivery service',
-    'reliable food delivery app',
-    
+    "food delivery near me",
+    "order food online",
+    "quick food delivery",
+    "fast food delivery service",
+    "reliable food delivery app",
+
     // Vendor-Focused
-    'restaurant delivery service',
-    'local business delivery platform',
-    'food vendor delivery solutions',
-    'restaurant delivery partnership',
-    
+    "restaurant delivery service",
+    "local business delivery platform",
+    "food vendor delivery solutions",
+    "restaurant delivery partnership",
+
     // Rider-Focused
-    'food delivery jobs',
-    'delivery rider opportunities',
-    'local delivery work',
-    
+    "food delivery jobs",
+    "delivery rider opportunities",
+    "local delivery work",
+
     // Feature-Based
-    'tech-driven food delivery',
-    'professional food delivery',
-    'efficient food delivery'
+    "tech-driven food delivery",
+    "professional food delivery",
+    "efficient food delivery",
   ],
   // authors: [{ name: "Your Name" }],
   // creator: "Your Name",
@@ -88,7 +89,7 @@ export const metadata: Metadata = {
     description:
       "Bring This Food connects customers with local vendors through reliable, tech-driven last-mile delivery — fast, professional service for customers, vendors and riders",
     // creator: "@yourtwitter",
-    images: ["/og-image.png"],
+    images: ["/images/og-image.png"],
   },
   // verification: {
   //   google: "your-google-verification-code",
