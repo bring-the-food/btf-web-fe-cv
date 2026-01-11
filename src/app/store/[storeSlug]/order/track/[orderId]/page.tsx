@@ -19,6 +19,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreVertical } from "lucide-react";
 
 const Page = ({
   params,
@@ -73,8 +80,7 @@ const Page = ({
     setLoading(true);
 
     // Try to locate a transaction id from possible locations on the order
-    const transactionId =
-      checkoutResponse?.data?.transaction?.id || null;
+    const transactionId = checkoutResponse?.data?.transaction?.id || null;
 
     // If there's no transaction id, revalidate the order and inspect its payment status
     if (!transactionId) {
@@ -161,7 +167,7 @@ const Page = ({
                 "uninitialized" ||
               data?.data?.order?.payment?.status?.toLowerCase() ===
                 "failed") && (
-              <>
+              <div className="hidden md:flex space-x-4">
                 {data?.data?.order?.payment?.bank || checkoutResponse ? (
                   <LoadingButton
                     isLoading={loading}
@@ -181,18 +187,73 @@ const Page = ({
                     Regenerate Payment
                   </LoadingButton>
                 )}
-              </>
+              </div>
             )}
 
             {status !== "IsCompleted" && (
-              <LoadingButton
-                isLoading={loading}
-                onClick={() => setOpenCancelModal(true)}
-                className={"clamp-[text,0.625rem,xs,@sm,@lg]"}
-                size={"sm"}
-              >
-                Cancel Order
-              </LoadingButton>
+              <div className="hidden md:flex">
+                <LoadingButton
+                  isLoading={loading}
+                  onClick={() => setOpenCancelModal(true)}
+                  className={"clamp-[text,0.625rem,xs,@sm,@lg]"}
+                  size={"sm"}
+                >
+                  Cancel Order
+                </LoadingButton>
+              </div>
+            )}
+
+            {/* Mobile Actions Menu */}
+            {(status !== "IsCompleted" ||
+              data?.data?.order?.payment?.status?.toLowerCase() === "pending" ||
+              data?.data?.order?.payment?.status?.toLowerCase() ===
+                "uninitialized" ||
+              data?.data?.order?.payment?.status?.toLowerCase() ===
+                "failed") && (
+              <div className="md:hidden flex items-center">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center justify-center w-8 h-8 rounded-full border border-[#E9EAEB] hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-[#FFC247] focus:ring-offset-2">
+                      <MoreVertical className="w-4 h-4 text-[#475467]" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-[180px] p-1.5 bg-white border border-[#E9EAEB] shadow-lg rounded-xl"
+                  >
+                    {(data?.data?.order?.payment?.status?.toLowerCase() ===
+                      "pending" ||
+                      data?.data?.order?.payment?.status?.toLowerCase() ===
+                        "uninitialized" ||
+                      data?.data?.order?.payment?.status?.toLowerCase() ===
+                        "failed") && (
+                      <DropdownMenuItem
+                        disabled={loading}
+                        onClick={() =>
+                          data?.data?.order?.payment?.bank || checkoutResponse
+                            ? setOpenPaymentModal(true)
+                            : handlePayment()
+                        }
+                        className="cursor-pointer px-3 py-2.5 text-sm font-medium text-[#344054] rounded-lg hover:bg-gray-50 transition-colors flex items-center"
+                      >
+                        {data?.data?.order?.payment?.bank || checkoutResponse
+                          ? "View Payment"
+                          : "Regenerate Payment"}
+                      </DropdownMenuItem>
+                    )}
+
+                    {status !== "IsCompleted" && (
+                      <DropdownMenuItem
+                        disabled={loading}
+                        onClick={() => setOpenCancelModal(true)}
+                        className="cursor-pointer px-3 py-2.5 text-sm font-medium text-[#D92D20] hover:bg-[#FFF1F0] focus:bg-[#FFF1F0] focus:text-[#D92D20] rounded-lg transition-colors flex items-center mt-1"
+                      >
+                        Cancel Order
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             )}
           </div>
         </div>
