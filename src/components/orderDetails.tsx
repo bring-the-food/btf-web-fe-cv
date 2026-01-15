@@ -13,7 +13,7 @@ import { FrownFace, HappyFace, NeutralFace, SadFace, SmileFace } from "./Svgs";
 import { orderFunc } from "./functions/order";
 import LoadingButton from "./LoadingButton";
 
-const OrderDetails = ({ data, category }: { data: any, category: string }) => {
+const OrderDetails = ({ data, category }: { data: any; category: string }) => {
   const [openDrawer, setOpenDrawer] = React.useState(false);
   const [review, setReview] = React.useState("");
   const [rating, setRating] = React.useState<1 | 2 | 3 | 4 | 5 | null>(null);
@@ -138,16 +138,30 @@ const OrderDetails = ({ data, category }: { data: any, category: string }) => {
 
   const duration = moment.duration(end.diff(start));
 
-  const seconds = Math.floor(duration.asSeconds());
-  const minutes = Math.floor(duration.asMinutes());
+  const days = Math.floor(duration.asDays());
+  const hours = duration.hours();
+  const minutes = duration.minutes();
+  const seconds = duration.seconds();
 
-  let readable;
+  let readable = "";
+
+  if (days > 0) {
+    readable += `${days} ${days > 1 ? "days" : "day"} `;
+  }
+
+  if (hours > 0) {
+    readable += `${hours} ${hours > 1 ? "hrs" : "hr"} `;
+  }
 
   if (minutes > 0) {
-    readable = `${minutes} min ${seconds % 60} sec`;
-  } else {
-    readable = `${seconds} sec`;
+    readable += `${minutes} min `;
   }
+
+  if (seconds > 0 || !readable) {
+    readable += `${seconds} sec`;
+  }
+
+  readable = readable.trim();
 
   return (
     <div>
@@ -259,10 +273,7 @@ const OrderDetails = ({ data, category }: { data: any, category: string }) => {
         </div>
 
         <div className="clamp-[mt,3,4,@sm,@lg]">
-          <OrderSummary
-            category={category}
-            summary={data?.order?.summary}
-          />
+          <OrderSummary category={category} summary={data?.order?.summary} />
         </div>
       </div>
 
