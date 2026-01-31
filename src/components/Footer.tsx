@@ -29,12 +29,12 @@ const Footer = () => {
             <p className="text-caprasimo text-base leading-[21.12px] tracking-[0.32px] center text-[#310909] space-x-2">
               <Image src="/svg/call.svg" alt="call" width={20} height={20} />
               <a
-                href="https://wa.me/2349036908590"
+                href="https://wa.me/2349113727132"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-semibold hover:underline"
               >
-                09036908590
+                09113727132
               </a>
             </p>
             <p className="text-caprasimo text-base leading-[21.12px] tracking-[0.32px] center text-[#310909] space-x-2">
@@ -89,7 +89,7 @@ const Footer = () => {
             Powered by <Link href="/" className="hover:underline font-semibold ">Bringthisfood</Link>
           </p>
           <p className="text-[#310909] clamp-[text,sm,base,@sm,@lg] leading-[17.92px] tracking-[0.42px] font-jakart text-center">
-            2025 © All rights reserved
+            2025 © BringThisFood Logistics Limited
           </p>
         </div>
       </div>

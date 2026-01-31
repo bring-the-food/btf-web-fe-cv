@@ -112,10 +112,10 @@ const Page = () => {
                 <li>
                   <span className="font-semibold">Phone:</span>{" "}
                   <a
-                    href="https://wa.me/2349036908590"
+                    href="https://wa.me/2349113727132"
                     className="font-semibold hover:underline" target="_blank"
                   >
-                    +2349036908590
+                    +2349113727132
                   </a>
                 </li>
               </ul>

@@ -90,12 +90,12 @@ const MFooter = () => {
             <p className="font-caprasimo text-base leading-[21.12px] tracking-[0.32px] start text-[#310909] space-x-2">
               <Image src="/svg/call.svg" alt="call" width={20} height={20} />
               <a
-                href="https://wa.me/2349036908590"
+                href="https://wa.me/2349113727132"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-semibold hover:underline"
               >
-                09036908590
+                09113727132
               </a>
             </p>
             <p className="font-caprasimo text-base leading-[21.12px] tracking-[0.32px] start text-[#310909] space-x-2">
@@ -179,7 +179,7 @@ const MFooter = () => {
 
       <div className="bg-[#FFE7B0]">
         <div className="container_fluid col-center sm:flex-row! sm:flex sm:justify-between! py-6 sm:py-3 text-xs sm:text-sm clamp-[leading,0.78rem,1.12rem] tracking-[0.42px] space-y-8 sm:space-y-0">
-          <p>2025 © Bring This Food Logistics</p>
+          <p>2025 © BringThisFood Logistics Limited</p>
           <div className="end space-x-4">
             <Link className="hover:underline" href={"/terms-of-use"}>
               Terms of Use

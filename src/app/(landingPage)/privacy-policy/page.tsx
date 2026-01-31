@@ -22,7 +22,8 @@ const Page = () => {
       <div className="bg-[#FFF9E9]">
         <div className="container_fluid py-[115px] text-[#310909] font-medium clamp-[text,lg,2xl] clamp-[leading,1.9rem,3.15rem] tracking-[0.32px]">
           <p>
-            <span className="font-semibold">Last Updated:</span> August 26, 2025
+            <span className="font-semibold">Last Updated:</span> January 26,
+            2026
           </p>
           <br />
           <p>
@@ -45,67 +46,33 @@ const Page = () => {
                 and automatically through your use of our Platform.
               </p>
 
-              <ul className="ml-6 mt-6 space-y-6">
-                <li>
-                  <h5 className="font-semibold">Personal Information</h5>
-                  <ul className="list-disc ml-6 mt-4 space-y-4">
-                    <li>
-                      <span className="font-semibold">For Customers:</span> When
-                      you create an account, we collect your name, phone number,
-                      and delivery address. When you place an order, we collect
-                      order details. We may collect your email address later in
-                      your user journey to communicate with you about your
-                      account and our services. Secure third-party payment
-                      processors handle all payment information.
-                    </li>
-                    <li>
-                      <span className="font-semibold">For Vendors:</span> When
-                      you register your business, we collect your business name,
-                      contact information, menu details, bank account
-                      information, and other business-related data.
-                    </li>
-                    <li>
-                      <span className="font-semibold">For Riders:</span> When
-                      you apply to be a rider, we collect your name, contact
-                      information, vehicle details, bank account information,
-                      and other personal and professional information required
-                      for a background check.
-                    </li>
-                  </ul>
-                </li>
-                <li>
-                  <h5 className="font-semibold">
-                    Order and Transaction Information
-                  </h5>
-                  <p>
-                    We collect details about your orders, including the items
-                    purchased, date and time of the transaction, and the
-                    delivery status. We also collect information about your
-                    interactions with our customer support team.
-                  </p>
-                </li>
-                <li>
-                  <h5 className="font-semibold">Location Data</h5>
-                  <p>
-                    We collect precise location data from riders while they are
-                    using the app to facilitate and track deliveries. For
-                    customers, we collect location data to provide delivery
-                    services, but this data is not tracked in real-time, and you
-                    can choose to disable this in your device settings.
-                  </p>
-                </li>
-                <li>
-                  <h5 className="font-semibold">
-                    Device and Usage Information
-                  </h5>
-                  <p>
-                    We automatically collect information about how you access
-                    and use our Platform, including your device&apos;s IP
-                    address, browser type, operating system, and a log of your
-                    activity.
-                  </p>
-                </li>
-              </ul>
+              <div className="mt-6 space-y-6">
+                <h5 className="font-semibold">Personal Information</h5>
+                <ul className="list-disc ml-6 mt-4 space-y-4">
+                  <li>
+                    <span className="font-semibold">For Customers:</span> When
+                    you create an account, we collect your name, phone number,
+                    and delivery address. When you place an order, we collect
+                    order details. We may collect your email address later in
+                    your user journey to communicate with you about your account
+                    and our services. Secure third-party payment processors
+                    handle all payment information.
+                  </li>
+                  <li>
+                    <span className="font-semibold">For Vendors:</span> When you
+                    register your business, we collect your business name,
+                    contact information, menu details, bank account information,
+                    and other business-related data.
+                  </li>
+                  <li>
+                    <span className="font-semibold">For Riders:</span> When you
+                    apply to be a rider, we collect your name, contact
+                    information, vehicle details, bank account information, and
+                    other personal and professional information required for a
+                    background check.
+                  </li>
+                </ul>
+              </div>
             </li>
 
             <li>
@@ -206,14 +173,51 @@ const Page = () => {
               <ul className="list-disc ml-6 mt-4 space-y-4">
                 <li>Access and review your information.</li>
                 <li>Correct or update your information.</li>
-                <li>
-                  Request the deletion of your account and personal data,
-                  subject to certain exceptions.
-                </li>
+                <li>Request the deletion of your account and personal data</li>
                 <li>
                   Opt-out of receiving promotional communications from us.
                 </li>
               </ul>
+            </li>
+
+            <li>
+              <h3 className="font-bold">Deleting your Account</h3>
+              <p>
+                You may delete your account at any time using either of the
+                following methods:
+              </p>
+              <div className="mt-4 space-y-4">
+                <div>
+                  <span className="font-semibold">
+                    1. Delete within the app
+                  </span>
+                  <p>
+                    Navigate to the account settings in the app and select
+                    &ldquo;Delete My Account.&rdquo; This will immediately and
+                    permanently remove your account and all associated data.
+                  </p>
+                </div>
+                <div>
+                  <span className="font-semibold">2. Request via email</span>
+                  <p>
+                    Send an email to{" "}
+                    <a
+                      href="mailto:info@bringthisfood.com"
+                      className="font-semibold hover:underline"
+                    >
+                      info@bringthisfood.com
+                    </a>{" "}
+                    with the subject line: &ldquo;Delete My Account.&rdquo;
+                    Please include your registered email address and username.
+                    We will process the deletion within 2-3 business days of
+                    getting your request
+                  </p>
+                </div>
+              </div>
+              <p className="mt-4">
+                Once your account is deleted, all personal data is permanently
+                removed. We do not retain any information after deletion.
+              </p>
             </li>
 
             <li>
