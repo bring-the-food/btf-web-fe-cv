@@ -63,7 +63,7 @@ export default function Home({
 
   const { data, isLoading } = useSWR(
     `/api/profile?storeSlug=${storeSlug}`,
-    swrfetcher
+    swrfetcher,
   );
   const vendor = data?.data;
 
@@ -166,10 +166,10 @@ export default function Home({
           <Button
             onClick={handleLogout}
             variant="ghost"
-            className="text-[#59201A] hover:bg-[#ffc24733] hover:text-[#59201A] gap-2"
+            className="text-[#59201A] hover:bg-[#ffc24733] hover:text-[#59201A] gap-2 px-2 sm:px-4"
           >
             <LogOut size={20} />
-            Logout
+            <span className="hidden sm:inline">Logout</span>
           </Button>
         )}
       </div>
@@ -178,13 +178,13 @@ export default function Home({
         <WalletBal />
 
         <Tabs value={active} className="w-full">
-          <TabsList>
+          <TabsList className="w-full justify-start sm:justify-center overflow-x-auto no-scrollbar">
             <TabsTrigger
               onClick={() => {
                 router.push(
                   getUpdatedUrl({
                     page: "menu",
-                  })
+                  }),
                 );
               }}
               value="menu"
@@ -196,7 +196,7 @@ export default function Home({
                 router.push(
                   getUpdatedUrl({
                     page: "orders",
-                  })
+                  }),
                 );
               }}
               value="orders"
@@ -241,15 +241,22 @@ export default function Home({
                 priority
               />
             </div>
-            <div className="grid gap-4 text-[#1D2939] -mt-4 text-center px-4">
-              <h3 className="font-semibold leading-normal text-[28px]">
+            <div className="grid gap-4 text-[#1D2939] -mt-8 sm:-mt-4 text-center px-0 sm:px-4">
+              <h3 className="font-semibold leading-normal text-2xl sm:text-[28px]">
                 Let&apos;s take your order!
               </h3>
               <p className="text-[#475467] text-sm leading-5 font-normal">
                 Provide your phone number to patronize {vendor?.store?.name}
               </p>
 
-              <div className="grid gap-3 mt-5 mb-6">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handlePhoneInput();
+                  (document.activeElement as HTMLElement)?.blur();
+                }}
+                className="grid gap-3 mt-5 mb-6"
+              >
                 <Label
                   htmlFor="phone"
                   className="text-sm leading-5 font-semibold text-[#1E2024]"
@@ -261,26 +268,27 @@ export default function Home({
                   <span className="text-[#1E2024]">+234</span>
                   <input
                     value={phoneNumber}
+                    enterKeyHint="go"
                     onChange={handlePhoneChange}
                     placeholder="XXXXXXXXXX"
                     className="w-full focus:outline-none"
                   />
                 </div>
-              </div>
 
-              <LoadingButton
-                isLoading={loading}
-                onClick={handlePhoneInput}
-                className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-xl text-[#59201A] text-sm font-semibold leading-5 py-[18px] "
-              >
-                Continue
-              </LoadingButton>
+                <LoadingButton
+                  isLoading={loading}
+                  type="submit"
+                  className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-xl text-[#59201A] text-sm font-semibold leading-5 py-[18px] mt-2"
+                >
+                  Continue
+                </LoadingButton>
+              </form>
             </div>
           </>
         ) : (
           <>
-            <div className="grid gap-4 text-[#1D2939] mt-4 text-center px-4">
-              <h3 className="font-semibold leading-normal text-[28px]">
+            <div className="grid gap-4 text-[#1D2939] mt-2 sm:mt-4 text-center px-0 sm:px-4">
+              <h3 className="font-semibold leading-normal text-2xl sm:text-[28px]">
                 Verify your number
               </h3>
               <p className="text-[#475467] text-sm leading-5 font-normal">
@@ -288,12 +296,19 @@ export default function Home({
                 .
               </p>
 
-              <div className="grid gap-3 mt-5 mb-6">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleVerfyPhone();
+                  (document.activeElement as HTMLElement)?.blur();
+                }}
+                className="grid gap-3 mt-5 mb-6"
+              >
                 <InputOTP
                   value={otp}
                   onChange={(value) => setOtp(value)}
                   maxLength={4}
-                  containerClassName="between px-6"
+                  containerClassName="between px-2 sm:px-6"
                 >
                   <InputOTPGroup>
                     <InputOTPSlot index={0} />
@@ -308,15 +323,15 @@ export default function Home({
                     <InputOTPSlot index={3} />
                   </InputOTPGroup>
                 </InputOTP>
-              </div>
 
-              <LoadingButton
-                isLoading={loading}
-                onClick={handleVerfyPhone}
-                className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-xl text-[#59201A] text-sm font-semibold leading-5 py-[18px]"
-              >
-                Verify phone number
-              </LoadingButton>
+                <LoadingButton
+                  isLoading={loading}
+                  type="submit"
+                  className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-xl text-[#59201A] text-sm font-semibold leading-5 py-[18px] mt-6"
+                >
+                  Verify phone number
+                </LoadingButton>
+              </form>
             </div>
           </>
         )}

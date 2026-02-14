@@ -53,11 +53,11 @@ const Topper = ({
               category !== "groceries" && (
                 <div className="between clamp-[px,2,4,@sm,@lg] w-full clamp-[py,1.125rem,1.375rem,@sm,lg]">
                   <p className="clamp-[text,xs,sm,@sm,@lg] leading-5 font-medium start">
-                    <Icon
-                      icon="info"
-                      size={15.416666984558105}
-                      className="mr-1"
-                    />
+                    <TooltipTrigger asChild>
+                      <button className="cursor-pointer mr-1">
+                        <Icon icon="info" size={15.416666984558105} />
+                      </button>
+                    </TooltipTrigger>
                     You are now filling pack {editPackIndex + 1}
                   </p>
                   <div className="flex items-center gap-2">
@@ -75,10 +75,11 @@ const Topper = ({
           </div>
 
           {category !== "groceries" && (
-            <TooltipContent>
+            <TooltipContent className="max-w-[90vw] sm:max-w-xs" sideOffset={5}>
               <p>
-                Imagine a “pack” as a container for one person&lsquo;s meal or a
-                takeaway. Go to cart to manage your orders.
+                A pack is a container for one person&apos;s meal or takeaway.
+                Select regular items to fill a pack. Combos already include
+                their own pack.
               </p>
             </TooltipContent>
           )}

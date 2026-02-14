@@ -6,7 +6,7 @@ const updateTel = async (orderId: string, payload: { telephone: string }) => {
   try {
     const response = await axios.put(
       `/api/orders/updateOrderTel?orderId=${orderId}`,
-      payload
+      payload,
     );
     return { data: response.data, status: response.status };
   } catch (error: any) {
@@ -17,12 +17,12 @@ const updateTel = async (orderId: string, payload: { telephone: string }) => {
 
 const rateRider = async (
   userId: string,
-  payload: { text: string; rating: number }
+  payload: { text: string; rating: number },
 ) => {
   try {
     const response = await axios.post(
       `/api/orders/rateRider?userId=${userId}`,
-      payload
+      payload,
     );
     return { data: response.data, status: response.status };
   } catch (error: any) {
@@ -33,12 +33,12 @@ const rateRider = async (
 
 const rateVendor = async (
   storeId: string,
-  payload: { text: string; rating: number }
+  payload: { text: string; rating: number },
 ) => {
   try {
     const response = await axios.post(
       `/api/orders/rateVendor?storeId=${storeId}`,
-      payload
+      payload,
     );
     return { data: response.data, status: response.status };
   } catch (error: any) {
@@ -50,7 +50,7 @@ const rateVendor = async (
 const cancelOrder = async (orderId: string) => {
   try {
     const response = await axios.delete(
-      `/api/orders/cancelOrder?orderId=${orderId}`
+      `/api/orders/cancelOrder?orderId=${orderId}`,
     );
     return { data: response.data, status: response.status };
   } catch (error: any) {
@@ -59,11 +59,16 @@ const cancelOrder = async (orderId: string) => {
   }
 };
 
-const regeneratePayment = async (orderId: string, amount: number) => {
+const regeneratePayment = async (
+  orderId: string,
+  amount: number,
+  paymentMethod?: string,
+) => {
   try {
     const response = await axios.post(`/api/orders/regeneratePayment`, {
       orderId,
       amount,
+      paymentMethod,
     });
     return { data: response.data, status: response.status };
   } catch (error: any) {

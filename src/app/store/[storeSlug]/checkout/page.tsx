@@ -52,6 +52,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   const [openModalOrderId, setOpenModalOrderId] = React.useState(false);
   const [openDrawer, setOpenDrawer] = React.useState(false);
   const [phoneNumber, setPhoneNumber] = React.useState("");
+  const [accordionVal, setAccordionVal] = React.useState("");
   const [location, setLocation] = React.useState({
     city: "",
     street: "",
@@ -66,13 +67,13 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
 
   const { data, isLoading: profileLoading } = useSWR(
     `/api/profile?storeSlug=${storeSlug}`,
-    swrfetcher
+    swrfetcher,
   );
   const vendor = data?.data;
 
   const { data: cartData, isLoading } = useSWR(
     vendor ? `/api/cart/getCarts?storeId=${vendor?.store?.id}` : null,
-    swrfetcher
+    swrfetcher,
   );
 
   // React.useEffect(() => {
@@ -92,6 +93,13 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   }, [userParsed?.telephone]);
 
   const handlePayment = async (method?: string) => {
+    // Validation: Check if address is set
+    if (!location?.description) {
+      toast.error("Please add a delivery address");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
     setLoading(true);
 
     const paymentMethodToUse = method || paymentMethod;
@@ -108,8 +116,8 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
             paymentMethodToUse === "One Time Transfer"
               ? "single-transfer"
               : paymentMethodToUse === "external"
-              ? "external"
-              : "wallet",
+                ? "external"
+                : "wallet",
         },
       })
       .then((res) => {
@@ -228,7 +236,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                               |{" "}
                               {koboToNaira(
                                 cartData?.data?.cart?.summary?.items?.price
-                                  ?.amount ?? 0
+                                  ?.amount ?? 0,
                               )}
                             </span>
                           </p>
@@ -318,75 +326,25 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                   </div>
 
                   <div className="col-center space-y-2.5">
-                    {/* Make Payment - show tooltip when disabled because no delivery address */}
-                    {!location?.description ? (
-                      <Tooltip>
-                        <TooltipTrigger
-                          asChild
-                          className="w-full max-w-sm clamp-[mt,4.4375rem,4.6875rem,@sm,@lg]"
-                        >
-                          <div className="w-full">
-                            <LoadingButton
-                              isLoading={loading}
-                              onClick={() => handlePayment()}
-                              className="text-[#59201A] hover:bg-[#fdb420] w-full max-w-sm bg-[#FFC247] rounded-xl clamp-[py,1.125rem,1.375rem,@sm,@lg]! clamp-[text,sm,base,@sm,@lg] font-semibold leading-5"
-                              disabled
-                            >
-                              Make Payment
-                            </LoadingButton>
-                          </div>
-                        </TooltipTrigger>
+                    {/* Make Payment */}
+                    <LoadingButton
+                      isLoading={loading}
+                      onClick={() => handlePayment()}
+                      className="text-[#59201A] hover:bg-[#fdb420] w-full max-w-sm bg-[#FFC247] rounded-xl clamp-[py,1.125rem,1.375rem,@sm,@lg]! clamp-[text,sm,base,@sm,@lg] font-semibold leading-5"
+                    >
+                      Make Payment
+                    </LoadingButton>
 
-                        <TooltipContent>
-                          <p>Please add a delivery address to enable payment</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    ) : (
-                      <LoadingButton
-                        isLoading={loading}
-                        onClick={() => handlePayment()}
-                        className="text-[#59201A] hover:bg-[#fdb420] w-full max-w-sm bg-[#FFC247] rounded-xl clamp-[py,1.125rem,1.375rem,@sm,@lg]! clamp-[text,sm,base,@sm,@lg] font-semibold leading-5"
-                      >
-                        Make Payment
-                      </LoadingButton>
-                    )}
-
-                    {/* Generate Order ID - show tooltip when disabled */}
-                    {!location?.description ? (
-                      <Tooltip>
-                        <TooltipTrigger asChild className="w-full max-w-sm">
-                          <div className="w-full">
-                            <LoadingButton
-                              variant={"ghost"}
-                              isLoading={loading}
-                              onClick={() => handlePayment("external")}
-                              className="w-full max-w-sm clamp-[py,1.125rem,1.375rem,@sm,@lg]! clamp-[text,sm,base,@sm,@lg] font-semibold leading-5"
-                              disabled
-                            >
-                              Generate Order ID
-                              <Icon icon="arrow-right" size={16} />
-                            </LoadingButton>
-                          </div>
-                        </TooltipTrigger>
-
-                        <TooltipContent>
-                          <p>
-                            Please add a delivery address to generate an order
-                            ID
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    ) : (
-                      <LoadingButton
-                        variant={"ghost"}
-                        isLoading={loading}
-                        onClick={() => handlePayment("external")}
-                        className="w-full max-w-sm clamp-[py,1.125rem,1.375rem,@sm,@lg]! clamp-[text,sm,base,@sm,@lg] font-semibold leading-5"
-                      >
-                        Generate Order ID
-                        <Icon icon="arrow-right" size={16} />
-                      </LoadingButton>
-                    )}
+                    {/* Generate Order ID */}
+                    <LoadingButton
+                      variant={"ghost"}
+                      isLoading={loading}
+                      onClick={() => handlePayment("external")}
+                      className="w-full max-w-sm clamp-[py,1.125rem,1.375rem,@sm,@lg]! clamp-[text,sm,base,@sm,@lg] font-semibold leading-5"
+                    >
+                      Generate Order ID
+                      <Icon icon="arrow-right" size={16} />
+                    </LoadingButton>
                   </div>
                 </div>
               </>
@@ -421,7 +379,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                     />
                   </p>
 
-                  <div className="min-w-[353px] max-w-[453px] mx-auto">
+                  <div className="w-full max-w-[453px] mx-auto">
                     <div className="col-center center clamp-[mt,2.25rem,3rem,@sm,@lg] border border-[#F2F4F7] clamp-[px,4,6,@sm,@lg] clamp-[pt,5,7,@sm,@lg] clamp-[pb,8,10,@sm,@lg]">
                       <Icon
                         icon="bank"
@@ -436,7 +394,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                       <p className="clamp-[mt,3,3.5,@sm,@lg] font-bold clamp-[text,1.5rem,2rem,@sm,@lg] text-[#414651]">
                         {koboToNaira(
                           checoutResponse?.data?.order?.summary?.bill?.amount ??
-                            0
+                            0,
                         )}
                       </p>
 
@@ -470,7 +428,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                               onClick={() => {
                                 navigator.clipboard.writeText(
                                   checoutResponse?.data?.beneficiary?.bank
-                                    ?.account?.number
+                                    ?.account?.number,
                                 );
                                 toast("Copied to clipboard");
                               }}
@@ -532,7 +490,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
               {koboToNaira(
                 paymentMethod !== "One Time Transfer"
                   ? checoutResponse?.data?.order?.summary?.bill?.amount
-                  : transaction?.summary?.bill?.amount ?? 0
+                  : (transaction?.summary?.bill?.amount ?? 0),
               )}{" "}
               is successful. You <br /> can proceed to track your order
             </p>
@@ -549,7 +507,11 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
         </>
       )}
 
-      <DialogC open={openModalOrderId} setOpen={setOpenModalOrderId}>
+      <DialogC
+        open={openModalOrderId}
+        setOpen={setOpenModalOrderId}
+        hasNoClose={true}
+      >
         <div className="grid gap-4 text-[#1D2939] mt-4 text-center px-4">
           <div>
             <Image
@@ -580,7 +542,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
             <button
               onClick={() => {
                 navigator.clipboard.writeText(
-                  checoutResponseExternal?.data?.order?.slug
+                  checoutResponseExternal?.data?.order?.slug,
                 );
                 toast("Copied to clipboard");
               }}
@@ -653,11 +615,18 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
           </p>
 
           <div>
-            <Accordion type="single" collapsible>
+            <Accordion
+              type="single"
+              collapsible
+              value={accordionVal}
+              onValueChange={setAccordionVal}
+            >
               <LocationAccordian
                 label="OAU (On Campus)"
                 desc="Obafemi Awolowo University"
                 setLocation={setLocation}
+                value={location?.street}
+                onSelect={() => setAccordionVal("")}
                 contents={oau.map((area: string) => (
                   <CCheckbox key={area} label={area} />
                 ))}
@@ -666,6 +635,8 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                 label="Ile - Ife (Off Campus)"
                 desc="Locations in Ile-Ife"
                 setLocation={setLocation}
+                value={location?.street}
+                onSelect={() => setAccordionVal("")}
                 contents={offCampus.map((area: string) => (
                   <CCheckbox key={area} label={area} />
                 ))}
@@ -728,16 +699,20 @@ const LocationAccordian = ({
   contents,
   desc,
   setLocation,
+  value,
+  onSelect,
 }: {
   label: string;
   contents: React.ReactNode;
   desc: string;
   setLocation: any;
+  value?: string;
+  onSelect?: () => void;
 }) => {
   return (
     <AccordionItem value={label} key={label} className="mb-3">
       <AccordionTrigger className="border border-[#E6E8EC] rounded-xl py-[9px] px-3.5">
-        <span className="col-start">
+        <span className="col-start text-left">
           <span className="font-medium leading-6 text-[#1E2024] text-base">
             {label}
           </span>
@@ -746,12 +721,14 @@ const LocationAccordian = ({
       </AccordionTrigger>
       <AccordionContent className="text-[#616469] text-base border border-[#E6E8EC] px-3.5 py-3 overflow-y-auto max-h-[425px] space-y-5 mt-2">
         <RadioGroup
-          onValueChange={(value) => {
+          value={value}
+          onValueChange={(val) => {
             setLocation({
               city: label,
-              street: value,
+              street: val,
               description: "",
             });
+            onSelect?.();
           }}
         >
           {contents}
@@ -763,9 +740,11 @@ const LocationAccordian = ({
 
 const CCheckbox = ({ label }: { label: string }) => {
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3 relative">
       <RadioGroupItem value={label} id={label} />
-      <Label htmlFor={label}>{label}</Label>
+      <Label htmlFor={label} className="w-full py-2 cursor-pointer">
+        {label}
+      </Label>
     </div>
   );
 };

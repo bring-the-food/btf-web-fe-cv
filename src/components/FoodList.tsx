@@ -29,7 +29,7 @@ const FoodList = ({
   return (
     <div>
       {category !== "groceries" && (
-        <div className="start space-x-2 bg-[#FEF3ED4D] border border-[#FFCBC2] shadow-[0px_1px_3px_0px_#00000014] py-3 px-4 rounded-[6px] tracking-normal my-5">
+        <div className="start gap-2 bg-[#FEF3ED4D] border border-[#FFCBC2] shadow-[0px_1px_3px_0px_#00000014] py-2 px-3 sm:py-3 sm:px-4 rounded-[6px] tracking-normal my-4 sm:my-5">
           <Icon icon="c_info" size={18} />
 
           <p className="text-xs font-medium leading-5 text-[#1D2939]">

@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const { orderId, amount } = body;
+  const { orderId, amount, paymentMethod } = body;
 
   if (!orderId) {
     return Response.json({ message: "orderId is required" }, { status: 400 });
@@ -24,7 +24,8 @@ export async function POST(request: NextRequest) {
         currency: "ngn",
         amount,
       },
-    }
+      method: paymentMethod,
+    },
   );
 
   return Response.json(response?.data, {

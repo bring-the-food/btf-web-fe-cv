@@ -39,7 +39,7 @@ const TrackOrder = ({ data }: { data: any }) => {
       title: "Order Received",
       desc: "Waiting for vendor to confirm your order",
       date: moment(data?.order?.trackings?.[0]?.dateCreated).format(
-        "MMM DD, YYYY hh:mm A"
+        "MMM DD, YYYY hh:mm A",
       ),
       isCompleted: data?.order?.trackings?.[0]?.status === "success",
     },
@@ -47,7 +47,7 @@ const TrackOrder = ({ data }: { data: any }) => {
       title: "Vendor Accepted Order",
       desc: "The vendor has confirm your order",
       date: moment(data?.order?.trackings?.[2]?.dateCreated).format(
-        "MMM DD, YYYY hh:mm A"
+        "MMM DD, YYYY hh:mm A",
       ),
       isCompleted: data?.order?.trackings?.[2]?.status === "success",
     },
@@ -55,7 +55,7 @@ const TrackOrder = ({ data }: { data: any }) => {
       title: "You Order has been Packed",
       desc: "Your order is ready to be picked",
       date: moment(data?.order?.trackings?.[3]?.dateCreated).format(
-        "MMM DD, YYYY hh:mm A"
+        "MMM DD, YYYY hh:mm A",
       ),
       isCompleted: data?.order?.trackings?.[3]?.status === "success",
     },
@@ -63,7 +63,7 @@ const TrackOrder = ({ data }: { data: any }) => {
       title: "Rider Accepted Order",
       desc: "Rider has picked your order",
       date: moment(data?.order?.trackings?.[4]?.dateCreated).format(
-        "MMM DD, YYYY hh:mm A"
+        "MMM DD, YYYY hh:mm A",
       ),
       isCompleted: data?.order?.trackings?.[4]?.status === "success",
     },
@@ -71,7 +71,7 @@ const TrackOrder = ({ data }: { data: any }) => {
       title: "Order in Transit",
       desc: "Your order is on it's way to you",
       date: moment(data?.order?.trackings?.[5]?.dateCreated).format(
-        "MMM DD, YYYY hh:mm A"
+        "MMM DD, YYYY hh:mm A",
       ),
       isCompleted: data?.order?.trackings?.[5]?.status === "success",
     },
@@ -79,7 +79,7 @@ const TrackOrder = ({ data }: { data: any }) => {
       title: "Order Complete",
       desc: "",
       date: moment(data?.order?.trackings?.[6]?.dateCreated).format(
-        "MMM DD, YYYY hh:mm A"
+        "MMM DD, YYYY hh:mm A",
       ),
       isCompleted: data?.order?.trackings?.[6]?.status === "success",
     },
@@ -100,19 +100,28 @@ const TrackOrder = ({ data }: { data: any }) => {
         <div>
           <p
             className={cn(
-              data?.order?.status === "ongoing" &&
-                "text-[#B54708] bg-[#FFFAEB] border-[#FEDF89]",
-              data?.order?.status === "complete"
-                ? "text-[#027A48] bg-[#A6F4C51A] border-[#A6F4C5]"
-                : "text-[#B42318] bg-[#FEF3F2] borer-[#FECDCA]",
-              "capitalize border rounded-full px-2 font-medium text-[10px] leading-[18px]"
+              "capitalize border rounded-full px-2 font-medium text-[10px] leading-[18px]",
+              data?.order?.status === "ongoing" ||
+                data?.order?.status === "uninitialized" ||
+                data?.order?.status === "initialized"
+                ? data?.order?.payment?.method === "external"
+                  ? "text-[#B54708] bg-[#FFFAEB] border-[#FEDF89]"
+                  : "text-[#B54708] bg-[#FFFAEB] border-[#FEDF89]"
+                : data?.order?.status === "complete"
+                  ? "text-[#027A48] bg-[#A6F4C51A] border-[#A6F4C5]"
+                  : "text-[#B42318] bg-[#FEF3F2] border-[#FECDCA]",
             )}
           >
-            {data?.order?.status === "ongoing"
-              ? "pending"
-              : data?.order?.status === "complete"
-              ? "successful"
-              : data?.order?.status}
+            {data?.order?.payment?.method === "external" &&
+            (data?.order?.status === "ongoing" ||
+              data?.order?.status === "uninitialized" ||
+              data?.order?.status === "initialized")
+              ? "Payment Uninitialized"
+              : data?.order?.status === "ongoing"
+                ? "pending"
+                : data?.order?.status === "complete"
+                  ? "successful"
+                  : data?.order?.status}
           </p>
         </div>
       </div>
@@ -223,7 +232,7 @@ const TrackOrder = ({ data }: { data: any }) => {
           {data?.order?.packs.map((pack: any, packIndex: number) => {
             const totalPrice = pack.reduce(
               (sum: number, item: any) => sum + item.price.amount,
-              0
+              0,
             );
 
             const desc = pack

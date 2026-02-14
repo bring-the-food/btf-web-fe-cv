@@ -23,7 +23,7 @@ const WalletBal = () => {
 
   const { data, mutate } = useSWR(
     userDetails ? `/api/wallet/getWallet` : null,
-    swrfetcher
+    swrfetcher,
   );
 
   const [loading, setLoading] = React.useState(false);
@@ -104,8 +104,8 @@ const WalletBal = () => {
   };
 
   return (
-    <div className="between bg-[#FFF9E9] border border-[#FFDB93] rounded-xl clamp-[px,3,4,@sm,@lg] clamp-[py,2.5,3.5,@sm,@lg] clamp-[mb,5,6,@sm,@lg]">
-      <div className="start space-x-2 md:space-x-3">
+    <div className="between bg-[#FFF9E9] border border-[#FFDB93] rounded-xl clamp-[px,2.5,4,@sm,@lg] clamp-[py,2.5,3.5,@sm,@lg] clamp-[mb,5,6,@sm,@lg]">
+      <div className="start space-x-1 sm:space-x-2 md:space-x-3">
         <div className="bg-[#FFC247] p-2 rounded-full ">
           <Icon
             icon="wallet"
@@ -131,10 +131,10 @@ const WalletBal = () => {
       <Button
         onClick={handleAddMoneyClick}
         disabled={isCheckingPayment}
-        className="bg-[#FFC247] hover:bg-[#ffb92c] font-medium clamp-[text,sm,base,@sm,@lg] text-[#59201A] clamp-[px,3,4,@sm,@lg] clamp-[py,2,3,@sm,@lg] "
+        className="bg-[#FFC247] hover:bg-[#ffb92c] font-medium clamp-[text,xs,base,@sm,@lg] text-[#59201A] px-2.5 sm:clamp-[px,3,4,@sm,@lg] clamp-[py,2,3,@sm,@lg] h-auto "
       >
         <Icon icon="add" size={14} className="clamp-[size,3.5,4,@sm,@lg]" />
-        Add Money
+        <span className="ml-1">Add Money</span>
       </Button>
 
       <DrawerC open={openAmountDrawer} setOpen={setOpenAmountDrawer}>
@@ -173,10 +173,7 @@ const WalletBal = () => {
         </div>
       </DrawerC>
 
-      <DrawerC
-        open={openPaymentDrawer}
-        setOpen={setOpenPaymentDrawer}
-      >
+      <DrawerC open={openPaymentDrawer} setOpen={setOpenPaymentDrawer}>
         <div className="p-5">
           <h4 className="text-[#1D2939] font-semibold clamp-[text,sm,lg,@sm,@lg] leading-normal text-center mr-auto clamp-[ml,0,-8,@sm,@lg]">
             Account Information
@@ -190,14 +187,14 @@ const WalletBal = () => {
               />
             </p>
 
-            <div className="col-center center clamp-[mt,2.25rem,3rem,@sm,@lg] clamp-[pb,8,10,@sm,@lg] w-full">
-              <p className="clamp-[mt,3,3.5,@sm,@lg] font-bold clamp-[text,1.5rem,2rem,@sm,@lg] text-[#414651]">
+            <div className="col-center center clamp-[mt,6,8,@sm,@lg] clamp-[pb,6,8,@sm,@lg] w-full">
+              <p className="clamp-[mt,2,3,@sm,@lg] font-bold clamp-[text,1.5rem,2rem,@sm,@lg] text-[#414651]">
                 {koboToNaira(
-                  paymentDetails?.data?.transaction?.summary?.bill?.amount ?? 0
+                  paymentDetails?.data?.transaction?.summary?.bill?.amount ?? 0,
                 )}
               </p>
 
-              <div className="clamp-[mt,10,12,@sm,@lg] w-full space-y-6 md:space-y-8">
+              <div className="clamp-[mt,6,8,@sm,@lg] w-full space-y-4 md:space-y-6">
                 {/* bank details */}
                 <p className="text-[#A4A7AE] clamp-[text,sm,base,@sm,@lg] clamp-[leading,5,6,@sm,@lg] between w-full space-x-4">
                   <span>Bank Name</span>{" "}
@@ -221,7 +218,7 @@ const WalletBal = () => {
                       onClick={() => {
                         navigator.clipboard.writeText(
                           paymentDetails?.data?.beneficiary?.bank?.account
-                            ?.number
+                            ?.number,
                         );
                         toast("Copied to clipboard");
                       }}

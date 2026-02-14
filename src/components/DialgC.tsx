@@ -37,7 +37,7 @@ const DialogC = ({
         <DialogTrigger asChild>{trigger}</DialogTrigger>
         <DialogContent
           showCloseButton={showCloseButton}
-          className="sm:max-w-[420px] lg:max-w-[756px] bg-[#FFF9E9] md:py-10 md:px-20"
+          className="w-full max-w-[calc(100%-2rem)] sm:max-w-[420px] lg:max-w-[756px] bg-[#FFF9E9] py-8 md:py-10 md:px-20"
         >
           <DialogTitle className="hidden"></DialogTitle>
           <div className="col-center px-3">

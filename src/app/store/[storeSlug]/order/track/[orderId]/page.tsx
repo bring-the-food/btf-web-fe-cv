@@ -26,6 +26,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical } from "lucide-react";
+import { cn } from "@/lib/utils";
+import PaymentMethod from "@/components/PaymentMethod";
 
 const Page = ({
   params,
@@ -39,12 +41,12 @@ const Page = ({
 
   const { data, isLoading, mutate } = useSWR(
     `/api/orders/getOrder?orderId=${orderId}`,
-    swrfetcher
+    swrfetcher,
   );
 
   const { data: vendorData } = useSWR(
     `/api/profile?storeSlug=${storeSlug}`,
-    swrfetcher
+    swrfetcher,
   );
   const vendor = vendorData?.data;
 
@@ -56,6 +58,9 @@ const Page = ({
   const [loading, setLoading] = React.useState(false);
   const [openCancelModal, setOpenCancelModal] = React.useState(false);
   const [openPaymentModal, setOpenPaymentModal] = React.useState(false);
+  const [openRegenerateModal, setOpenRegenerateModal] = React.useState(false);
+  const [regeneratePaymentMethod, setRegeneratePaymentMethod] =
+    React.useState("One Time Transfer");
   const [checkoutResponse, setChecoutResponse] = React.useState(null as any);
 
   React.useEffect(() => {
@@ -125,22 +130,39 @@ const Page = ({
     }
   };
 
-  const handlePayment = async () => {
+  const handleRegeneratePayment = async (method?: string) => {
+    if (!method && !openRegenerateModal) {
+      setOpenRegenerateModal(true);
+      return;
+    }
+
     setLoading(true);
+
+    const selectedMethod =
+      method ||
+      (regeneratePaymentMethod === "One Time Transfer"
+        ? "single-transfer"
+        : regeneratePaymentMethod === "external"
+          ? "external"
+          : "wallet");
 
     await orderFunc
       .regeneratePayment(
         data?.data?.order?.id,
-        data?.data?.order?.summary?.bill?.amount
+        data?.data?.order?.summary?.bill?.amount,
+        selectedMethod,
       )
       .then((res) => {
         setChecoutResponse(res?.data);
+        setOpenRegenerateModal(false);
         setOpenPaymentModal(true);
       })
       .finally(() => {
         setLoading(false);
       });
   };
+
+  const paymentStatus = data?.data?.order?.payment?.status?.toLowerCase();
 
   return (
     <div className="col-start-center clamp-[px,5,12,@sm,@lg] clamp-[py,10,20,@sm,@lg] w-full">
@@ -162,11 +184,10 @@ const Page = ({
           </h4>
 
           <div className="space-x-4 end">
-            {(data?.data?.order?.payment?.status?.toLowerCase() === "pending" ||
-              data?.data?.order?.payment?.status?.toLowerCase() ===
-                "uninitialized" ||
-              data?.data?.order?.payment?.status?.toLowerCase() ===
-                "failed") && (
+            {(paymentStatus === "pending" ||
+              paymentStatus === "uninitialized" ||
+              paymentStatus === "failed" ||
+              paymentStatus === "expired") && (
               <div className="hidden md:flex space-x-4">
                 {data?.data?.order?.payment?.bank || checkoutResponse ? (
                   <LoadingButton
@@ -177,16 +198,16 @@ const Page = ({
                   >
                     View Payment
                   </LoadingButton>
-                ) : (
+                ) : data?.data?.order?.payment?.method !== "external" ? (
                   <LoadingButton
                     isLoading={loading}
-                    onClick={handlePayment}
+                    onClick={() => handleRegeneratePayment()}
                     className={"clamp-[text,0.625rem,xs,@sm,@lg]"}
                     size={"sm"}
                   >
                     Regenerate Payment
                   </LoadingButton>
-                )}
+                ) : null}
               </div>
             )}
 
@@ -204,12 +225,12 @@ const Page = ({
             )}
 
             {/* Mobile Actions Menu */}
+
             {(status !== "IsCompleted" ||
-              data?.data?.order?.payment?.status?.toLowerCase() === "pending" ||
-              data?.data?.order?.payment?.status?.toLowerCase() ===
-                "uninitialized" ||
-              data?.data?.order?.payment?.status?.toLowerCase() ===
-                "failed") && (
+              paymentStatus === "pending" ||
+              paymentStatus === "uninitialized" ||
+              paymentStatus === "failed" ||
+              paymentStatus === "expired") && (
               <div className="md:hidden flex items-center">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -221,20 +242,31 @@ const Page = ({
                     align="end"
                     className="w-[180px] p-1.5 bg-white border border-[#E9EAEB] shadow-lg rounded-xl"
                   >
-                    {(data?.data?.order?.payment?.status?.toLowerCase() ===
-                      "pending" ||
-                      data?.data?.order?.payment?.status?.toLowerCase() ===
-                        "uninitialized" ||
-                      data?.data?.order?.payment?.status?.toLowerCase() ===
-                        "failed") && (
+                    {(paymentStatus === "pending" ||
+                      paymentStatus === "uninitialized" ||
+                      paymentStatus === "failed" ||
+                      paymentStatus === "expired") && (
                       <DropdownMenuItem
                         disabled={loading}
-                        onClick={() =>
-                          data?.data?.order?.payment?.bank || checkoutResponse
-                            ? setOpenPaymentModal(true)
-                            : handlePayment()
-                        }
-                        className="cursor-pointer px-3 py-2.5 text-sm font-medium text-[#344054] rounded-lg hover:bg-gray-50 transition-colors flex items-center"
+                        onClick={() => {
+                          if (
+                            data?.data?.order?.payment?.bank ||
+                            checkoutResponse
+                          ) {
+                            setOpenPaymentModal(true);
+                          } else if (
+                            data?.data?.order?.payment?.method !== "external"
+                          ) {
+                            handleRegeneratePayment();
+                          }
+                        }}
+                        className={cn(
+                          "cursor-pointer px-3 py-2.5 text-sm font-medium text-[#344054] rounded-lg hover:bg-gray-50 transition-colors flex items-center",
+                          !data?.data?.order?.payment?.bank &&
+                            !checkoutResponse &&
+                            data?.data?.order?.payment?.method === "external" &&
+                            "hidden",
+                        )}
                       >
                         {data?.data?.order?.payment?.bank || checkoutResponse
                           ? "View Payment"
@@ -304,6 +336,34 @@ const Page = ({
           handleCheckPaymentStatus={handleCheckPaymentStatus}
           loading={loading}
         />
+
+        <DrawerC open={openRegenerateModal} setOpen={setOpenRegenerateModal}>
+          <div className="p-5">
+            <h4 className="text-[#1D2939] font-semibold clamp-[text,sm,lg,@sm,@lg] leading-normal text-center mr-auto clamp-[ml,0,-8,@sm,@lg]">
+              Regenerate Payment
+            </h4>
+
+            <div className="mt-6">
+              <h4 className="font-semibold clamp-[text,base,lg,@sm,@lg] text-[#1D2939]">
+                Payment Method
+              </h4>
+
+              <div className="mt-2">
+                <PaymentMethod setPaymentMethod={setRegeneratePaymentMethod} />
+              </div>
+
+              <div className="col-center mt-8 space-y-2.5">
+                <LoadingButton
+                  isLoading={loading}
+                  onClick={() => handleRegeneratePayment()}
+                  className="text-[#59201A] hover:bg-[#fdb420] w-full bg-[#FFC247] rounded-xl clamp-[py,1.125rem,1.375rem,@sm,@lg]! clamp-[text,sm,base,@sm,@lg] font-semibold leading-5"
+                >
+                  Proceed
+                </LoadingButton>
+              </div>
+            </div>
+          </div>
+        </DrawerC>
       </div>
     </div>
   );
@@ -344,7 +404,7 @@ const PaymentModal = ({
               {koboToNaira(
                 data?.transaction?.summary?.bill?.amount ??
                   data?.order?.summary?.bill?.amount ??
-                  0
+                  0,
               )}
             </p>
 
@@ -375,7 +435,7 @@ const PaymentModal = ({
                     onClick={() => {
                       navigator.clipboard.writeText(
                         data?.beneficiary?.bank?.account?.number ??
-                          data?.order?.payment?.bank?.account?.number
+                          data?.order?.payment?.bank?.account?.number,
                       );
                       toast("Copied to clipboard");
                     }}

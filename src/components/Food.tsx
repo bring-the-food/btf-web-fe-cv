@@ -45,7 +45,7 @@ const Food = ({
     const packs = c?.packs ?? [];
     return packs.reduce(
       (acc: number, p: any) => acc + (p?.[itemId]?.count ?? 0),
-      0
+      0,
     );
   };
 
@@ -91,7 +91,7 @@ const Food = ({
       }
       return getTotalPackItemCountFromCart(c, data.id);
     },
-    [type, data.id, editPackIndex]
+    [type, data.id, editPackIndex],
   );
 
   const displayedQuantity = getDisplayedQuantity(cart);
@@ -240,9 +240,9 @@ const Food = ({
   };
 
   return (
-    <div className="between space-x-[45px] clamp-[pb,2,3.5,@sm,@lg] border-b border-[#F2F4F7]">
-      <div className="w-full">
-        <div className="between space-x-5 w-full">
+    <div className="between gap-4 sm:space-x-[45px] clamp-[pb,2,3.5,@sm,@lg] border-b border-[#F2F4F7]">
+      <div className="w-full min-w-0">
+        <div className="between gap-2 sm:space-x-5 w-full">
           <h5 className="clamp-[text,sm,base,@sm,@lg] font-jakart font-medium leading-5 text-[#1D2939]">
             {data?.name}
           </h5>
@@ -262,7 +262,7 @@ const Food = ({
         </p>
       </div>
 
-      <div className="clamp-[max-w,7rem,10rem,@sm,@lg] w-full clamp-[h,7rem,10rem,@sm,@lg] clamp-[rounded,0.25rem,0.5rem,@sm,@lg] overflow-hidden clamp-[max-h,7rem,10rem,@sm,@lg] relative min-w-28">
+      <div className="clamp-[max-w,6rem,10rem,@sm,@lg] w-full clamp-[h,6rem,10rem,@sm,@lg] clamp-[rounded,0.25rem,0.5rem,@sm,@lg] overflow-hidden clamp-[max-h,6rem,10rem,@sm,@lg] relative min-w-24 sm:min-w-28 shrink-0">
         <Image
           className="size-full object-cover object-center bg-[#FFEAE7B2]"
           src={data?.picture?.url ?? "/images/food_placeholder.png"}
@@ -311,7 +311,7 @@ export default Food;
 
 export const FoodSkeleton = () => {
   return (
-    <div className="between space-x-[45px] clamp-[pb,2,3.5,@sm,@lg] border-b border-[#F2F4F7]">
+    <div className="between gap-4 sm:space-x-[45px] clamp-[pb,2,3.5,@sm,@lg] border-b border-[#F2F4F7]">
       <div>
         <Skeleton className="clamp-[h,5,4,@sm,@lg] w-[150px] bg-gray-200 rounded-none" />
         <Skeleton className="clamp-[mt,1,2,@sm,@lg] clamp-[h,5,4,@sm,@lg] w-[250px] bg-gray-200 rounded-none" />

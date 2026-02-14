@@ -31,7 +31,12 @@ export function DrawerC({
       <DrawerContent>
         <DrawerTitle className="hidden"></DrawerTitle>
 
-        <div className={cn(className, "mx-auto w-full max-w-lg")}>
+        <div
+          className={cn(
+            className,
+            "mx-auto w-full max-w-lg overflow-y-auto max-h-[85vh] pb-10",
+          )}
+        >
           {children}
         </div>
       </DrawerContent>

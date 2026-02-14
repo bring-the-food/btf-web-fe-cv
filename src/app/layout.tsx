@@ -16,11 +16,11 @@ const jakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.bringthisfood.com"),
   title: {
-    default: "Bring This Food",
+    default: "Bring This Food: Reliable Last-Mile Delivery for Everyone",
     template: "%s | Bring This Food",
   },
   description:
-    "Bring This Food connects customers with local vendors through reliable, tech-driven last-mile delivery — fast, professional service for customers, vendors and riders",
+    "Connect with local vendors through our reliable, tech-driven delivery service. Professional and fast service for customers, vendors, and riders.",
   keywords: [
     // Primary Keywords
     "last-mile delivery platform",
@@ -71,23 +71,23 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://www.bringthisfood.com/",
     siteName: "Bring This Food",
-    title: "Bring This Food",
+    title: "Bring This Food: Reliable Last-Mile Delivery for Everyone",
     description:
-      "Bring This Food connects customers with local vendors through reliable, tech-driven last-mile delivery — fast, professional service for customers, vendors and riders",
+      "Connect with local vendors through our reliable, tech-driven delivery service. Professional and fast service for customers, vendors, and riders.",
     images: [
       {
         url: "/images/og-image.png",
-        width: 1527,
-        height: 301,
+        width: 1200,
+        height: 630,
         alt: "Bring This Food",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Bring This Food",
+    title: "Bring This Food: Reliable Last-Mile Delivery for Everyone",
     description:
-      "Bring This Food connects customers with local vendors through reliable, tech-driven last-mile delivery — fast, professional service for customers, vendors and riders",
+      "Connect with local vendors through our reliable, tech-driven delivery service. Professional and fast service for customers, vendors, and riders.",
     // creator: "@yourtwitter",
     images: ["/images/og-image.png"],
   },

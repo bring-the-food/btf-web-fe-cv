@@ -68,7 +68,7 @@ const EmptyOrder = ({ storeSlug }: { storeSlug: string }) => {
 
 const OrderCard = ({ storeSlug, data }: { storeSlug: string; data: any }) => {
   const isRejected = data?.trackings?.some(
-    (tracking: any) => tracking.type === "store-rejected"
+    (tracking: any) => tracking.type === "store-rejected",
   );
   const effectiveStatus = isRejected ? "rejected" : data?.status;
 
@@ -113,19 +113,30 @@ const OrderCard = ({ storeSlug, data }: { storeSlug: string; data: any }) => {
         <div>
           <p
             className={cn(
-              effectiveStatus === "ongoing" &&
-                "text-[#B54708] bg-[#FFFAEB] border-[#FEDF89]",
+              "capitalize border rounded-full px-2 font-medium text-[10px] leading-[18px]",
               effectiveStatus === "complete"
                 ? "text-[#027A48] bg-[#A6F4C51A] border-[#A6F4C5]"
-                : "text-[#B42318] bg-[#FEF3F2] borer-[#FECDCA]",
-              "capitalize border rounded-full px-2 font-medium text-[10px] leading-[18px]"
+                : ["ongoing", "uninitialized", "initialized"].includes(
+                      effectiveStatus,
+                    )
+                  ? data?.payment?.method === "external"
+                    ? "text-[#B54708] bg-[#FFFAEB] border-[#FEDF89]"
+                    : "text-[#B54708] bg-[#FFFAEB] border-[#FEDF89]"
+                  : "text-[#B42318] bg-[#FEF3F2] border-[#FECDCA]",
             )}
           >
-            {effectiveStatus === "ongoing"
-              ? "pending"
-              : effectiveStatus === "complete"
-              ? "successful"
-              : effectiveStatus}
+            {data?.payment?.method === "external" &&
+            (effectiveStatus === "ongoing" ||
+              effectiveStatus === "uninitialized" ||
+              effectiveStatus === "initialized")
+              ? "Payment Uninitialized"
+              : effectiveStatus === "ongoing" ||
+                  effectiveStatus === "uninitialized" ||
+                  effectiveStatus === "initialized"
+                ? "pending"
+                : effectiveStatus === "complete"
+                  ? "successful"
+                  : effectiveStatus}
           </p>
         </div>
       </div>
@@ -147,14 +158,16 @@ const OrderCard = ({ storeSlug, data }: { storeSlug: string; data: any }) => {
         })}
       </div>
 
-      {effectiveStatus !== "ongoing" ? (
+      {effectiveStatus !== "ongoing" &&
+      effectiveStatus !== "uninitialized" &&
+      effectiveStatus !== "initialized" ? (
         <div className="between">
           <p
             className={cn(
               effectiveStatus === "complete"
                 ? "text-[#057F3E]"
                 : "text-[#B42318]",
-              "text-sm font-medium"
+              "text-sm font-medium",
             )}
           >
             {effectiveStatus === "complete" ? "Completed" : "Rejected"}
@@ -179,7 +192,7 @@ const OrderCard = ({ storeSlug, data }: { storeSlug: string; data: any }) => {
           <p className=" text-sm font-medium space-x-1">
             <span className="text-[#1D2939]">
               {moment(
-                findLatestSuccess(data?.trackings)?.tracking?.dateCreated
+                findLatestSuccess(data?.trackings)?.tracking?.dateCreated,
               ).format("MMM D, h:mm A")}
             </span>{" "}
             {findLatestSuccess(data?.trackings)?.humanReadable && (
@@ -210,7 +223,7 @@ function findLatestSuccess(
     dateCreated?: string;
     type: string;
     status: string;
-  }[]
+  }[],
 ) {
   const successfulTrackings = trackings
     .filter((t) => t.status === "success" && t.dateCreated)
@@ -225,7 +238,7 @@ function findLatestSuccess(
   }
 
   const latest = successfulTrackings.reduce((prev, current) =>
-    current.date > prev.date ? current : prev
+    current.date > prev.date ? current : prev,
   );
 
   const humanReadable = transformToHumanReadable(latest.tracking.type);

@@ -29,12 +29,12 @@ const VendorHeader = ({
 
         <p
           className={`font-medium clamp-[text,0.5rem,xs,@sm,@lg] rounded-full clamp-[py,1,2,@sm,@lg] clamp-[px,1.5,4,@sm,@lg] ${
-            vendor?.store?.active
+            vendor?.store?.open
               ? "text-[#057F3E] bg-[#057F3E0D]"
               : "text-[#F52222] bg-[#EDDCDC66]"
           }`}
         >
-          {vendor?.store?.active ? "Open" : "Closed"}
+          {vendor?.store?.open ? "Open" : "Closed"}
         </p>
       </div>
 

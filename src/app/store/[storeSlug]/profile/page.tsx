@@ -11,6 +11,8 @@ import Image from "next/image";
 import React, { use } from "react";
 import useSWR from "swr";
 
+import { APP_LINKS, constructDeepLink } from "@/lib/appLinks";
+
 const Profile = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   const { storeSlug } = use(params);
 
@@ -20,11 +22,26 @@ const Profile = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
 
   const { data, isLoading } = useSWR(
     `/api/profile?storeSlug=${storeSlug}`,
-    swrfetcher
+    swrfetcher,
   );
 
   const vendor = data?.data;
   const vendorAvailability = vendor?.store?.availability?.weekly;
+
+  const handleChatWithVendor = () => {
+    const deepLink = constructDeepLink(APP_LINKS.ROUTES.CHAT, {
+      vendorId: vendor?.store?.id,
+      storeSlug: vendor?.store?.slug,
+    });
+
+    // Attempt to redirect to the app
+    window.location.href = deepLink;
+
+    // Optional: Fallback to store if the app isn't installed
+    // setTimeout(() => {
+    //   window.location.href = APP_LINKS.STORES.GOOGLE_PLAY;
+    // }, 2000);
+  };
 
   React.useEffect(() => {
     return () => {
@@ -116,17 +133,31 @@ const Profile = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                 </div>
               </div>
 
-              <Button
-                onClick={() => setOpenModal(true)}
-                className="text-[#A46900] rounded-full clamp-[text,xs,sm,@sm,@lg] font-semibold bg-[#FFF9E9] hover:bg-[#fcf2d8] clamp-[py,1.5,2,@sm,@lg] clamp-[px,2,4,@sm,@lg]! cursor-pointer space-x-0.5 h-auto"
-              >
-                <span>Refer Vendor</span>
-                <Icon
-                  icon="share"
-                  size={12}
-                  className="clamp-[size,3,4,@sm,@lg]"
-                />
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleChatWithVendor}
+                  className="text-[#59201A] rounded-full clamp-[text,xs,sm,@sm,@lg] font-semibold bg-[#FFC247] hover:bg-[#ffc247e5] clamp-[py,1.5,2,@sm,@lg] clamp-[px,3,5,@sm,@lg]! cursor-pointer space-x-0.5 h-auto border-none"
+                >
+                  <Icon
+                    icon="message_brown"
+                    size={16}
+                    className="clamp-[size,3.5,4.5,@sm,@lg]"
+                  />
+                  <span>Chat</span>
+                </Button>
+
+                <Button
+                  onClick={() => setOpenModal(true)}
+                  className="text-[#A46900] rounded-full clamp-[text,xs,sm,@sm,@lg] font-semibold bg-[#FFF9E9] hover:bg-[#fcf2d8] clamp-[py,1.5,2,@sm,@lg] clamp-[px,2,4,@sm,@lg]! cursor-pointer space-x-0.5 h-auto"
+                >
+                  <span>Refer Vendor</span>
+                  <Icon
+                    icon="share"
+                    size={12}
+                    className="clamp-[size,3,4,@sm,@lg]"
+                  />
+                </Button>
+              </div>
             </div>
 
             <div className="clamp-[mt,2,3,@sm,@lg] space-y-2">
@@ -147,7 +178,7 @@ const Profile = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                           street: string;
                           description: string;
                         },
-                        index: number
+                        index: number,
                       ) => (
                         <span key={index}>
                           {location.description && (
@@ -157,7 +188,7 @@ const Profile = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                           {location.city}
                           {index < vendor.store.locations.length - 1 && <br />}
                         </span>
-                      )
+                      ),
                     )
                   ) : (
                     <span>No location information available</span>
@@ -179,11 +210,11 @@ const Profile = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                     {vendor?.store?.delivery?.price ? (
                       <>
                         {currencyFormatter(
-                          vendor?.store?.delivery?.price?.min?.amount
+                          vendor?.store?.delivery?.price?.min?.amount,
                         )}{" "}
                         -{" "}
                         {currencyFormatter(
-                          vendor?.store?.delivery?.price?.max?.amount
+                          vendor?.store?.delivery?.price?.max?.amount,
                         )}{" "}
                       </>
                     ) : (

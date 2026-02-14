@@ -25,7 +25,17 @@ export function DialogC({
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent
         showCloseButton={hasNoClose ? false : true}
-        className="w-[400px]"
+        className="sm:max-w-[400px]"
+        onInteractOutside={(e) => {
+          if (hasNoClose) {
+            e.preventDefault();
+          }
+        }}
+        onEscapeKeyDown={(e) => {
+          if (hasNoClose) {
+            e.preventDefault();
+          }
+        }}
       >
         <DialogTitle className="hidden"></DialogTitle>
 

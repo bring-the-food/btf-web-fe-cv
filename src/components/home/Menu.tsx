@@ -53,6 +53,11 @@ const Menu = ({
   const [canScrollLeft, setCanScrollLeft] = React.useState(false);
   const [canScrollRight, setCanScrollRight] = React.useState(false);
 
+  // Drag-to-scroll state
+  const [isMouseDown, setIsMouseDown] = React.useState(false);
+  const [startX, setStartX] = React.useState(0);
+  const [scrollLeftState, setScrollLeftState] = React.useState(0);
+
   const updateScrollState = React.useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -85,6 +90,33 @@ const Menu = ({
     el.scrollBy({ left: amount, behavior: "smooth" });
   };
 
+  // Drag-to-scroll handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setIsMouseDown(true);
+    setStartX(e.pageX - el.offsetLeft);
+    setScrollLeftState(el.scrollLeft);
+  };
+
+  const handleMouseLeave = () => {
+    setIsMouseDown(false);
+  };
+
+  const handleMouseUp = () => {
+    setIsMouseDown(false);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isMouseDown) return;
+    e.preventDefault();
+    const el = scrollRef.current;
+    if (!el) return;
+    const x = e.pageX - el.offsetLeft;
+    const walk = (x - startX) * 2; // scroll-fast multiplier
+    el.scrollLeft = scrollLeftState - walk;
+  };
+
   React.useEffect(() => {
     if (cart?.packs?.length > 0) {
       setEditPackIndex(cart?.packs?.length - 1);
@@ -95,12 +127,12 @@ const Menu = ({
 
   const { data: menuCategoriesData, isLoading: menuCartLoading } = useSWR(
     vendor ? `/api/home/getCats?storeId=${vendor?.store?.id}` : null,
-    swrfetcher
+    swrfetcher,
   );
 
   const { data: cartData, mutate } = useSWR(
     vendor ? `/api/cart/getCarts?storeId=${vendor?.store?.id}` : null,
-    swrfetcher
+    swrfetcher,
   );
 
   const summary = cartData?.data?.cart?.summary;
@@ -114,7 +146,7 @@ const Menu = ({
           // lastEvaluatedKey: ''
         })
       : null,
-    swrfetcher
+    swrfetcher,
   );
 
   const { data: menuCatItemsData, isLoading: menuCatItemIsLoading } = useSWR(
@@ -127,7 +159,7 @@ const Menu = ({
           // lastEvaluatedKey: "",
         })
       : null,
-    swrfetcher
+    swrfetcher,
   );
 
   React.useEffect(() => {
@@ -189,7 +221,7 @@ const Menu = ({
     }
 
     const packs: Array<Record<string, { count: number }>> = Array.isArray(
-      cartObj?.packs
+      cartObj?.packs,
     )
       ? cartObj.packs.map((p: any) => {
           if (Array.isArray(p)) {
@@ -246,7 +278,7 @@ const Menu = ({
           <div className="md:flex md:justify-between md:items-center md:space-x-4">
             <Search value={searchValue} setValue={setSearchValue} />
 
-            <div className="start space-x-2.5 md:space-x-4">
+            <div className="start space-x-2.5 md:space-x-4 w-full overflow-hidden">
               <button
                 className={`cursor-pointer clamp-[text,sm,base,@sm,@lg] clamp-[py,1.5,2,@sm,@lg] clamp-[px,2,3,@sm,@lg] whitespace-nowrap inline-flex items-center ${
                   active === "My Cart"
@@ -258,13 +290,13 @@ const Menu = ({
                   router.push(
                     getUpdatedUrl({
                       tab: "My Cart",
-                    })
+                    }),
                   );
                 }}
               >
                 <span>My Cart</span>
                 {summary?.items?.count && (
-                  <span className="bg-[#98A2B3] text-[#FFF0C7] inline-block size-5 ml-1 center text-center rounded-full text-sm font-bold">
+                  <span className="bg-[#59201a] text-white inline-block size-5 ml-1 center text-center rounded-full text-sm font-bold">
                     {summary?.items?.count}
                   </span>
                 )}
@@ -272,15 +304,21 @@ const Menu = ({
 
               <div className="clamp-[h,5,6,@sm,@lg] clamp-[w,0.0625rem,0.5,@sm,@lg] bg-[#F2F4F7]" />
 
-              <div className="relative">
+              <div className="relative flex-1 min-w-0">
                 {/* Scrollable tabs */}
                 <div
                   ref={scrollRef}
-                  className="start space-x-3 overflow-x-auto no-scrollbar pt-2 pb-3 mt-2 clamp-[mr,-6,-8,@sm,@lg] xl:mr-0! clamp-[pr,4,5,@sm,@lg] max-w-120"
+                  className={`start space-x-3 overflow-x-auto no-scrollbar pt-2 pb-3 mt-2 xl:mr-0! clamp-[pr,4,5,@sm,@lg] flex-1 min-w-0 ${
+                    isMouseDown ? "cursor-grabbing" : "cursor-grab"
+                  }`}
                   onScroll={() => {
                     if (typeof updateScrollState === "function")
                       updateScrollState();
                   }}
+                  onMouseDown={handleMouseDown}
+                  onMouseLeave={handleMouseLeave}
+                  onMouseUp={handleMouseUp}
+                  onMouseMove={handleMouseMove}
                 >
                   {filter.map((item) => {
                     return (
@@ -301,7 +339,7 @@ const Menu = ({
                             router.push(
                               getUpdatedUrl({
                                 tab: item.label,
-                              })
+                              }),
                             );
                           }}
                         >
@@ -316,7 +354,7 @@ const Menu = ({
                 {hasOverflow && canScrollLeft && (
                   <>
                     <div
-                      className="pointer-events-none hidden md:block absolute left-0 top-0 bottom-0 w-10"
+                      className="pointer-events-none absolute left-0 top-0 bottom-0 w-10 z-10"
                       style={{
                         background:
                           "linear-gradient(to right, rgb(255 255 255 / 95%), rgba(255, 240, 199, 0))",
@@ -324,7 +362,7 @@ const Menu = ({
                     />
                     <button
                       aria-label="Scroll left"
-                      className="hidden md:inline-flex items-center justify-center absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white text-[#59201A] shadow-md rounded-full p-2"
+                      className="inline-flex items-center justify-center absolute left-0 sm:left-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white text-[#59201A] shadow-md rounded-full p-2"
                       onClick={() => scrollByAmount(-220)}
                     >
                       <svg
@@ -349,7 +387,7 @@ const Menu = ({
                 {hasOverflow && canScrollRight && (
                   <>
                     <div
-                      className="pointer-events-none hidden md:block absolute right-0 top-0 bottom-0 w-10"
+                      className="pointer-events-none absolute right-0 top-0 bottom-0 w-10 z-10"
                       style={{
                         background:
                           "linear-gradient(to left, rgb(255 255 255 / 95%), rgba(255, 240, 199, 0))",
@@ -357,7 +395,7 @@ const Menu = ({
                     />
                     <button
                       aria-label="Scroll right"
-                      className="hidden md:inline-flex items-center justify-center absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white text-[#59201A] shadow-md rounded-full p-2"
+                      className="inline-flex items-center justify-center absolute right-0 sm:right-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white text-[#59201A] shadow-md rounded-full p-2"
                       onClick={() => scrollByAmount(220)}
                     >
                       <svg
@@ -435,7 +473,7 @@ const Menu = ({
               router.push(
                 getUpdatedUrl({
                   tab: "My Cart",
-                })
+                }),
               );
             }}
             storeSlug={storeSlug}
