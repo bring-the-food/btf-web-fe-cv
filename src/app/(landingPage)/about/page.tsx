@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import React from "react";
 
 export const metadata: Metadata = {
   title: "About",
@@ -15,7 +14,7 @@ const Page = () => {
     <>
       <div className="container_fluid">
         <h4 className="font-caprasimo clamp-[text,2.7rem,5.5rem] text-center clamp-[leading,3.6rem,6.72rem] clamp-[mb,5.25rem,7.75rem]">
-          The BTF Story
+          About BTF
         </h4>
       </div>
 
@@ -23,76 +22,75 @@ const Page = () => {
         <div className="container_fluid py-[115px] text-[#310909] font-medium clamp-[text,lg,2xl] clamp-[leading,1.9rem,3.15rem] tracking-[0.32px]">
           <ul className="space-y-10">
             <li>
-              <h3 className="font-bold">Our Mission</h3>
+              <h3 className="font-bold">About Us</h3>
               <p>
-                At Bring This Food, we are on a mission to redefine the
-                last-mile logistics space. We&apos;re not just a delivery
-                service; we&apos;re a technology company relentlessly focused on
-                bringing efficiency, professionalism, and empowerment to every
-                step of the journey. Our goal is to connect you with the best of
-                what your community has to offer, all while creating a seamless,
-                reliable experience that builds trust and loyalty.
+                Bring This Food (BTF) builds technology that empowers the food
+                industry. Our solutions help restaurants, grocery vendors, and
+                food entrepreneurs run smarter, faster, and more connected
+                businesses.
               </p>
             </li>
 
             <li>
-              <h3 className="font-bold">Our Story</h3>
+              {/* <h3 className="font-bold">Our Story</h3> */}
               <p>
-                Bring This Food was born from a personal frustration with the
-                status quo. Our founder, Olomola Tejumade, a seasoned brand
-                builder and entrepreneur, saw an industry that was underserved
-                and chaotic. He saw an opportunity to build something truly
-                useful.
+                We provide digital platforms that simplify ordering, payments,
+                and customer engagement. Our analytics tools give businesses
+                insights into customer trends and operations, while our
+                integrations connect food businesses seamlessly with customers
+                and partners.
                 <br />
                 <br />
-                Fueled by the belief that a great brand is built on a promise
-                kept, he set out to build a platform that delivers on that
-                promise every single time. From our meticulous systems to our
-                seamless technology, every detail has been designed to provide
-                an experience that our customers, vendors, and riders can rely
-                on.
+                Food is at the heart of every community, and technology should
+                make it easier for businesses to grow, serve, and succeed.
+                That&apos;s why BTF is creating the digital backbone of
+                today&apos;s food industry.
               </p>
             </li>
 
             <li>
-              <h3 className="font-bold">Our Promise to You</h3>
+              <h3 className="font-bold">Who We Serve</h3>
 
-              <p>
+              {/* <p>
                 We believe that a great delivery service should be more than
                 just a convenience; it should be a partnership.
-              </p>
+              </p> */}
 
               <ul className="list-disc ml-6 mt-4 space-y-4">
                 <li>
-                  <span className="font-semibold">For Our Customers:</span> We
-                  promise a professional, reliable, and fast delivery
-                  experience. We are committed to getting your order to you on
-                  time and in perfect condition.
+                  <span className="font-semibold">Restaurants and cafés:</span>{" "}
+                  We streamlined operations and stronger customer engagement.
                 </li>
                 <li>
-                  <span className="font-semibold">For Our Vendors:</span> We
-                  promise a platform that helps your business thrive. We provide
-                  the tools and logistics you need to reach more customers,
-                  increase your sales, and focus on what you do best.
+                  <span className="font-semibold">Grocery vendors:</span>{" "}
+                  Digital tools to manage inventory, track sales, and connect
+                  with customers.
                 </li>
                 <li>
-                  <span className="font-semibold">For Our Riders:</span> We
-                  promise an opportunity for empowerment. We provide riders with
-                  the training and resources they need to be professional,
-                  successful and earn competitively.
+                  <span className="font-semibold">
+                    Food vendors and caterers:
+                  </span>{" "}
+                  Platforms to expand reach and simplify management.
+                </li>
+                <li>
+                  <span className="font-semibold">Delivery partners:</span>{" "}
+                  Technology that ensures reliability and transparency.
+                </li>
+                <li>
+                  <span className="font-semibold">
+                    Collaborators and investors:
+                  </span>{" "}
+                  Opportunities to shape the future of food-tech together.
                 </li>
               </ul>
             </li>
 
             <li>
-              <h3 className="font-bold">Like to Partner With Us?</h3>
+              <h3 className="font-bold">Our Vision</h3>
               <p>
-                Are you a restaurant owner looking to expand your reach? A rider
-                seeking a professional, reliable platform? Or an investor
-                looking to be part of a high-growth, mission-driven business?
-                We&apos;re always looking to grow our community with passionate
-                partners. Reach out to us today and let&apos;s work together to
-                build something that matters.
+                We see a food industry where technology is not just support, but
+                a driver of growth — connecting people, businesses, and
+                communities through smarter systems.
               </p>
             </li>
 
@@ -113,7 +111,8 @@ const Page = () => {
                   <span className="font-semibold">Phone:</span>{" "}
                   <a
                     href="https://wa.me/2349113727132"
-                    className="font-semibold hover:underline" target="_blank"
+                    className="font-semibold hover:underline"
+                    target="_blank"
                   >
                     +2349113727132
                   </a>

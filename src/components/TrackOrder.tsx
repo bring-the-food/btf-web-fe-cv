@@ -5,7 +5,6 @@ import { DialogC } from "@/components/Dialog";
 import Icon from "@/components/Icon";
 import Timeline from "@/components/Timeline";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { koboToNaira } from "@/lib/formatCurrency";
 import { cn } from "@/lib/utils";
@@ -37,7 +36,7 @@ const TrackOrder = ({ data }: { data: any }) => {
   const timelineData = [
     {
       title: "Order Received",
-      desc: "Waiting for vendor to confirm your order",
+      desc: "Waiting for vendor to accept your order",
       date: moment(data?.order?.trackings?.[0]?.dateCreated).format(
         "MMM DD, YYYY hh:mm A",
       ),
@@ -45,7 +44,7 @@ const TrackOrder = ({ data }: { data: any }) => {
     },
     {
       title: "Vendor Accepted Order",
-      desc: "The vendor has confirm your order",
+      desc: "The vendor has accepted your order",
       date: moment(data?.order?.trackings?.[2]?.dateCreated).format(
         "MMM DD, YYYY hh:mm A",
       ),
@@ -85,6 +84,17 @@ const TrackOrder = ({ data }: { data: any }) => {
     },
   ];
 
+  const isRejected = data?.order?.trackings?.some(
+    (tracking: any) => tracking.type === "store-rejected",
+  );
+
+  const effectiveStatus = isRejected
+    ? "rejected"
+    : data?.order?.payment?.method === "external" &&
+        data?.order?.payment?.status === "uninitialized"
+      ? "uninitialized"
+      : data?.order?.status;
+
   return (
     <div>
       <div className="between">
@@ -101,27 +111,22 @@ const TrackOrder = ({ data }: { data: any }) => {
           <p
             className={cn(
               "capitalize border rounded-full px-2 font-medium text-[10px] leading-[18px]",
-              data?.order?.status === "ongoing" ||
-                data?.order?.status === "uninitialized" ||
-                data?.order?.status === "initialized"
-                ? data?.order?.payment?.method === "external"
-                  ? "text-[#B54708] bg-[#FFFAEB] border-[#FEDF89]"
-                  : "text-[#B54708] bg-[#FFFAEB] border-[#FEDF89]"
-                : data?.order?.status === "complete"
-                  ? "text-[#027A48] bg-[#A6F4C51A] border-[#A6F4C5]"
-                  : "text-[#B42318] bg-[#FEF3F2] border-[#FECDCA]",
+              effectiveStatus === "ongoing"
+                ? "text-[#B54708] bg-[#FFFAEB] border-[#FEDF89]"
+                : effectiveStatus === "uninitialized"
+                  ? "text-[#c7950a] bg-[#ffffeb] border-[#FEDF89]"
+                  : effectiveStatus === "complete"
+                    ? "text-[#027A48] bg-[#A6F4C51A] border-[#A6F4C5]"
+                    : "text-[#B42318] bg-[#FEF3F2] borer-[#FECDCA]",
             )}
           >
-            {data?.order?.payment?.method === "external" &&
-            (data?.order?.status === "ongoing" ||
-              data?.order?.status === "uninitialized" ||
-              data?.order?.status === "initialized")
-              ? "Payment Uninitialized"
-              : data?.order?.status === "ongoing"
-                ? "pending"
-                : data?.order?.status === "complete"
-                  ? "successful"
-                  : data?.order?.status}
+            {effectiveStatus === "ongoing"
+              ? "pending"
+              : effectiveStatus === "complete"
+                ? "successful"
+                : effectiveStatus === "uninitialized"
+                  ? "payment uninitialized"
+                  : effectiveStatus}
           </p>
         </div>
       </div>
@@ -167,11 +172,13 @@ const TrackOrder = ({ data }: { data: any }) => {
           <Icon icon="marker2" size={20} className="clamp-[size,4,5,@sm,@lg]" />
 
           <p className="text-[#1D2939] clamp-[text,sm,base,@sm,@lg] leading-normal">
-            {data?.order?.delivery?.location?.description +
-              (data?.order?.delivery?.location?.description ? ", " : "") +
-              data?.order?.delivery?.location?.street +
-              ", " +
-              data?.order?.delivery?.location?.city}
+            {[
+              data?.order?.delivery?.location?.description,
+              data?.order?.delivery?.location?.street,
+              data?.order?.delivery?.location?.city,
+            ]
+              .filter(Boolean)
+              .join(", ")}
           </p>
         </div>
 

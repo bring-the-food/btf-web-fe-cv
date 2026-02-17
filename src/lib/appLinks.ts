@@ -31,7 +31,7 @@ export const constructDeepLink = (
   params: Record<string, string | number | undefined> = {},
 ) => {
   const queryString = Object.entries(params)
-    .filter(([_, value]) => value !== undefined)
+    .filter(([, value]) => value !== undefined)
     .map(([key, value]) => `${key}=${encodeURIComponent(String(value))}`)
     .join("&");
 

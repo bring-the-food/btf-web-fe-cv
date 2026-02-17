@@ -1,16 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { koboToNaira } from "@/lib/formatCurrency";
+import { swrfetcher } from "@/lib/swrfetcher";
+import { cn } from "@/lib/utils";
+import moment from "moment";
 import Image from "next/image";
-import React from "react";
-import { Button } from "../ui/button";
-import VendorHeader from "../VendorHeader";
-import Loader from "../Loader";
-import Icon from "../Icon";
 import Link from "next/link";
 import useSWR from "swr";
-import { swrfetcher } from "@/lib/swrfetcher";
-import { koboToNaira } from "@/lib/formatCurrency";
-import moment from "moment";
-import { cn } from "@/lib/utils";
+import Icon from "../Icon";
+import Loader from "../Loader";
+import { Button } from "../ui/button";
+import VendorHeader from "../VendorHeader";
 
 const Orders = ({
   storeSlug,
@@ -70,7 +69,12 @@ const OrderCard = ({ storeSlug, data }: { storeSlug: string; data: any }) => {
   const isRejected = data?.trackings?.some(
     (tracking: any) => tracking.type === "store-rejected",
   );
-  const effectiveStatus = isRejected ? "rejected" : data?.status;
+  const effectiveStatus = isRejected
+    ? "rejected"
+    : data?.payment?.method === "external" &&
+        data?.payment?.status === "uninitialized"
+      ? "uninitialized"
+      : data?.status;
 
   const isCompleted = effectiveStatus === "complete";
 
@@ -113,29 +117,22 @@ const OrderCard = ({ storeSlug, data }: { storeSlug: string; data: any }) => {
         <div>
           <p
             className={cn(
+              effectiveStatus === "ongoing"
+                ? "text-[#B54708] bg-[#FFFAEB] border-[#FEDF89]"
+                : effectiveStatus === "uninitialized"
+                  ? "text-[#c7950a] bg-[#ffffeb] border-[#FEDF89]"
+                  : effectiveStatus === "complete"
+                    ? "text-[#027A48] bg-[#A6F4C51A] border-[#A6F4C5]"
+                    : "text-[#B42318] bg-[#FEF3F2] borer-[#FECDCA]",
               "capitalize border rounded-full px-2 font-medium text-[10px] leading-[18px]",
-              effectiveStatus === "complete"
-                ? "text-[#027A48] bg-[#A6F4C51A] border-[#A6F4C5]"
-                : ["ongoing", "uninitialized", "initialized"].includes(
-                      effectiveStatus,
-                    )
-                  ? data?.payment?.method === "external"
-                    ? "text-[#B54708] bg-[#FFFAEB] border-[#FEDF89]"
-                    : "text-[#B54708] bg-[#FFFAEB] border-[#FEDF89]"
-                  : "text-[#B42318] bg-[#FEF3F2] border-[#FECDCA]",
             )}
           >
-            {data?.payment?.method === "external" &&
-            (effectiveStatus === "ongoing" ||
-              effectiveStatus === "uninitialized" ||
-              effectiveStatus === "initialized")
-              ? "Payment Uninitialized"
-              : effectiveStatus === "ongoing" ||
-                  effectiveStatus === "uninitialized" ||
-                  effectiveStatus === "initialized"
-                ? "pending"
-                : effectiveStatus === "complete"
-                  ? "successful"
+            {effectiveStatus === "ongoing"
+              ? "pending"
+              : effectiveStatus === "complete"
+                ? "successful"
+                : effectiveStatus === "uninitialized"
+                  ? "payment uninitialized"
                   : effectiveStatus}
           </p>
         </div>
@@ -158,9 +155,7 @@ const OrderCard = ({ storeSlug, data }: { storeSlug: string; data: any }) => {
         })}
       </div>
 
-      {effectiveStatus !== "ongoing" &&
-      effectiveStatus !== "uninitialized" &&
-      effectiveStatus !== "initialized" ? (
+      {effectiveStatus !== "ongoing" && effectiveStatus !== "uninitialized" ? (
         <div className="between">
           <p
             className={cn(

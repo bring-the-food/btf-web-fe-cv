@@ -23,17 +23,17 @@ const OrderDetails = ({ data, category }: { data: any; category: string }) => {
   const timelineData = [
     {
       title: "Order received",
-      desc: "Waiting for vendor to confirm your order",
+      desc: "Waiting for vendor to accept your order",
       date: moment(data?.order?.trackings?.[0]?.dateCreated).format(
-        "MMM DD, YYYY hh:mm A"
+        "MMM DD, YYYY hh:mm A",
       ),
       isCompleted: data?.order?.trackings?.[0]?.status === "success",
     },
     {
       title: "Vendor accepted order",
-      desc: "The vendor has confirm your order",
+      desc: "The vendor has accepted your order",
       date: moment(data?.order?.trackings?.[1]?.dateCreated).format(
-        "MMM DD, YYYY hh:mm A"
+        "MMM DD, YYYY hh:mm A",
       ),
       isCompleted: data?.order?.trackings?.[1]?.status === "success",
     },
@@ -41,7 +41,7 @@ const OrderDetails = ({ data, category }: { data: any; category: string }) => {
       title: "Your order has been packed",
       desc: "Your order is ready to be picked",
       date: moment(data?.order?.trackings?.[2]?.dateCreated).format(
-        "MMM DD, YYYY hh:mm A"
+        "MMM DD, YYYY hh:mm A",
       ),
       isCompleted: data?.order?.trackings?.[2]?.status === "success",
     },
@@ -52,7 +52,7 @@ const OrderDetails = ({ data, category }: { data: any; category: string }) => {
             title: "Rider accepted order",
             desc: "Rider has picked your order",
             date: moment(data?.order?.trackings?.[3]?.dateCreated).format(
-              "MMM DD, YYYY hh:mm A"
+              "MMM DD, YYYY hh:mm A",
             ),
             isCompleted: data?.order?.trackings?.[3]?.status === "success",
           },
@@ -64,7 +64,7 @@ const OrderDetails = ({ data, category }: { data: any; category: string }) => {
             title: "Order in transit",
             desc: "Your order is on it's way to you",
             date: moment(data?.order?.trackings?.[4]?.dateCreated).format(
-              "MMM DD, YYYY hh:mm A"
+              "MMM DD, YYYY hh:mm A",
             ),
             isCompleted: data?.order?.trackings?.[4]?.status === "success",
           },
@@ -73,7 +73,7 @@ const OrderDetails = ({ data, category }: { data: any; category: string }) => {
       title: "Order complete",
       desc: "",
       date: moment(data?.order?.trackings?.[5]?.dateCreated).format(
-        "MMM DD, YYYY hh:mm A"
+        "MMM DD, YYYY hh:mm A",
       ),
       isCompleted: data?.order?.trackings?.[5]?.status === "success",
     },
@@ -82,23 +82,25 @@ const OrderDetails = ({ data, category }: { data: any; category: string }) => {
   const timelines = data?.order?.timelines;
   const deliveryTimeLine = [
     {
-      title:
-        timelines?.[0]?.location?.description +
-        (timelines?.[0]?.location?.description ? ", " : "") +
-        timelines?.[0]?.location?.street +
-        ", " +
+      title: [
+        timelines?.[0]?.location?.description,
+        timelines?.[0]?.location?.street,
         timelines?.[0]?.location?.city,
+      ]
+        .filter(Boolean)
+        .join(", "),
       desc: moment(timelines?.[0]?.dateCreated).format("ddd, Do MMM, YYYY"),
       date: moment(timelines?.[0]?.dateCreated).format("LT"),
       isCompleted: timelines?.[0]?.status === "success",
     },
     {
-      title:
-        timelines?.[1]?.location?.description +
-        (timelines?.[1]?.location?.description ? ", " : "") +
-        timelines?.[1]?.location?.street +
-        ", " +
+      title: [
+        timelines?.[1]?.location?.description,
+        timelines?.[1]?.location?.street,
         timelines?.[1]?.location?.city,
+      ]
+        .filter(Boolean)
+        .join(", "),
       desc: <span className="text-[#379A06]">Completed</span>,
       date: moment(timelines?.[1]?.dateCreated).format("LT"),
       isCompleted: timelines?.[1]?.status === "success",
