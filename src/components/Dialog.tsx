@@ -8,6 +8,7 @@ import {
 type DialogCProps = {
   open: boolean;
   setOpen?: (open: boolean) => void;
+  onClose?: () => void;
   hasNoClose?: boolean;
   trigger?: React.ReactNode;
   children?: React.ReactNode;
@@ -16,6 +17,7 @@ type DialogCProps = {
 export function DialogC({
   open,
   setOpen,
+  onClose,
   hasNoClose,
   trigger,
   children,
@@ -24,6 +26,7 @@ export function DialogC({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent
+        onClose={onClose}
         showCloseButton={hasNoClose ? false : true}
         className="sm:max-w-[400px]"
         onInteractOutside={(e) => {

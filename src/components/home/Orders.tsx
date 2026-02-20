@@ -69,12 +69,9 @@ const OrderCard = ({ storeSlug, data }: { storeSlug: string; data: any }) => {
   const isRejected = data?.trackings?.some(
     (tracking: any) => tracking.type === "store-rejected",
   );
-  const effectiveStatus = isRejected
-    ? "rejected"
-    : data?.payment?.method === "external" &&
-        data?.payment?.status === "uninitialized"
-      ? "uninitialized"
-      : data?.status;
+  const effectiveStatus = isRejected ? "rejected" : data?.status;
+
+  const paymentStatus = data?.payment?.status;
 
   const isCompleted = effectiveStatus === "complete";
 
@@ -117,23 +114,25 @@ const OrderCard = ({ storeSlug, data }: { storeSlug: string; data: any }) => {
         <div>
           <p
             className={cn(
-              effectiveStatus === "ongoing"
+              paymentStatus === "pending"
                 ? "text-[#B54708] bg-[#FFFAEB] border-[#FEDF89]"
-                : effectiveStatus === "uninitialized"
+                : paymentStatus === "uninitialized"
                   ? "text-[#c7950a] bg-[#ffffeb] border-[#FEDF89]"
-                  : effectiveStatus === "complete"
+                  : paymentStatus === "success"
                     ? "text-[#027A48] bg-[#A6F4C51A] border-[#A6F4C5]"
                     : "text-[#B42318] bg-[#FEF3F2] borer-[#FECDCA]",
               "capitalize border rounded-full px-2 font-medium text-[10px] leading-[18px]",
             )}
           >
-            {effectiveStatus === "ongoing"
-              ? "pending"
-              : effectiveStatus === "complete"
-                ? "successful"
-                : effectiveStatus === "uninitialized"
-                  ? "payment uninitialized"
-                  : effectiveStatus}
+            {paymentStatus === "pending"
+              ? "Payment Pending"
+              : paymentStatus === "success"
+                ? "Payment Successful"
+                : paymentStatus === "uninitialized"
+                  ? "Payment Uninitialized"
+                  : paymentStatus === "failed"
+                    ? "Payment Failed"
+                    : paymentStatus}
           </p>
         </div>
       </div>
@@ -183,7 +182,7 @@ const OrderCard = ({ storeSlug, data }: { storeSlug: string; data: any }) => {
           )}
         </div>
       ) : (
-        <div className="between">
+        <div className="between gap-4">
           <p className=" text-sm font-medium space-x-1">
             <span className="text-[#1D2939]">
               {moment(
@@ -198,7 +197,10 @@ const OrderCard = ({ storeSlug, data }: { storeSlug: string; data: any }) => {
             </span>
           </p>
 
-          <Link href={`/store/${storeSlug}/order/track/${data?.id}`}>
+          <Link
+            href={`/store/${storeSlug}/order/track/${data?.id}`}
+            className="shrink-0"
+          >
             <Button
               variant={"ghost"}
               className="text-[#59201A] font-medium text-xs"

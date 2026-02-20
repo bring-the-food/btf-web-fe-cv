@@ -149,7 +149,9 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   const accessToken = userParsed?.tokens?.tokens?.access;
 
   const { transaction, error } = usePaymentListener(accessToken, () => {
-    setIsSuccess("true");
+    if (checoutResponse) {
+      setIsSuccess("true");
+    }
   });
 
   React.useEffect(() => {
@@ -159,22 +161,25 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   }, [error]);
 
   const handleCheckPaymentStatus = async () => {
-    setLoading(true);
-
     const transactionId = checoutResponse?.data?.transaction?.id;
-    if (transactionId) {
+    if (!transactionId) return;
+
+    setLoading(true);
+    try {
       const res = await walletFunc.getTransaction(transactionId);
 
       if (res?.data?.data?.transaction?.payment?.status === "success") {
         setIsSuccess("true");
       } else if (res?.data?.data?.transaction?.payment?.status === "pending") {
-        toast("Payment Pending");
+        toast("Payment Still Pending");
       } else {
         toast.error("Payment Failed");
       }
+    } catch (err) {
+      console.error("Error checking payment status:", err);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (

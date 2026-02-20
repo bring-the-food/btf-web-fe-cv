@@ -20,30 +20,52 @@ const OrderDetails = ({ data, category }: { data: any; category: string }) => {
   const [openRateDrawer, setOpenRateDrawer] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
 
+  const getTracking = (type: string) =>
+    data?.order?.trackings?.find((t: any) => t.type === type);
+
   const timelineData = [
+    {
+      title: "Payment",
+      desc:
+        getTracking("customer-payment")?.status === "success"
+          ? "Payment Successful"
+          : "Payment Uninitialized",
+      date: getTracking("customer-payment")?.dateCreated
+        ? moment(getTracking("customer-payment")?.dateCreated).format(
+            "MMM DD, YYYY hh:mm A",
+          )
+        : "",
+      isCompleted: getTracking("customer-payment")?.status === "success",
+    },
     {
       title: "Order received",
       desc: "Waiting for vendor to accept your order",
-      date: moment(data?.order?.trackings?.[0]?.dateCreated).format(
-        "MMM DD, YYYY hh:mm A",
-      ),
-      isCompleted: data?.order?.trackings?.[0]?.status === "success",
+      date: getTracking("store-received")?.dateCreated
+        ? moment(getTracking("store-received")?.dateCreated).format(
+            "MMM DD, YYYY hh:mm A",
+          )
+        : "",
+      isCompleted: getTracking("store-received")?.status === "success",
     },
     {
       title: "Vendor accepted order",
       desc: "The vendor has accepted your order",
-      date: moment(data?.order?.trackings?.[1]?.dateCreated).format(
-        "MMM DD, YYYY hh:mm A",
-      ),
-      isCompleted: data?.order?.trackings?.[1]?.status === "success",
+      date: getTracking("store-accepted")?.dateCreated
+        ? moment(getTracking("store-accepted")?.dateCreated).format(
+            "MMM DD, YYYY hh:mm A",
+          )
+        : "",
+      isCompleted: getTracking("store-accepted")?.status === "success",
     },
     {
       title: "Your order has been packed",
       desc: "Your order is ready to be picked",
-      date: moment(data?.order?.trackings?.[2]?.dateCreated).format(
-        "MMM DD, YYYY hh:mm A",
-      ),
-      isCompleted: data?.order?.trackings?.[2]?.status === "success",
+      date: getTracking("store-packed")?.dateCreated
+        ? moment(getTracking("store-packed")?.dateCreated).format(
+            "MMM DD, YYYY hh:mm A",
+          )
+        : "",
+      isCompleted: getTracking("store-packed")?.status === "success",
     },
     ...(data?.order?.store?.manuallyCompleted
       ? []
@@ -51,10 +73,12 @@ const OrderDetails = ({ data, category }: { data: any; category: string }) => {
           {
             title: "Rider accepted order",
             desc: "Rider has picked your order",
-            date: moment(data?.order?.trackings?.[3]?.dateCreated).format(
-              "MMM DD, YYYY hh:mm A",
-            ),
-            isCompleted: data?.order?.trackings?.[3]?.status === "success",
+            date: getTracking("rider-accepted")?.dateCreated
+              ? moment(getTracking("rider-accepted")?.dateCreated).format(
+                  "MMM DD, YYYY hh:mm A",
+                )
+              : "",
+            isCompleted: getTracking("rider-accepted")?.status === "success",
           },
         ]),
     ...(data?.order?.store?.manuallyCompleted
@@ -63,19 +87,23 @@ const OrderDetails = ({ data, category }: { data: any; category: string }) => {
           {
             title: "Order in transit",
             desc: "Your order is on it's way to you",
-            date: moment(data?.order?.trackings?.[4]?.dateCreated).format(
-              "MMM DD, YYYY hh:mm A",
-            ),
-            isCompleted: data?.order?.trackings?.[4]?.status === "success",
+            date: getTracking("rider-in-transit")?.dateCreated
+              ? moment(getTracking("rider-in-transit")?.dateCreated).format(
+                  "MMM DD, YYYY hh:mm A",
+                )
+              : "",
+            isCompleted: getTracking("rider-in-transit")?.status === "success",
           },
         ]),
     {
-      title: "Order complete",
+      title: "Order completed by vendor",
       desc: "",
-      date: moment(data?.order?.trackings?.[5]?.dateCreated).format(
-        "MMM DD, YYYY hh:mm A",
-      ),
-      isCompleted: data?.order?.trackings?.[5]?.status === "success",
+      date: getTracking("delivered")?.dateCreated
+        ? moment(getTracking("delivered")?.dateCreated).format(
+            "MMM DD, YYYY hh:mm A",
+          )
+        : "",
+      isCompleted: getTracking("delivered")?.status === "success",
     },
   ];
 

@@ -33,54 +33,82 @@ const TrackOrder = ({ data }: { data: any }) => {
     }
   };
 
+  const getTracking = (type: string) =>
+    data?.order?.trackings?.find((t: any) => t.type === type);
+
   const timelineData = [
+    {
+      title: "Payment",
+      desc:
+        getTracking("customer-payment")?.status === "success"
+          ? "Payment Successful"
+          : "Payment Uninitialized",
+      date: getTracking("customer-payment")?.dateCreated
+        ? moment(getTracking("customer-payment")?.dateCreated).format(
+            "MMM DD, YYYY hh:mm A",
+          )
+        : "",
+      isCompleted: getTracking("customer-payment")?.status === "success",
+    },
     {
       title: "Order Received",
       desc: "Waiting for vendor to accept your order",
-      date: moment(data?.order?.trackings?.[0]?.dateCreated).format(
-        "MMM DD, YYYY hh:mm A",
-      ),
-      isCompleted: data?.order?.trackings?.[0]?.status === "success",
+      date: getTracking("store-received")?.dateCreated
+        ? moment(getTracking("store-received")?.dateCreated).format(
+            "MMM DD, YYYY hh:mm A",
+          )
+        : "",
+      isCompleted: getTracking("store-received")?.status === "success",
     },
     {
       title: "Vendor Accepted Order",
       desc: "The vendor has accepted your order",
-      date: moment(data?.order?.trackings?.[2]?.dateCreated).format(
-        "MMM DD, YYYY hh:mm A",
-      ),
-      isCompleted: data?.order?.trackings?.[2]?.status === "success",
+      date: getTracking("store-accepted")?.dateCreated
+        ? moment(getTracking("store-accepted")?.dateCreated).format(
+            "MMM DD, YYYY hh:mm A",
+          )
+        : "",
+      isCompleted: getTracking("store-accepted")?.status === "success",
     },
     {
       title: "You Order has been Packed",
       desc: "Your order is ready to be picked",
-      date: moment(data?.order?.trackings?.[3]?.dateCreated).format(
-        "MMM DD, YYYY hh:mm A",
-      ),
-      isCompleted: data?.order?.trackings?.[3]?.status === "success",
+      date: getTracking("store-packed")?.dateCreated
+        ? moment(getTracking("store-packed")?.dateCreated).format(
+            "MMM DD, YYYY hh:mm A",
+          )
+        : "",
+      isCompleted: getTracking("store-packed")?.status === "success",
     },
     {
       title: "Rider Accepted Order",
       desc: "Rider has picked your order",
-      date: moment(data?.order?.trackings?.[4]?.dateCreated).format(
-        "MMM DD, YYYY hh:mm A",
-      ),
-      isCompleted: data?.order?.trackings?.[4]?.status === "success",
+      date: getTracking("rider-accepted")?.dateCreated
+        ? moment(getTracking("rider-accepted")?.dateCreated).format(
+            "MMM DD, YYYY hh:mm A",
+          )
+        : "",
+      isCompleted: getTracking("rider-accepted")?.status === "success",
     },
     {
       title: "Order in Transit",
       desc: "Your order is on it's way to you",
-      date: moment(data?.order?.trackings?.[5]?.dateCreated).format(
-        "MMM DD, YYYY hh:mm A",
-      ),
-      isCompleted: data?.order?.trackings?.[5]?.status === "success",
+      date: getTracking("rider-in-transit")?.dateCreated
+        ? moment(getTracking("rider-in-transit")?.dateCreated).format(
+            "MMM DD, YYYY hh:mm A",
+          )
+        : "",
+      isCompleted: getTracking("rider-in-transit")?.status === "success",
     },
     {
       title: "Order Complete",
       desc: "",
-      date: moment(data?.order?.trackings?.[6]?.dateCreated).format(
-        "MMM DD, YYYY hh:mm A",
-      ),
-      isCompleted: data?.order?.trackings?.[6]?.status === "success",
+      date: getTracking("delivered")?.dateCreated
+        ? moment(getTracking("delivered")?.dateCreated).format(
+            "MMM DD, YYYY hh:mm A",
+          )
+        : "",
+      isCompleted: getTracking("delivered")?.status === "success",
     },
   ];
 
@@ -95,6 +123,8 @@ const TrackOrder = ({ data }: { data: any }) => {
       ? "uninitialized"
       : data?.order?.status;
 
+      const paymentStatus = data?.order?.payment?.status;
+      
   return (
     <div>
       <div className="between">
@@ -110,23 +140,25 @@ const TrackOrder = ({ data }: { data: any }) => {
         <div>
           <p
             className={cn(
-              "capitalize border rounded-full px-2 font-medium text-[10px] leading-[18px]",
-              effectiveStatus === "ongoing"
+              paymentStatus === "pending"
                 ? "text-[#B54708] bg-[#FFFAEB] border-[#FEDF89]"
-                : effectiveStatus === "uninitialized"
+                : paymentStatus === "uninitialized"
                   ? "text-[#c7950a] bg-[#ffffeb] border-[#FEDF89]"
-                  : effectiveStatus === "complete"
+                  : paymentStatus === "success"
                     ? "text-[#027A48] bg-[#A6F4C51A] border-[#A6F4C5]"
                     : "text-[#B42318] bg-[#FEF3F2] borer-[#FECDCA]",
+              "capitalize border rounded-full px-2 font-medium text-[10px] leading-[18px]",
             )}
           >
-            {effectiveStatus === "ongoing"
-              ? "pending"
-              : effectiveStatus === "complete"
-                ? "successful"
-                : effectiveStatus === "uninitialized"
-                  ? "payment uninitialized"
-                  : effectiveStatus}
+            {paymentStatus === "pending"
+              ? "Payment Pending"
+              : paymentStatus === "success"
+                ? "Payment Successful"
+                : paymentStatus === "uninitialized"
+                  ? "Payment Uninitialized"
+                  : paymentStatus === "failed"
+                    ? "Payment Failed"
+                    : paymentStatus}
           </p>
         </div>
       </div>

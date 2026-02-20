@@ -48,33 +48,36 @@ const WalletBal = () => {
 
   const accessToken = userParsed?.tokens?.tokens?.access;
   const { error } = usePaymentListener(accessToken, () => {
-    toast.success("Payment Successful");
-    setOpenPaymentDrawer(false);
-    setPaymentDetails(null);
-    mutate();
+    if (paymentDetails) {
+      toast.success("Payment Successful");
+      setOpenPaymentDrawer(false);
+      setPaymentDetails(null);
+      mutate();
+    }
   });
 
   const handleCheckPaymentStatus = async () => {
     setLoading(true);
-    let paymentSuccessful = false;
     const transactionId = paymentDetails?.data?.transaction?.id;
     if (transactionId) {
-      const res = await walletFunc.getTransaction(transactionId);
+      try {
+        const res = await walletFunc.getTransaction(transactionId);
 
-      if (res?.data?.data?.transaction?.payment?.status === "success") {
-        toast.success("Payment Successful");
-        setOpenPaymentDrawer(false);
-        mutate();
-        paymentSuccessful = true;
-      } else if (res?.data?.data?.transaction?.payment?.status === "pending") {
-        toast("Payment Pending");
-      } else {
-        toast.error("Payment Failed");
+        if (res?.data?.data?.transaction?.payment?.status === "success") {
+          toast.success("Payment Successful");
+          setOpenPaymentDrawer(false);
+          setPaymentDetails(null);
+          mutate();
+        } else if (
+          res?.data?.data?.transaction?.payment?.status === "pending"
+        ) {
+          toast("Payment Still Pending");
+        } else {
+          toast.error("Payment Failed");
+        }
+      } catch (err) {
+        console.error("Error checking payment status:", err);
       }
-    }
-    // Only clear details if payment was successful
-    if (paymentSuccessful) {
-      setPaymentDetails(null);
     }
     setLoading(false);
   };

@@ -1,11 +1,11 @@
 "use client";
 
 import Back from "@/components/Back";
-import Icon from "@/components/Icon";
 import { DialogC } from "@/components/Dialog";
+import Icon from "@/components/Icon";
 import { Button } from "@/components/ui/button";
+import { koboToNaira } from "@/lib/formatCurrency";
 import { swrfetcher } from "@/lib/swrfetcher";
-import { currencyFormatter, koboToNaira } from "@/lib/formatCurrency";
 import { Loader2Icon } from "lucide-react";
 import Image from "next/image";
 import React, { use } from "react";
@@ -112,7 +112,7 @@ const Profile = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
           </div>
         ) : (
           <div className="space-y-5 md:space-y-8 clamp-[mt,6,8,@sm,@lg]">
-            <div className="clamp-[pt,3.5,5,@sm,@lg] between">
+            <div className="clamp-[pt,3.5,5,@sm,@lg] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="start">
                 <Image
                   className="clamp-[size,10,16,@sm,@lg] rounded-full object-cover"
@@ -209,11 +209,11 @@ const Profile = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                   <span className="text-[#1D2939] mt-1">
                     {vendor?.store?.delivery?.price ? (
                       <>
-                        {currencyFormatter(
+                        {koboToNaira(
                           vendor?.store?.delivery?.price?.min?.amount,
                         )}{" "}
                         -{" "}
-                        {currencyFormatter(
+                        {koboToNaira(
                           vendor?.store?.delivery?.price?.max?.amount,
                         )}{" "}
                       </>

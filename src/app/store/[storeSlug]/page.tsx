@@ -221,7 +221,13 @@ export default function Home({
         </Tabs>
       </div>
 
-      <DialogC open={openModal} hasNoClose={process === "phoneInput"}>
+      <DialogC
+        open={openModal}
+        onClose={
+          process === "otpInput" ? () => setProcess("phoneInput") : undefined
+        }
+        hasNoClose={process === "phoneInput"}
+      >
         {process === "phoneInput" ? (
           <>
             <Link

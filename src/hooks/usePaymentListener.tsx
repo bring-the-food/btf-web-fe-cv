@@ -30,7 +30,7 @@ const MAX_RECONNECT_DELAY = 30000;
 
 export const usePaymentListener = (
   accessToken: string | null,
-  onSuccess: () => void
+  onSuccess: () => void,
 ) => {
   const ws = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -41,6 +41,7 @@ export const usePaymentListener = (
   const tokenRef = useRef(accessToken);
   const onSuccessRef = useRef(onSuccess);
   const manualCloseRef = useRef(false);
+  const processedTransactions = useRef<Set<string>>(new Set());
 
   const [isConnected, setIsConnected] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -141,7 +142,11 @@ export const usePaymentListener = (
             if (message.data?.transaction) {
               const tx = message.data.transaction;
               setTransaction(tx);
-              if (tx.payment?.status === "success") {
+              if (
+                tx.payment?.status === "success" &&
+                !processedTransactions.current.has(tx.id)
+              ) {
+                processedTransactions.current.add(tx.id);
                 onSuccessRef.current();
               }
             }
@@ -180,7 +185,7 @@ export const usePaymentListener = (
       // Only reconnect if it wasn't a manual close and we have a token
       if (!manualCloseRef.current && tokenRef.current) {
         console.log(
-          `🔄 [WS] Reconnecting in ${reconnectDelayRef.current}ms...`
+          `🔄 [WS] Reconnecting in ${reconnectDelayRef.current}ms...`,
         );
         if (reconnectTimeoutRef.current)
           clearTimeout(reconnectTimeoutRef.current);
@@ -188,7 +193,7 @@ export const usePaymentListener = (
         reconnectTimeoutRef.current = setTimeout(() => {
           reconnectDelayRef.current = Math.min(
             reconnectDelayRef.current * 2,
-            MAX_RECONNECT_DELAY
+            MAX_RECONNECT_DELAY,
           );
           connectWebSocket();
         }, reconnectDelayRef.current);
