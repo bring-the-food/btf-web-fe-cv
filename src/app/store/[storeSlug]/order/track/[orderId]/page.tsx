@@ -28,6 +28,8 @@ import {
 import { MoreVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import PaymentMethod from "@/components/PaymentMethod";
+import { usePaymentListener } from "@/hooks/usePaymentListener";
+import { parseCookies } from "nookies";
 
 const Page = ({
   params,
@@ -62,6 +64,20 @@ const Page = ({
   const [regeneratePaymentMethod, setRegeneratePaymentMethod] =
     React.useState("One Time Transfer");
   const [checkoutResponse, setChecoutResponse] = React.useState(null as any);
+
+  const { userDetails } = parseCookies();
+  const userParsed = userDetails && JSON?.parse(userDetails);
+  const accessToken = userParsed?.tokens?.tokens?.access;
+
+  usePaymentListener(
+    accessToken,
+    () => {
+      mutate();
+    },
+    () => {
+      mutate();
+    },
+  );
 
   React.useEffect(() => {
     if (urlstatus) {

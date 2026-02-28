@@ -543,20 +543,46 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
               <span>{checoutResponseExternal?.data?.order?.slug}</span>
             </p>
 
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(
-                  checoutResponseExternal?.data?.order?.slug,
-                );
-                toast("Copied to clipboard");
-              }}
-            >
-              <Icon
-                icon="copyy"
-                size={20}
-                className="clamp-[w,1.25rem,1.3rem,@sm,@lg]"
-              />
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    checoutResponseExternal?.data?.order?.slug,
+                  );
+                  toast("Copied to clipboard");
+                }}
+              >
+                <Icon
+                  icon="copyy"
+                  size={20}
+                  className="clamp-[w,1.25rem,1.3rem,@sm,@lg]"
+                />
+              </button>
+
+              <button
+                onClick={() => {
+                  const orderId = checoutResponseExternal?.data?.order?.slug;
+                  if (navigator.share) {
+                    navigator
+                      .share({
+                        title: "Order ID",
+                        text: `My Order ID is: ${orderId}`,
+                        url: window.location.href,
+                      })
+                      .catch(console.error);
+                  } else {
+                    navigator.clipboard.writeText(orderId);
+                    toast("Copied to clipboard (Sharing not supported)");
+                  }
+                }}
+              >
+                <Icon
+                  icon="share-07"
+                  size={20}
+                  className="clamp-[w,1.25rem,1.3rem,@sm,@lg]"
+                />
+              </button>
+            </div>
           </div>
 
           <Button

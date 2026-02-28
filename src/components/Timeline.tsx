@@ -12,7 +12,7 @@ const Timeline = ({
   }[];
 }) => {
   return (
-    <div className="">
+    <div className="flex flex-col">
       {timelineData?.map((timeline, index) => {
         return (
           <Pallet
@@ -20,7 +20,7 @@ const Timeline = ({
             title={timeline.title}
             desc={timeline.desc}
             date={timeline.date}
-            isFirst={index === 0}
+            isLast={index === timelineData.length - 1}
             isCompleted={timeline?.isCompleted ?? false}
           />
         );
@@ -33,38 +33,46 @@ const Pallet = ({
   title,
   desc,
   date,
-  isFirst,
+  isLast,
   isCompleted,
 }: {
   title: string;
   desc: string | React.ReactNode;
   date: string;
-  isFirst: boolean;
+  isLast: boolean;
   isCompleted: boolean;
 }) => {
   return (
-    <div className={cn(!isFirst ? "mt-12" : "", "start-start space-x-2")}>
-      <p className="text-[#475467] clamp-[text,0.625rem,0.75rem,@sm,@lg] w-[85px]">
+    <div className="flex items-stretch space-x-2">
+      {/* Date Column */}
+      <p className="text-[#475467] clamp-[text,0.625rem,0.75rem,@sm,@lg] w-[85px] leading-4 flex-none">
         {isCompleted ? date : ""}
       </p>
 
-      <div
-        className={cn(
-          !isFirst
-            ? "relative before:absolute before:border-2 before:h-[65px] before:bottom-3"
-            : "",
-          isCompleted
-            ? "border-[#FFC247] before:border-[#FFC247]"
-            : "border-[#D0D5DD] before:border-[#D0D5DD]",
-          "border-[6px] size-4 rounded-full"
+      {/* Timeline Node & Line Column */}
+      <div className="flex flex-col items-center flex-none">
+        <div
+          className={cn(
+            "size-4 rounded-full border-[6px] flex-none z-10",
+            isCompleted ? "border-[#FFC247]" : "border-[#D0D5DD]",
+          )}
+        />
+        {!isLast && (
+          <div
+            className={cn(
+              "w-0.5 flex-1",
+              isCompleted ? "bg-[#FFC247]" : "bg-[#D0D5DD]",
+            )}
+          />
         )}
-      />
+      </div>
 
-      <div>
-        <h6 className="text-[#1D2939] clamp-[text,sm,base,@sm,@lg] font-medium leading-none">
+      {/* Content Column */}
+      <div className={cn(!isLast ? "pb-12" : "")}>
+        <h6 className="text-[#1D2939] clamp-[text,sm,base,@sm,@lg] font-medium leading-4">
           {title}
         </h6>
-        <p className="clamp-[mt,2,3,@sm,@lg] text-[#98A2B3] font-inter clamp-[text,xs,sm,@sm,@lg] leading-none">
+        <p className="mt-1 text-[#98A2B3] font-inter clamp-[text,xs,sm,@sm,@lg] leading-normal">
           {desc}
         </p>
       </div>

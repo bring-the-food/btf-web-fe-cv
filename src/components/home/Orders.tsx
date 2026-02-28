@@ -10,6 +10,8 @@ import Icon from "../Icon";
 import Loader from "../Loader";
 import { Button } from "../ui/button";
 import VendorHeader from "../VendorHeader";
+import { usePaymentListener } from "@/hooks/usePaymentListener";
+import { parseCookies } from "nookies";
 
 const Orders = ({
   storeSlug,
@@ -20,7 +22,24 @@ const Orders = ({
   vendor: any;
   isVendorLoading: boolean;
 }) => {
-  const { data, isLoading } = useSWR(`/api/orders/getOrders`, swrfetcher);
+  const { data, isLoading, mutate } = useSWR(
+    `/api/orders/getOrders`,
+    swrfetcher,
+  );
+
+  const { userDetails } = parseCookies();
+  const userParsed = userDetails && JSON?.parse(userDetails);
+  const accessToken = userParsed?.tokens?.tokens?.access;
+
+  usePaymentListener(
+    accessToken,
+    () => {
+      mutate();
+    },
+    () => {
+      mutate();
+    },
+  );
 
   return (
     <Loader state={isVendorLoading || isLoading}>
@@ -101,7 +120,11 @@ const OrderCard = ({ storeSlug, data }: { storeSlug: string; data: any }) => {
           <span className="text-[#1D2939] text-xs">
             {data?.combos?.length > 0
               ? `${data?.combos?.[0]?.count}x ${data?.combos?.[0]?.name}`
-              : `${data?.packs?.[0]?.[0]?.count}x ${data?.packs?.[0]?.[0]?.name}`}
+              : data?.groceries?.length > 0
+                ? `${data?.groceries?.[0]?.count}x ${data?.groceries?.[0]?.name}`
+                : data?.packs?.[0]?.[0]?.count
+                  ? `${data?.packs?.[0]?.[0]?.count}x ${data?.packs?.[0]?.[0]?.name}`
+                  : "Order Items"}
           </span>
           {data?.summary?.items?.count > 1 && (
             <span className="text-[#98A2B3] text-[10px] mt-1">
@@ -140,12 +163,13 @@ const OrderCard = ({ storeSlug, data }: { storeSlug: string; data: any }) => {
       <div className="w-full h-px border-t border-[#E4E7EC] border-dashed" />
 
       <div className="between space-x-2 mt-5 mb-4">
-        {Array.from({ length: data?.trackings?.length }, (_, i) => {
+        {Array.from({ length: 7 }, (_, i) => {
+          const latestProgress = findLatestSuccess(data?.trackings);
           return (
             <div
               key={i}
               className={`h-[3px] w-full rounded-full ${
-                isCompleted || i <= findLatestSuccess(data?.trackings)?.index
+                isCompleted || i <= latestProgress.index
                   ? "bg-[#FFC247]"
                   : "bg-[#F2F4F7]"
               }`}
@@ -222,38 +246,50 @@ function findLatestSuccess(
     status: string;
   }[],
 ) {
-  const successfulTrackings = trackings
-    .filter((t) => t.status === "success" && t.dateCreated)
-    .map((tracking, index) => ({
-      tracking,
-      index,
-      date: new Date(tracking.dateCreated as string),
-    }));
+  const steps = [
+    "customer-payment",
+    "store-received",
+    "store-accepted",
+    "store-packed",
+    "rider-accepted",
+    "rider-in-transit",
+    "delivered",
+  ];
 
-  if (successfulTrackings.length === 0) {
+  let latestIndex = -1;
+  let latestTracking = null;
+
+  steps.forEach((stepType, index) => {
+    const match = trackings.find(
+      (t) => t.type === stepType && t.status === "success",
+    );
+    if (match) {
+      latestIndex = index;
+      latestTracking = match;
+    }
+  });
+
+  if (latestIndex === -1 || !latestTracking) {
     return { index: -1, tracking: null, humanReadable: null };
   }
 
-  const latest = successfulTrackings.reduce((prev, current) =>
-    current.date > prev.date ? current : prev,
-  );
-
-  const humanReadable = transformToHumanReadable(latest.tracking.type);
+  const humanReadable = transformToHumanReadable((latestTracking as any).type);
 
   return {
-    index: latest.index,
-    tracking: latest.tracking,
+    index: latestIndex,
+    tracking: latestTracking as any,
     humanReadable: humanReadable,
   };
 }
 
 function transformToHumanReadable(type: string): string {
   const typeMap: { [key: string]: string } = {
-    "store-received": "Order received",
-    "store-accepted": "Vendor accepted order",
-    "store-packed": "Your order has been packed",
-    "rider-accepted": "Rider accepted order",
-    "rider-in-transit": "Order in transit",
+    "customer-payment": "Payment Successful",
+    "store-received": "Order Received",
+    "store-accepted": "Vendor Accepted Order",
+    "store-packed": "Your Order has been Packed",
+    "rider-accepted": "Rider Accepted Order",
+    "rider-in-transit": "Order in Transit",
     delivered: "Order Complete",
   };
 

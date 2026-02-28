@@ -12,6 +12,8 @@ import OrderSummary from "./OrderSummary";
 import { FrownFace, HappyFace, NeutralFace, SadFace, SmileFace } from "./Svgs";
 import { orderFunc } from "./functions/order";
 import LoadingButton from "./LoadingButton";
+import { usePlatform } from "@/hooks/usePlatform";
+import { APP_LINKS, handleAppRedirection } from "@/lib/appLinks";
 
 const OrderDetails = ({ data, category }: { data: any; category: string }) => {
   const [openDrawer, setOpenDrawer] = React.useState(false);
@@ -19,6 +21,7 @@ const OrderDetails = ({ data, category }: { data: any; category: string }) => {
   const [rating, setRating] = React.useState<1 | 2 | 3 | 4 | 5 | null>(null);
   const [openRateDrawer, setOpenRateDrawer] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+  const platform = usePlatform();
 
   const getTracking = (type: string) =>
     data?.order?.trackings?.find((t: any) => t.type === type);
@@ -86,7 +89,7 @@ const OrderDetails = ({ data, category }: { data: any; category: string }) => {
       : [
           {
             title: "Order in transit",
-            desc: "Your order is on it's way to you",
+            desc: "Your order is on the way",
             date: getTracking("rider-in-transit")?.dateCreated
               ? moment(getTracking("rider-in-transit")?.dateCreated).format(
                   "MMM DD, YYYY hh:mm A",
@@ -308,6 +311,11 @@ const OrderDetails = ({ data, category }: { data: any; category: string }) => {
       </div>
 
       <Button
+        onClick={() =>
+          handleAppRedirection(platform, APP_LINKS.ROUTES.REPORT, {
+            orderId: data?.order?.slug,
+          })
+        }
         variant={"outline"}
         className="text-[#D92D20] hover:text-[#D92D20] border border-[#D92D20] hover:bg-[#fbdddb]/20 font-inter clamp-[text,sm,base,@sm,@lg] font-semibold bg-transparent clamp-[py,1.125rem,1.375rem,@sm,@lg]! w-full max-w-sm h-auto rounded-xl"
       >

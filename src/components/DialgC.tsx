@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,13 +9,13 @@ import {
 import React from "react";
 import Icon from "./Icon";
 import Link from "next/link";
+import { APP_LINKS } from "@/lib/appLinks";
 
 type DialogProps = {
   trigger?: React.ReactNode;
   isDownload?: boolean;
   desc: string;
   header: string;
-  downloadRes?: any;
   open?: boolean;
   setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
   showCloseButton?: boolean;
@@ -26,7 +26,6 @@ const DialogC = ({
   isDownload,
   desc,
   header,
-  downloadRes,
   open,
   setOpen,
   showCloseButton,
@@ -50,28 +49,26 @@ const DialogC = ({
 
             {isDownload ? (
               <div className="clamp-[gap,4,6] mt-8 grid lg:grid-cols-2 w-fit mx-auto">
-                <Button
-                  onClick={downloadRes}
-                  className="py-[18px]! px-4 text-sm lg:text-base font-medium"
-                >
-                  <Icon
-                    icon="playstore"
-                    h={18.999780654907227}
-                    w={17.305557250976562}
-                  />
-                  Download on Google Play
-                </Button>
-                <Button
-                  onClick={downloadRes}
-                  className="py-[18px]! px-4 text-sm lg:text-base font-medium"
-                >
-                  <Icon
-                    icon="iphone"
-                    h={18.999780654907227}
-                    w={17.305557250976562}
-                  />
-                  Download on App Store
-                </Button>
+                <Link href={APP_LINKS.STORES.GOOGLE_PLAY} target="_blank">
+                  <Button className="py-[18px]! px-4 text-sm lg:text-base font-medium w-full">
+                    <Icon
+                      icon="playstore"
+                      h={18.999780654907227}
+                      w={17.305557250976562}
+                    />
+                    Download on Google Play
+                  </Button>
+                </Link>
+                <Link href={APP_LINKS.STORES.APPLE_APP_STORE} target="_blank">
+                  <Button className="py-[18px]! px-4 text-sm lg:text-base font-medium w-full">
+                    <Icon
+                      icon="iphone"
+                      h={18.999780654907227}
+                      w={17.305557250976562}
+                    />
+                    Download on App Store
+                  </Button>
+                </Link>
               </div>
             ) : (
               <Link

@@ -207,19 +207,7 @@ const Profile = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                 <p className="col-start clamp-[text,xs,sm,@sm,@lg] font-medium">
                   <span className="text-[#98A2B3] ">Delivery Fee</span>
                   <span className="text-[#1D2939] mt-1">
-                    {vendor?.store?.delivery?.price ? (
-                      <>
-                        {koboToNaira(
-                          vendor?.store?.delivery?.price?.min?.amount,
-                        )}{" "}
-                        -{" "}
-                        {koboToNaira(
-                          vendor?.store?.delivery?.price?.max?.amount,
-                        )}{" "}
-                      </>
-                    ) : (
-                      "--"
-                    )}
+                    {koboToNaira(50000)} - {koboToNaira(200000)}
                   </span>
                 </p>
                 {/* <div className="bg-[#F2F4F7] clamp-[h,5,6,@sm,@lg] w-px" />

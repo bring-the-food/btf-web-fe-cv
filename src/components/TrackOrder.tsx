@@ -71,7 +71,7 @@ const TrackOrder = ({ data }: { data: any }) => {
       isCompleted: getTracking("store-accepted")?.status === "success",
     },
     {
-      title: "You Order has been Packed",
+      title: "Your Order has been Packed",
       desc: "Your order is ready to be picked",
       date: getTracking("store-packed")?.dateCreated
         ? moment(getTracking("store-packed")?.dateCreated).format(
@@ -92,7 +92,7 @@ const TrackOrder = ({ data }: { data: any }) => {
     },
     {
       title: "Order in Transit",
-      desc: "Your order is on it's way to you",
+      desc: "Your order is on the way",
       date: getTracking("rider-in-transit")?.dateCreated
         ? moment(getTracking("rider-in-transit")?.dateCreated).format(
             "MMM DD, YYYY hh:mm A",
@@ -112,19 +112,8 @@ const TrackOrder = ({ data }: { data: any }) => {
     },
   ];
 
-  const isRejected = data?.order?.trackings?.some(
-    (tracking: any) => tracking.type === "store-rejected",
-  );
+  const paymentStatus = data?.order?.payment?.status;
 
-  const effectiveStatus = isRejected
-    ? "rejected"
-    : data?.order?.payment?.method === "external" &&
-        data?.order?.payment?.status === "uninitialized"
-      ? "uninitialized"
-      : data?.order?.status;
-
-      const paymentStatus = data?.order?.payment?.status;
-      
   return (
     <div>
       <div className="between">

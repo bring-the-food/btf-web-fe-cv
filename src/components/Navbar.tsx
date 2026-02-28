@@ -62,7 +62,6 @@ const MenuItems = ({
           header="Set Up, Sell More, Stress Less"
           desc="Focus on making delicious food. We handle the rest!"
           isDownload
-          downloadRes={() => setUnderCModal(true)}
           showCloseButton={false}
         />
       </li>
@@ -72,7 +71,6 @@ const MenuItems = ({
           header="Earn More by Delivering Food"
           desc="Own a bike or bikes? Earn more delivering food!"
           isDownload
-          downloadRes={() => setUnderCModal(true)}
           showCloseButton={false}
         />
       </li>
@@ -156,7 +154,7 @@ const Navbar = () => {
           id="mobile-menu"
           className={cn(
             isMenuOpen ? "min-h-[calc(100svh-101px)] pt-9 " : "h-0 ",
-            "space-y-10 text-[#310909] font-medium clamp-[text,base,lg,@sm,@lg] overflow-hidden leading-[19.84px] tracking-[0.32px] absolute bg-[#FFC247] w-full container_fluid transition-all duration-500"
+            "space-y-10 text-[#310909] font-medium clamp-[text,base,lg,@sm,@lg] overflow-hidden leading-[19.84px] tracking-[0.32px] absolute bg-[#FFC247] w-full container_fluid transition-all duration-500",
           )}
         >
           <MenuItems

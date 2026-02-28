@@ -31,6 +31,7 @@ const MAX_RECONNECT_DELAY = 30000;
 export const usePaymentListener = (
   accessToken: string | null,
   onSuccess: () => void,
+  onUpdate?: (transaction: Transaction) => void,
 ) => {
   const ws = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -40,6 +41,7 @@ export const usePaymentListener = (
   // Stabilize props with refs
   const tokenRef = useRef(accessToken);
   const onSuccessRef = useRef(onSuccess);
+  const onUpdateRef = useRef(onUpdate);
   const manualCloseRef = useRef(false);
   const processedTransactions = useRef<Set<string>>(new Set());
 
@@ -54,7 +56,8 @@ export const usePaymentListener = (
   // Keep refs in sync
   useEffect(() => {
     onSuccessRef.current = onSuccess;
-  }, [onSuccess]);
+    onUpdateRef.current = onUpdate;
+  }, [onSuccess, onUpdate]);
 
   const startHeartbeat = useCallback(() => {
     if (heartbeatIntervalRef.current)
@@ -142,6 +145,7 @@ export const usePaymentListener = (
             if (message.data?.transaction) {
               const tx = message.data.transaction;
               setTransaction(tx);
+              onUpdateRef.current?.(tx);
               if (
                 tx.payment?.status === "success" &&
                 !processedTransactions.current.has(tx.id)

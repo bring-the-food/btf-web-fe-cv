@@ -56,22 +56,21 @@ const WalletBal = () => {
     }
   });
 
-  const handleCheckPaymentStatus = async () => {
-    setLoading(true);
+  const handleCheckPaymentStatus = async (isAuto = false) => {
+    if (!isAuto) setLoading(true);
     const transactionId = paymentDetails?.data?.transaction?.id;
     if (transactionId) {
       try {
         const res = await walletFunc.getTransaction(transactionId);
+        const status = res?.data?.data?.transaction?.payment?.status;
 
-        if (res?.data?.data?.transaction?.payment?.status === "success") {
+        if (status === "success") {
           toast.success("Payment Successful");
           setOpenPaymentDrawer(false);
           setPaymentDetails(null);
           mutate();
-        } else if (
-          res?.data?.data?.transaction?.payment?.status === "pending"
-        ) {
-          toast("Payment Still Pending");
+        } else if (status === "pending") {
+          if (!isAuto) toast("Still waiting for confirmation...");
         } else {
           toast.error("Payment Failed");
         }
@@ -79,7 +78,7 @@ const WalletBal = () => {
         console.error("Error checking payment status:", err);
       }
     }
-    setLoading(false);
+    if (!isAuto) setLoading(false);
   };
 
   React.useEffect(() => {
@@ -238,7 +237,7 @@ const WalletBal = () => {
             </div>
 
             <LoadingButton
-              onClick={handleCheckPaymentStatus}
+              onClick={() => handleCheckPaymentStatus()}
               isLoading={loading}
               className="bg-[#FFC247] hover:bg-[#fcb526] rounded-xl w-full max-w-[353] clamp-[mt,5,6,@sm,@lg] clamp-[py,1.125rem,1.375rem,@sm,@lg]! h-auto text-[#59201A] clamp-[text,sm,base,@sm,@lg] font-semibold"
             >

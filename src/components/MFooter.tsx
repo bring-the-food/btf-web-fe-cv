@@ -6,6 +6,7 @@ import Icon from "./Icon";
 import FeaturedVendor from "@/components/FeaturedVendor";
 import Link from "next/link";
 import Dialog from "@/components/DialgC";
+import { socialLinks } from "../../data/socialLinks";
 
 const Li = ({
   label,
@@ -32,11 +33,14 @@ const Li = ({
     return (
       <li>
         <Dialog
-          trigger={<button className="font-caprasimo text-base leading-[21.12px] tracking-[0.32px] text-[#310909]">Riders</button>}
+          trigger={
+            <button className="font-caprasimo text-base leading-[21.12px] tracking-[0.32px] text-[#310909]">
+              Riders
+            </button>
+          }
           header="Earn More by Delivering Food"
           desc="Own a bike or bikes? Earn more delivering food!"
           isDownload
-          downloadRes={handleClick}
           showCloseButton={false}
         />
       </li>
@@ -47,11 +51,14 @@ const Li = ({
     return (
       <li>
         <Dialog
-          trigger={<button className="font-caprasimo text-base leading-[21.12px] tracking-[0.32px] text-[#310909]">Vendors</button>}
+          trigger={
+            <button className="font-caprasimo text-base leading-[21.12px] tracking-[0.32px] text-[#310909]">
+              Vendors
+            </button>
+          }
           header="Set Up, Sell More, Stress Less"
           desc="Focus on making delicious food. We handle the rest!"
           isDownload
-          downloadRes={handleClick}
           showCloseButton={false}
         />
       </li>
@@ -158,17 +165,17 @@ const MFooter = () => {
           </h6>
 
           <div className="start space-x-2 mt-[22px] ">
-            <a href="#" aria-label="Instagram">
+            <a href={socialLinks.instagram} aria-label="Instagram">
               <div className="bg-[#310909] size-10 rounded-full center">
                 <Icon icon="instagram_c" size={20} />
               </div>
             </a>
-            <a href="#" aria-label="Facebook">
+            <a href={socialLinks.facebook} aria-label="Facebook">
               <div className="bg-[#310909] size-10 rounded-full center">
                 <Icon icon="facebook_c" size={20} />
               </div>
             </a>
-            <a href="#" aria-label="X">
+            <a href={socialLinks.twitter} aria-label="X">
               <div className="bg-[#310909] size-10 rounded-full center">
                 <Icon icon="x_c" size={20} />
               </div>
@@ -203,4 +210,3 @@ const MFooter = () => {
 };
 
 export default MFooter;
-

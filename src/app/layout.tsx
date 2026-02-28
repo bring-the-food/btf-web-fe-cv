@@ -16,7 +16,7 @@ const jakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.bringthisfood.com"),
   title: {
-    default: "Bring This Food: Reliable Last-Mile Delivery for Everyone",
+    default: "Bring This Food: We build technology that empowers the food industry",
     template: "%s | Bring This Food",
   },
   description:
@@ -71,7 +71,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://www.bringthisfood.com/",
     siteName: "Bring This Food",
-    title: "Bring This Food: Reliable Last-Mile Delivery for Everyone",
+    title: "Bring This Food: We build technology that empowers the food industry",
     description:
       "Connect with local vendors through our reliable, tech-driven delivery service. Professional and fast service for customers, vendors, and riders.",
     images: [
@@ -85,7 +85,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Bring This Food: Reliable Last-Mile Delivery for Everyone",
+    title: "Bring This Food: We build technology that empowers the food industry",
     description:
       "Connect with local vendors through our reliable, tech-driven delivery service. Professional and fast service for customers, vendors, and riders.",
     // creator: "@yourtwitter",

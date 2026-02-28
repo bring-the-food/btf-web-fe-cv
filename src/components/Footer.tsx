@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import { socialLinks } from "../../data/socialLinks";
 
 const Footer = () => {
   return (
@@ -53,7 +54,7 @@ const Footer = () => {
               Follow Us
             </h6>
             <div className="center space-x-2 mt-5">
-              <a href="#" aria-label="Instagram">
+              <a href={socialLinks.instagram} aria-label="Instagram">
                 <div className="bg-[#310909] size-10 rounded-full center">
                   <Image
                     src="/svg/instagram.svg"
@@ -63,7 +64,7 @@ const Footer = () => {
                   />
                 </div>
               </a>
-              <a href="#" aria-label="Facebook">
+              <a href={socialLinks.facebook} aria-label="Facebook">
                 <div className="bg-[#310909] size-10 rounded-full center">
                   <Image
                     src="/svg/facebook.svg"
@@ -73,7 +74,7 @@ const Footer = () => {
                   />
                 </div>
               </a>
-              <a href="#" aria-label="X">
+              <a href={socialLinks.twitter} aria-label="X">
                 <div className="bg-[#310909] size-10 rounded-full center">
                   <Image src="/svg/x.svg" alt="x" width={20} height={20} />
                 </div>

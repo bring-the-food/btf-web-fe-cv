@@ -13,14 +13,44 @@ export const APP_LINKS = {
     CHAT: "chat",
     ORDERS: "orders",
     PROFILE: "profile",
+    REPORT: "report",
   },
 
   // App Store Links
   STORES: {
     GOOGLE_PLAY:
       "https://play.google.com/store/apps/details?id=com.bringthisfood", // Placeholder
-    APPLE_APP_STORE: "https://apps.apple.com/app/bringthisfood", // Placeholder
+    APPLE_APP_STORE: "https://apps.apple.com/ng/app/bringthisfood-consumer/id6756045001",
   },
+};
+
+/**
+ * Handle redirection to the app with a fallback to the store
+ */
+export const handleAppRedirection = (
+  platform: "ios" | "android" | "desktop",
+  route: string,
+  params: Record<string, string | number | undefined> = {},
+) => {
+  if (platform === "desktop") {
+    // For desktop, we can just open the store page or a web fallback
+    window.open(APP_LINKS.STORES.GOOGLE_PLAY, "_blank");
+    return;
+  }
+
+  const deepLink = constructDeepLink(route, params);
+  const storeLink =
+    platform === "ios"
+      ? APP_LINKS.STORES.APPLE_APP_STORE
+      : APP_LINKS.STORES.GOOGLE_PLAY;
+
+  // Attempt to open deep link
+  window.location.href = deepLink;
+
+  // Fallback to store after a short delay if the app didn't open
+  setTimeout(() => {
+    window.location.href = storeLink;
+  }, 2500);
 };
 
 /**
