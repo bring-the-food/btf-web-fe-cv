@@ -105,7 +105,7 @@ const Navbar = () => {
   return (
     <nav>
       <div className="bg-[#FFE7B0] py-3 text-xs sm:text-sm clamp-[leading,0.78rem,1.12rem] tracking-[0.42px] text-center">
-        <p>New: Get free delivery on your first order!</p>
+        <p>New: Get a free drink on your first order!</p>
       </div>
 
       <div className="relative">

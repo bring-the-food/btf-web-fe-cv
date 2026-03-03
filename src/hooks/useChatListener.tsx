@@ -15,6 +15,67 @@ const HEARTBEAT_INTERVAL = 9 * 60 * 1000;
 const INITIAL_RECONNECT_DELAY = 1000;
 const MAX_RECONNECT_DELAY = 30000;
 
+/** Request notification permission once on first call */
+function requestNotificationPermission() {
+  if (typeof window === "undefined") return;
+  if (!("Notification" in window)) return;
+  if (Notification.permission === "default") {
+    Notification.requestPermission();
+  }
+}
+
+/**
+ * Show a native browser notification and focus the tab when clicked.
+ * Only fires when the tab is hidden so we don't double-alert visible users.
+ */
+function showBrowserNotification(title: string, body: string) {
+  if (typeof window === "undefined") return;
+  if (!("Notification" in window)) return;
+  if (Notification.permission !== "granted") return;
+  if (document.visibilityState === "visible") return;
+
+  const notification = new Notification(title, {
+    body,
+    icon: "/svg/logo.svg",
+    badge: "/svg/logo.svg",
+    tag: "btf-chat-message", // replaces previous notification with same tag
+  });
+
+  notification.onclick = () => {
+    window.focus();
+    notification.close();
+  };
+}
+
+let titleBlinkInterval: ReturnType<typeof setInterval> | null = null;
+
+/** Blink the browser tab title as a fallback when notifications are blocked */
+function startTitleBlink() {
+  if (typeof window === "undefined") return;
+  if (document.visibilityState === "visible") return;
+  if (titleBlinkInterval) return; // already blinking
+
+  const originalTitle = document.title;
+  let toggle = false;
+
+  titleBlinkInterval = setInterval(() => {
+    document.title = toggle ? "🔔 New message!" : originalTitle;
+    toggle = !toggle;
+  }, 1000);
+
+  // Stop blinking when user comes back to the tab
+  const stopOnFocus = () => {
+    if (titleBlinkInterval) {
+      clearInterval(titleBlinkInterval);
+      titleBlinkInterval = null;
+    }
+    document.title = originalTitle;
+    document.removeEventListener("visibilitychange", stopOnFocus);
+  };
+
+  document.addEventListener("visibilitychange", stopOnFocus);
+}
+
 export const useChatListener = (accessToken: string | null) => {
   const ws = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -24,6 +85,11 @@ export const useChatListener = (accessToken: string | null) => {
 
   const [hasNewMessage, setHasNewMessage] = useState(false);
   const [latestData, setLatestData] = useState<any>(null);
+
+  // Ask notification permission as soon as the hook mounts
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
 
   const startHeartbeat = useCallback(() => {
     if (heartbeatIntervalRef.current)
@@ -83,6 +149,16 @@ export const useChatListener = (accessToken: string | null) => {
         if (message.type === "chat.message.new") {
           setHasNewMessage(true);
           setLatestData(message.data);
+
+          // Fire a native OS notification when the tab is in the background
+          const storeName =
+            message.data?.chat?.vendor?.store?.name ?? "the vendor";
+          showBrowserNotification(
+            "New message from " + storeName,
+            "You have a new message. Tap to view.",
+          );
+          // Fallback: blink the tab title if notifications are not permitted
+          startTitleBlink();
         }
       } catch (err) {
         console.error("❌ Failed to parse WebSocket message:", err);
@@ -98,7 +174,7 @@ export const useChatListener = (accessToken: string | null) => {
         reconnectTimeoutRef.current = setTimeout(() => {
           reconnectDelayRef.current = Math.min(
             reconnectDelayRef.current * 2,
-            MAX_RECONNECT_DELAY
+            MAX_RECONNECT_DELAY,
           );
           connectWebSocket();
         }, reconnectDelayRef.current);
@@ -125,7 +201,26 @@ export const useChatListener = (accessToken: string | null) => {
     } else {
       disconnectWebSocket();
     }
-    return () => disconnectWebSocket();
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible" && accessToken) {
+        // Reconnect if the socket closed while the tab was hidden
+        if (
+          !ws.current ||
+          ws.current.readyState === WebSocket.CLOSED ||
+          ws.current.readyState === WebSocket.CLOSING
+        ) {
+          connectWebSocket();
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      disconnectWebSocket();
+    };
   }, [accessToken, connectWebSocket, disconnectWebSocket]);
 
   return {

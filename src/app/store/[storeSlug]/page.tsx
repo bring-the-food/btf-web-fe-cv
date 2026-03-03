@@ -145,10 +145,15 @@ export default function Home({
           <Button
             onClick={() => setOpenNotificationModal(true)}
             variant="ghost"
-            className="hover:bg-gray-100 p-1 relative"
+            className="hover:bg-gray-100 p-1 relative flex items-center gap-1.5"
           >
-            <Icon icon="notification" size={24} />
-            <div className="size-3 bg-[#12B76A] rounded-full animate-pulse absolute top-0 right-0" />
+            <div className="relative">
+              <Icon icon="notification" size={20} />
+              <div className="size-2.5 bg-[#12B76A] rounded-full animate-pulse absolute -top-1 -right-1" />
+            </div>
+            <span className="text-primary clamp-[text,xs,sm,@sm,@lg] font-semibold">
+              new message
+            </span>
           </Button>
         )}
 

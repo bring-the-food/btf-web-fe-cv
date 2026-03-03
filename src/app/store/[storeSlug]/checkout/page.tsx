@@ -48,9 +48,13 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   const userParsed = userDetails && JSON?.parse(userDetails);
 
   const [openModal, setOpenModal] = React.useState(false);
+  const [openVendorMessageModal, setOpenVendorMessageModal] =
+    React.useState(false);
   const [openModalOrderId, setOpenModalOrderId] = React.useState(false);
   const [openDrawer, setOpenDrawer] = React.useState(false);
   const [phoneNumber, setPhoneNumber] = React.useState("");
+  const [vendorMessage, setVendorMessage] = React.useState("");
+  const [vendorMessageDraft, setVendorMessageDraft] = React.useState("");
   const [accordionVal, setAccordionVal] = React.useState("");
   const [location, setLocation] = React.useState({
     city: "",
@@ -108,7 +112,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
         delivery: {
           location: location,
           telephone: `+234${phoneNumber}`,
-          message: "",
+          message: vendorMessage,
         },
         payment: {
           method:
@@ -292,7 +296,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                         onClick={() => setOpenModal(true)}
                         className="clamp-[pt,3,5,@sm,@lg] clamp-[pb,4,6,@sm,@lg] start text-left w-full space-x-3"
                       >
-                        <Icon icon="message" size={20} />
+                        <Icon icon="phone" size={20} />
 
                         <div>
                           <p className="text-[#1D2939] font-medium clamp-[text,sm,base,@sm,@lg]">
@@ -300,6 +304,32 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                           </p>
                           <p className="text-[#A46900] font-medium clamp-[text,0.625rem,xs,@sm,@lg] clamp-[mt,1,1.5,@sm,@lg]">
                             Update Phone Number
+                          </p>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setVendorMessageDraft(vendorMessage);
+                          setOpenVendorMessageModal(true);
+                        }}
+                        className="clamp-[pt,3,5,@sm,@lg] clamp-[pb,4,6,@sm,@lg] start text-left w-full space-x-3"
+                      >
+                        <Icon icon="message" size={20} />
+
+                        <div>
+                          <p className="text-[#1D2939] font-medium clamp-[text,sm,base,@sm,@lg]">
+                            {vendorMessage ? (
+                              <span className="line-clamp-1">
+                                {vendorMessage}
+                              </span>
+                            ) : (
+                              "Leave message for vendor"
+                            )}
+                          </p>
+                          <p className="text-[#A46900] font-medium clamp-[text,0.625rem,xs,@sm,@lg] clamp-[mt,1,1.5,@sm,@lg]">
+                            {vendorMessage
+                              ? "Edit note"
+                              : "Add a note for the vendor"}
                           </p>
                         </div>
                       </button>
@@ -560,19 +590,36 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
               </button>
 
               <button
-                onClick={() => {
+                onClick={async () => {
                   const orderId = checoutResponseExternal?.data?.order?.slug;
-                  if (navigator.share) {
-                    navigator
-                      .share({
+                  const receiptImageUrl =
+                    checoutResponseExternal?.data?.order?.share?.image?.url;
+                  try {
+                    const response = await fetch(
+                      `/api/orders/downloadImage?url=${encodeURIComponent(receiptImageUrl)}`,
+                    );
+                    const blob = await response.blob();
+                    const file = new File([blob], `receipt-${orderId}.jpg`, {
+                      type: blob.type || "image/jpeg",
+                    });
+                    if (
+                      navigator.share &&
+                      navigator.canShare &&
+                      navigator.canShare({ files: [file] })
+                    ) {
+                      await navigator.share({
                         title: "Order ID",
                         text: `My Order ID is: ${orderId}`,
-                        url: window.location.href,
-                      })
-                      .catch(console.error);
-                  } else {
+                        files: [file],
+                      });
+                    } else {
+                      navigator.clipboard.writeText(orderId);
+                      toast("Copied to clipboard (Sharing not supported)");
+                    }
+                  } catch (err) {
+                    console.error("Share failed:", err);
                     navigator.clipboard.writeText(orderId);
-                    toast("Copied to clipboard (Sharing not supported)");
+                    toast("Copied to clipboard");
                   }
                 }}
               >
@@ -600,7 +647,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
             Update phone number
           </h3>
           <p className="text-[#475467] text-sm leading-5 font-normal">
-            This is the number riders will call to reach you during delivery.
+            This is the number rider will call to reach you during delivery.
           </p>
 
           <div className="grid gap-3 mt-5 mb-6">
@@ -627,6 +674,48 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
             className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-xl text-[#59201A] text-sm font-semibold leading-5 py-[18px]"
           >
             Update
+          </Button>
+        </div>
+      </DialogC>
+
+      <DialogC
+        open={openVendorMessageModal}
+        setOpen={setOpenVendorMessageModal}
+      >
+        <div className="grid gap-4 text-[#1D2939] mt-4 text-center px-4">
+          <h3 className="font-semibold leading-normal text-[20px]">
+            Message for vendor
+          </h3>
+          <p className="text-[#475467] text-sm leading-5 font-normal">
+            Leave a note for the vendor, e.g. special instructions or
+            preferences.
+          </p>
+
+          <div className="grid gap-3 mt-5 mb-6 text-left">
+            <Label
+              htmlFor="vendor-message"
+              className="text-sm leading-5 font-semibold text-[#1E2024]"
+            >
+              Note
+            </Label>
+            <textarea
+              id="vendor-message"
+              value={vendorMessageDraft}
+              onChange={(e) => setVendorMessageDraft(e.target.value)}
+              placeholder="e.g. No onions please, extra sauce on the side..."
+              rows={4}
+              className="w-full border border-[#E6E8EC] rounded-xl px-3 py-3 text-sm leading-5 text-[#1E2024] focus:outline-none focus:ring-2 focus:ring-[#FFC247] resize-none"
+            />
+          </div>
+
+          <Button
+            onClick={() => {
+              setVendorMessage(vendorMessageDraft);
+              setOpenVendorMessageModal(false);
+            }}
+            className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-xl text-[#59201A] text-sm font-semibold leading-5 py-[18px]"
+          >
+            Save Note
           </Button>
         </div>
       </DialogC>

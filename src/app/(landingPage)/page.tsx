@@ -58,7 +58,6 @@ export default function Home() {
                 title="Vendors"
                 header="Set Up, Sell More, Stress Less"
                 descD="Grow with every order and reach more customers."
-                setUnderCModal={setUnderCModal}
               />
               <Pallet
                 icon="order"
@@ -66,7 +65,6 @@ export default function Home() {
                 title="Consumers"
                 header="Get your Food and Groceries ASAP"
                 descD="Your order is only few clicks away!"
-                setUnderCModal={setUnderCModal}
               />
               <Pallet
                 icon="bike"
@@ -74,7 +72,6 @@ export default function Home() {
                 title="Riders"
                 header="Earn More by Delivering Food"
                 descD="Deliver steady and earn while at it"
-                setUnderCModal={setUnderCModal}
               />
             </div>
           </div>
@@ -172,14 +169,12 @@ const Pallet = ({
   title,
   header,
   descD,
-  setUnderCModal,
 }: {
   title: string;
   icon: string;
   desc: string;
   header: string;
   descD: string;
-  setUnderCModal?: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   return (
     <div>

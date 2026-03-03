@@ -33,7 +33,7 @@ const Menu = ({
   const search = searchParams.get("search");
   // const lastkey = searchParams.get("lastkey");
 
-  const [searchValue, setSearchValue] = React.useState("");
+  const [searchValue, setSearchValue] = React.useState(search ?? "");
   const [active, setActive] = React.useState("All");
   const [url, setUrl] = React.useState("getAllItems");
   const [categoryId, setCategoryId] = React.useState("getAllItems");
@@ -161,10 +161,6 @@ const Menu = ({
       : null,
     swrfetcher,
   );
-
-  React.useEffect(() => {
-    if (search) setSearchValue(search);
-  }, [search]);
 
   const mappedCats = React.useMemo(() => {
     return (

@@ -14,21 +14,13 @@ const Li = ({
   comingSoon,
   isVendor,
   isRider,
-  setUnderCModal,
 }: {
   label: string;
   comingSoon?: boolean;
   href?: string;
   isVendor?: boolean;
   isRider?: boolean;
-  setUnderCModal?: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
-  const handleClick = () => {
-    if (setUnderCModal) {
-      setUnderCModal(true);
-    }
-  };
-
   if (isRider) {
     return (
       <li>
@@ -144,8 +136,8 @@ const MFooter = () => {
                 header="Order Now"
               />
             </li>
-            <Li label="Vendors" isVendor setUnderCModal={setUnderCModal} />
-            <Li label="Riders" isRider setUnderCModal={setUnderCModal} />
+            <Li label="Vendors" isVendor />
+            <Li label="Riders" isRider />
           </ul>
         </div>
         <div>

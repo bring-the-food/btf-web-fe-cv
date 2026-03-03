@@ -297,7 +297,7 @@ const TrackOrder = ({ data }: { data: any }) => {
             Update phone number
           </h3>
           <p className="text-[#475467] text-sm leading-5 font-normal">
-            This is the number riders will call to reach you during delivery.
+            This is the number rider will call to reach you during delivery.
           </p>
 
           <div className="grid gap-3 mt-5 mb-6">
