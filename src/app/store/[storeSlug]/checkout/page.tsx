@@ -74,7 +74,11 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   );
   const vendor = data?.data;
 
-  const { data: cartData, isLoading } = useSWR(
+  const {
+    data: cartData,
+    isLoading,
+    mutate: mutateCart,
+  } = useSWR(
     vendor ? `/api/cart/getCarts?storeId=${vendor?.store?.id}` : null,
     swrfetcher,
   );
@@ -94,6 +98,56 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
       setPhoneNumber(userParsed?.telephone.slice(4));
     }
   }, [userParsed?.telephone]);
+
+  const getFormattedCartPayload = (cartObj: any) => {
+    if (!cartObj) return { combos: {}, packs: [], groceries: {} };
+
+    const combos: Record<string, { count: number }> = {};
+    if (Array.isArray(cartObj?.combos)) {
+      cartObj.combos.forEach((c: any) => {
+        if (c?.id) combos[c.id] = { count: Number(c.count ?? 0) };
+      });
+    } else if (cartObj?.combos && typeof cartObj.combos === "object") {
+      Object.entries(cartObj.combos).forEach(([k, v]: any) => {
+        combos[k] = { count: Number(v?.count ?? v ?? 0) };
+      });
+    }
+
+    const packs: Array<Record<string, { count: number }>> = Array.isArray(
+      cartObj?.packs,
+    )
+      ? cartObj.packs.map((p: any) => {
+          if (Array.isArray(p)) {
+            const obj: Record<string, { count: number }> = {};
+            p.forEach((it: any) => {
+              if (it?.id) obj[it.id] = { count: Number(it.count ?? 0) };
+            });
+            return obj;
+          }
+          if (p && typeof p === "object") {
+            const obj: Record<string, { count: number }> = {};
+            Object.entries(p).forEach(([k, v]: any) => {
+              obj[k] = { count: Number(v?.count ?? v ?? 0) };
+            });
+            return obj;
+          }
+          return {};
+        })
+      : [];
+
+    const groceries: Record<string, { count: number }> = {};
+    if (Array.isArray(cartObj?.groceries)) {
+      cartObj.groceries.forEach((c: any) => {
+        if (c?.id) groceries[c.id] = { count: Number(c.count ?? 0) };
+      });
+    } else if (cartObj?.groceries && typeof cartObj.groceries === "object") {
+      Object.entries(cartObj.groceries).forEach(([k, v]: any) => {
+        groceries[k] = { count: Number(v?.count ?? v ?? 0) };
+      });
+    }
+
+    return { combos, packs, groceries };
+  };
 
   const handlePayment = async (method?: string) => {
     // Validation: Check if address is set
@@ -670,7 +724,28 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
           </div>
 
           <Button
-            onClick={handlePhoneInput}
+            onClick={async () => {
+              try {
+                setLoading(true);
+                const formattedCart = getFormattedCartPayload(
+                  cartData?.data?.cart,
+                );
+                await cartFunc.addToCart(vendor?.store?.id, {
+                  ...formattedCart,
+                  delivery: {
+                    location: location,
+                    telephone: `+234${phoneNumber}`,
+                    message: vendorMessage,
+                  },
+                });
+                await mutateCart();
+                setOpenModal(false);
+              } catch (err) {
+                console.error("Error updating phone:", err);
+              } finally {
+                setLoading(false);
+              }
+            }}
             className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-xl text-[#59201A] text-sm font-semibold leading-5 py-[18px]"
           >
             Update
@@ -709,9 +784,28 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
           </div>
 
           <Button
-            onClick={() => {
+            onClick={async () => {
               setVendorMessage(vendorMessageDraft);
-              setOpenVendorMessageModal(false);
+              try {
+                setLoading(true);
+                const formattedCart = getFormattedCartPayload(
+                  cartData?.data?.cart,
+                );
+                await cartFunc.addToCart(vendor?.store?.id, {
+                  ...formattedCart,
+                  delivery: {
+                    location: location,
+                    telephone: `+234${phoneNumber}`,
+                    message: vendorMessageDraft,
+                  },
+                });
+                await mutateCart();
+                setOpenVendorMessageModal(false);
+              } catch (err) {
+                console.error("Error updating message:", err);
+              } finally {
+                setLoading(false);
+              }
             }}
             className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-xl text-[#59201A] text-sm font-semibold leading-5 py-[18px]"
           >
@@ -791,11 +885,38 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
           <Tooltip>
             <TooltipTrigger asChild className="w-full">
               <Button
-                onClick={() => setOpenDrawer(false)}
+                onClick={async () => {
+                  setLoading(true);
+                  try {
+                    const formattedCart = getFormattedCartPayload(
+                      cartData?.data?.cart,
+                    );
+                    await cartFunc.addToCart(vendor?.store?.id, {
+                      ...formattedCart,
+                      delivery: {
+                        location: location,
+                        telephone: `+234${phoneNumber}`,
+                        message: vendorMessage,
+                      },
+                    });
+                    await mutateCart();
+                    setOpenDrawer(false);
+                  } catch (err) {
+                    console.error("Error updating location:", err);
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
                 className="bg-[#FFC247] hover:bg-[#ffc247e5] w-full cursor-pointer rounded-xl text-[#59201A] text-sm font-semibold leading-5 py-[18px]"
-                disabled={!location?.street || !location?.description}
+                disabled={
+                  loading || !location?.street || !location?.description
+                }
               >
-                Save Location
+                {loading ? (
+                  <Loader2Icon className="animate-spin size-5" />
+                ) : (
+                  "Save Location"
+                )}
               </Button>
             </TooltipTrigger>
 

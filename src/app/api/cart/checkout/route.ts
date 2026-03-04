@@ -11,11 +11,10 @@ export async function PUT(request: NextRequest) {
   const response = await fetchData(
     `${process.env.NEXT_PUBLIC_BASE_URL}/store/${storeId}/cart/checkout`,
     "POST",
-    payload
+    payload,
   );
 
   return Response.json(response?.data, {
     status: response?.status,
   });
 }
-
