@@ -26,6 +26,7 @@ export type dataProps = {
   setEditPackIndex?: any;
   onActionsComplete: () => void;
   isAll: boolean;
+  category: string;
 };
 
 const Food = ({
@@ -38,6 +39,7 @@ const Food = ({
   editPackIndex,
   setEditPackIndex,
   onActionsComplete,
+  category,
 }: dataProps) => {
   const [packIndex, setPackIndex] = React.useState<number | null>(null);
 
@@ -70,7 +72,7 @@ const Food = ({
 
   React.useEffect(() => {
     if (!cart) return;
-    if (type === "combo") {
+    if (category === "groceries" || type === "combo") {
       setPackIndex(null);
     } else {
       if (typeof editPackIndex === "number" && editPackIndex >= 0) {
@@ -80,18 +82,19 @@ const Food = ({
         setPackIndex(idx >= 0 ? idx : null);
       }
     }
-  }, [cart, data.id, type, editPackIndex]);
+  }, [cart, data.id, type, category, editPackIndex]);
 
   const getDisplayedQuantity = React.useCallback(
     (c: any) => {
       if (!c) return 0;
       if (type === "combo") return c?.combos?.[data.id]?.count ?? 0;
+      if (category === "groceries") return c?.groceries?.[data.id]?.count ?? 0;
       if (typeof editPackIndex === "number" && editPackIndex >= 0) {
         return c?.packs?.[editPackIndex]?.[data.id]?.count ?? 0;
       }
       return getTotalPackItemCountFromCart(c, data.id);
     },
-    [type, data.id, editPackIndex],
+    [type, category, data.id, editPackIndex],
   );
 
   const displayedQuantity = getDisplayedQuantity(cart);
@@ -112,6 +115,16 @@ const Food = ({
           combos[data.id] = { count: next };
         }
         newCart = { ...prev, combos };
+      } else if (category === "groceries") {
+        const current = prev.groceries?.[data.id]?.count ?? 0;
+        const next = Math.max(0, current + 1);
+        const groceries = { ...(prev.groceries ?? {}) };
+        if (next <= 0) {
+          delete groceries[data.id];
+        } else {
+          groceries[data.id] = { count: next };
+        }
+        newCart = { ...prev, groceries };
       } else {
         const targetIndex =
           typeof editPackIndex === "number" && editPackIndex >= 0
@@ -176,6 +189,16 @@ const Food = ({
           combos[data.id] = { count: next };
         }
         newCart = { ...prev, combos };
+      } else if (category === "groceries") {
+        const current = prev.groceries?.[data.id]?.count ?? 0;
+        const next = Math.max(0, current + delta);
+        const groceries = { ...(prev.groceries ?? {}) };
+        if (next <= 0) {
+          delete groceries[data.id];
+        } else {
+          groceries[data.id] = { count: next };
+        }
+        newCart = { ...prev, groceries };
       } else {
         let idx =
           typeof editPackIndex === "number" && editPackIndex >= 0

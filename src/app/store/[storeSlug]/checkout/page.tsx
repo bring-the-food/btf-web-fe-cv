@@ -61,6 +61,14 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
     street: "",
     description: "",
   });
+  const [searchTerm, setSearchTerm] = React.useState("");
+
+  const filteredOau = oau.filter((area) =>
+    area.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+  const filteredOffCampus = offCampus.filter((area) =>
+    area.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
   const [isSuccess, setIsSuccess] = React.useState("false");
   const [loading, setLoading] = React.useState(false);
   const [checoutResponse, setChecoutResponse] = React.useState<any>(null);
@@ -89,15 +97,27 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   //   }
   // }, [cartData?.data?.cart, router, storeSlug]);
 
-  const handlePhoneInput = () => {
-    setOpenModal(false);
-  };
+
 
   React.useEffect(() => {
     if (userParsed?.telephone) {
       setPhoneNumber(userParsed?.telephone.slice(4));
     }
   }, [userParsed?.telephone]);
+
+  // React.useEffect(() => {
+  //   if (cartData?.data?.cart?.delivery?.location?.street) {
+  //     setLocation(cartData.data.cart.delivery.location);
+  //   }
+  //   if (cartData?.data?.cart?.delivery?.telephone) {
+  //     setPhoneNumber(cartData.data.cart.delivery.telephone.replace("+234", ""));
+  //   }
+  //   if (cartData?.data?.cart?.delivery?.message) {
+  //     setVendorMessage(cartData.data.cart.delivery.message);
+  //     setVendorMessageDraft(cartData.data.cart.delivery.message);
+  //   }
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [cartData?.data?.cart?.delivery]);
 
   const getFormattedCartPayload = (cartObj: any) => {
     if (!cartObj) return { combos: {}, packs: [], groceries: {} };
@@ -399,6 +419,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                       <OrderSummary
                         category={vendor?.store?.category}
                         summary={cartData?.data?.cart?.summary}
+                        showDeliveryFee={!!location?.street}
                       />
                     </div>
                   </div>
@@ -730,7 +751,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                 const formattedCart = getFormattedCartPayload(
                   cartData?.data?.cart,
                 );
-                await cartFunc.addToCart(vendor?.store?.id, {
+                const res = await cartFunc.addToCart(vendor?.store?.id, {
                   ...formattedCart,
                   delivery: {
                     location: location,
@@ -738,7 +759,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                     message: vendorMessage,
                   },
                 });
-                await mutateCart();
+                await mutateCart(res?.data);
                 setOpenModal(false);
               } catch (err) {
                 console.error("Error updating phone:", err);
@@ -791,7 +812,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                 const formattedCart = getFormattedCartPayload(
                   cartData?.data?.cart,
                 );
-                await cartFunc.addToCart(vendor?.store?.id, {
+                const res = await cartFunc.addToCart(vendor?.store?.id, {
                   ...formattedCart,
                   delivery: {
                     location: location,
@@ -799,7 +820,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                     message: vendorMessageDraft,
                   },
                 });
-                await mutateCart();
+                await mutateCart(res?.data);
                 setOpenVendorMessageModal(false);
               } catch (err) {
                 console.error("Error updating message:", err);
@@ -827,6 +848,21 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
             Let us know where you hang out. So we can deliver to you.
           </p>
 
+          <div className="relative mb-4 mt-6">
+            <Icon
+              icon="search"
+              size={18}
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#98A2B3]"
+            />
+            <input
+              type="text"
+              placeholder="Search for a location..."
+              className="w-full rounded-xl border border-[#EAECF0] bg-[#F9FAFB] py-2.5 pl-10 pr-4 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-[#FFC247]"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
           <div>
             <Accordion
               type="single"
@@ -840,9 +876,17 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                 setLocation={setLocation}
                 value={location?.street}
                 onSelect={() => setAccordionVal("")}
-                contents={oau.map((area: string) => (
-                  <CCheckbox key={area} label={area} />
-                ))}
+                contents={
+                  filteredOau.length > 0 ? (
+                    filteredOau.map((area: string) => (
+                      <CCheckbox key={area} label={area} />
+                    ))
+                  ) : (
+                    <p className="py-4 text-center text-sm text-[#98A2B3]">
+                      No locations found
+                    </p>
+                  )
+                }
               />
               <LocationAccordian
                 label="Ile - Ife (Off Campus)"
@@ -850,9 +894,17 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                 setLocation={setLocation}
                 value={location?.street}
                 onSelect={() => setAccordionVal("")}
-                contents={offCampus.map((area: string) => (
-                  <CCheckbox key={area} label={area} />
-                ))}
+                contents={
+                  filteredOffCampus.length > 0 ? (
+                    filteredOffCampus.map((area: string) => (
+                      <CCheckbox key={area} label={area} />
+                    ))
+                  ) : (
+                    <p className="py-4 text-center text-sm text-[#98A2B3]">
+                      No locations found
+                    </p>
+                  )
+                }
               />
               {location?.street && (
                 <div className="border border-[#E6E8EC] rounded-xl py-[9px] px-3.5">
@@ -891,7 +943,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                     const formattedCart = getFormattedCartPayload(
                       cartData?.data?.cart,
                     );
-                    await cartFunc.addToCart(vendor?.store?.id, {
+                    const res = await cartFunc.addToCart(vendor?.store?.id, {
                       ...formattedCart,
                       delivery: {
                         location: location,
@@ -899,7 +951,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                         message: vendorMessage,
                       },
                     });
-                    await mutateCart();
+                    await mutateCart(res?.data);
                     setOpenDrawer(false);
                   } catch (err) {
                     console.error("Error updating location:", err);

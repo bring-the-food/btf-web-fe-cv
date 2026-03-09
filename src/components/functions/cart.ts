@@ -2,10 +2,12 @@
 
 import axios from "axios";
 import { toast } from "sonner";
+import { logout } from "@/lib/auth";
 
 export type CartState = {
   combos: Record<string, { count: number }>;
   packs: Array<Record<string, { count: number }>>;
+  groceries: Record<string, { count: number }>;
 };
 
 type SetCart = React.Dispatch<React.SetStateAction<CartState>>;
@@ -27,6 +29,26 @@ function updateComboCount(setCart: SetCart, comboId: string, delta: number) {
     }
 
     return { ...prev, combos };
+  });
+}
+
+/**
+ * Update grocery count by delta (positive to add, negative to remove/decrease).
+ * Removes the grocery key when count <= 0.
+ */
+function updateGroceryCount(setCart: SetCart, groceryId: string, delta: number) {
+  setCart((prev) => {
+    const groceries = { ...prev.groceries };
+    const current = groceries[groceryId]?.count ?? 0;
+    const next = Math.max(0, current + delta);
+
+    if (next <= 0) {
+      delete groceries[groceryId];
+    } else {
+      groceries[groceryId] = { count: next };
+    }
+
+    return { ...prev, groceries };
   });
 }
 
@@ -148,6 +170,9 @@ const addToCart = async (storeId: string, payload: any) => {
     );
     return { data: response.data, status: response.status };
   } catch (error: any) {
+    if (error.response?.status === 401) {
+      logout();
+    }
     toast.error(error.response.data?.message);
     throw { data: error.response.data, status: error.response.status };
   }
@@ -170,6 +195,7 @@ export const cartFunc = {
   addToCart,
   updateComboCount,
   setComboCount,
+  updateGroceryCount,
   updatePackItem,
   setPackItemCount,
   addPack,

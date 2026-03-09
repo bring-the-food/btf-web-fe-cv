@@ -67,15 +67,17 @@ const FeaturedVendor = ({ trigger, header, open, setOpen }: DialogProps) => {
                         className="rounded-full object-cover size-8 lg:size-12! bg-gray-300 overflow-hidden text-center center font-bold lg:text-2xl"
                       />
 
-                      <p className="text-[#310909] text-base lg:text-[28px] font-semibold lg:not-only:leading-[50.4px] tracking-[0.32px]">
-                        {vendor?.name}
-                      </p>
-
-                      {vendor?.category && (
-                        <p className="bg-[#FFE7B0] rounded-full border border-[#FFF0C7] py-1 px-2 lg:py-1.5 lg:px-4 text-xl lg:text-xs font-semibold leading-normal hidden sm:inline-block capitalize">
-                          {vendor?.category?.toLowerCase()}
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-3">
+                        <p className="text-[#310909] text-base lg:text-[28px] font-semibold tracking-[0.32px] leading-tight lg:leading-normal">
+                          {vendor?.name}
                         </p>
-                      )}
+
+                        {vendor?.category && (
+                          <p className="bg-[#FFE7B0] border-[#FFF0C7] rounded-full border py-1 px-2 lg:py-1.5 lg:px-4 text-[10px] lg:text-xs font-semibold leading-normal capitalize">
+                            {vendor?.category?.toLowerCase()}
+                          </p>
+                        )}
+                      </div>
 
                       <Icon
                         icon="c_right"

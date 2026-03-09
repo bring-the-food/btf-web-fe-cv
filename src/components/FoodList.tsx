@@ -60,6 +60,7 @@ const FoodList = ({
                 editPackIndex={editPackIndex}
                 setEditPackIndex={setEditPackIndex}
                 onActionsComplete={onActionsComplete}
+                category={category}
               />
             );
           })

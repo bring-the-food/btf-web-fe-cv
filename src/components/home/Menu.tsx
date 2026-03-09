@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import useSWR from "swr";
 import FoodList from "../FoodList";
-import { cartFunc } from "../functions/cart";
+import { cartFunc, CartState } from "../functions/cart";
 import useQueryString from "../hooks/useQueryString";
 import Loader from "../Loader";
 import MyCart from "../MyCart";
@@ -37,12 +37,10 @@ const Menu = ({
   const [active, setActive] = React.useState("All");
   const [url, setUrl] = React.useState("getAllItems");
   const [categoryId, setCategoryId] = React.useState("getAllItems");
-  const [cart, setCart] = React.useState<{
-    combos: Record<string, { count: number }>;
-    packs: Array<Record<string, { count: number }>>;
-  }>({
+  const [cart, setCart] = React.useState<CartState>({
     combos: {},
     packs: [],
+    groceries: {},
   });
   const [editPackIndex, setEditPackIndex] = React.useState<number | null>(null);
   const [isEditing, setIsEditing] = React.useState<boolean>(false);
@@ -238,7 +236,18 @@ const Menu = ({
         })
       : [];
 
-    setCart({ combos, packs });
+    const groceries: Record<string, { count: number }> = {};
+    if (Array.isArray(cartObj?.groceries)) {
+      cartObj.groceries.forEach((c: any) => {
+        if (c?.id) groceries[c.id] = { count: Number(c.count ?? 0) };
+      });
+    } else if (cartObj?.groceries && typeof cartObj.groceries === "object") {
+      Object.entries(cartObj.groceries).forEach(([k, v]: any) => {
+        groceries[k] = { count: Number(v?.count ?? v ?? 0) };
+      });
+    }
+
+    setCart({ combos, packs, groceries });
   }, [cartData, setCart]);
 
   const filter = [
@@ -475,7 +484,7 @@ const Menu = ({
             storeSlug={storeSlug}
             editPackIndex={editPackIndex}
             onStartNewPack={async () => {
-              const prev = cart ?? { combos: {}, packs: [] };
+              const prev = cart ?? { combos: {}, packs: [], groceries: {} };
               const newIndex = (prev.packs ?? []).length;
               const newPacks = [
                 ...(prev.packs ?? []),

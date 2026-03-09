@@ -19,8 +19,18 @@ export const APP_LINKS = {
   // App Store Links
   STORES: {
     GOOGLE_PLAY:
-      "https://play.google.com/store/apps/details?id=com.bringthisfood", // Placeholder
+      "https://play.google.com/store/apps/details?id=com.btfcustomer.btf&pcampaignid=web_share",
     APPLE_APP_STORE: "https://apps.apple.com/ng/app/bringthisfood-consumer/id6756045001",
+    IOS: {
+      CONSUMER: "https://apps.apple.com/ng/app/bringthisfood-consumer/id6756045001",
+      VENDOR: "https://apps.apple.com/ng/app/bringthisfood-vendor/id6754225661",
+      RIDER: "https://apps.apple.com/ng/app/bringthisfood-rider/id6754207087",
+    },
+    ANDROID: {
+      CONSUMER: "https://play.google.com/store/apps/details?id=com.btfcustomer.btf&pcampaignid=web_share",
+      VENDOR: "https://play.google.com/store/apps/details?id=com.btf.vendor&pcampaignid=web_share",
+      RIDER: "https://play.google.com/store/apps/details?id=com.btfRider.android&pcampaignid=web_share",
+    },
   },
 };
 

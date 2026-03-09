@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { toast } from "sonner";
 
 const SendOTP = async (phoneNumber: string) => {
@@ -11,9 +10,13 @@ const SendOTP = async (phoneNumber: string) => {
   try {
     const response = await axios.post("/api/otp/send", data);
     return { data: response.data, status: response.status };
-  } catch (error: any) {
-    toast.error(error.response.data?.message);
-    throw { data: error.response.data, status: error.response.status };
+  } catch (error: unknown) {
+    const axiosError = error as AxiosError<{ message: string }>;
+    toast.error(axiosError.response?.data?.message || "Something went wrong");
+    throw {
+      data: axiosError.response?.data,
+      status: axiosError.response?.status,
+    };
   }
 };
 
@@ -26,9 +29,13 @@ const VerifyOTP = async (phoneNumber: string, code: string) => {
   try {
     const response = await axios.post("/api/otp/verify", data);
     return { data: response.data, status: response.status };
-  } catch (error: any) {
-    toast.error(error.response.data?.message);
-    throw { data: error.response.data, status: error.response.status };
+  } catch (error: unknown) {
+    const axiosError = error as AxiosError<{ message: string }>;
+    toast.error(axiosError.response?.data?.message || "Something went wrong");
+    throw {
+      data: axiosError.response?.data,
+      status: axiosError.response?.status,
+    };
   }
 };
 

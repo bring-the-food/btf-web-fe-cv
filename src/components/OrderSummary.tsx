@@ -5,9 +5,11 @@ import Pallet from "@/components/Pallet";
 const OrderSummary = ({
   summary,
   category,
+  showDeliveryFee = true,
 }: {
   summary: any;
   category: string;
+  showDeliveryFee?: boolean;
 }) => {
   return (
     <>
@@ -25,9 +27,13 @@ const OrderSummary = ({
           value={summary?.packs?.price?.amount}
         />
       )}
-      <Pallet title="Delivery Fee" value={summary?.delivery?.price?.amount} />
+      {showDeliveryFee && (
+        <Pallet title="Delivery Fee" value={summary?.delivery?.price?.amount} />
+      )}
       <Pallet title="Service Charge" value={summary?.service?.price?.amount} />
-      <Pallet title="Total bill" value={summary?.bill?.amount} isTotal />
+      {showDeliveryFee && (
+        <Pallet title="Total bill" value={summary?.bill?.amount} isTotal />
+      )}
     </>
   );
 };

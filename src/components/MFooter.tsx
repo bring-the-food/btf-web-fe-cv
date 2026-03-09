@@ -7,6 +7,7 @@ import FeaturedVendor from "@/components/FeaturedVendor";
 import Link from "next/link";
 import Dialog from "@/components/DialgC";
 import { socialLinks } from "../../data/socialLinks";
+import { APP_LINKS } from "@/lib/appLinks";
 
 const Li = ({
   label,
@@ -14,12 +15,16 @@ const Li = ({
   comingSoon,
   isVendor,
   isRider,
+  iosUrl,
+  googlePlayUrl,
 }: {
   label: string;
   comingSoon?: boolean;
   href?: string;
   isVendor?: boolean;
   isRider?: boolean;
+  iosUrl?: string;
+  googlePlayUrl?: string;
 }) => {
   if (isRider) {
     return (
@@ -34,6 +39,8 @@ const Li = ({
           desc="Own a bike or bikes? Earn more delivering food!"
           isDownload
           showCloseButton={false}
+          iosUrl={iosUrl}
+          googlePlayUrl={googlePlayUrl}
         />
       </li>
     );
@@ -52,6 +59,8 @@ const Li = ({
           desc="Focus on making delicious food. We handle the rest!"
           isDownload
           showCloseButton={false}
+          iosUrl={iosUrl}
+          googlePlayUrl={googlePlayUrl}
         />
       </li>
     );
@@ -136,8 +145,18 @@ const MFooter = () => {
                 header="Order Now"
               />
             </li>
-            <Li label="Vendors" isVendor />
-            <Li label="Riders" isRider />
+            <Li
+              label="Vendors"
+              isVendor
+              iosUrl={APP_LINKS.STORES.IOS.VENDOR}
+              googlePlayUrl={APP_LINKS.STORES.ANDROID.VENDOR}
+            />
+            <Li
+              label="Riders"
+              isRider
+              iosUrl={APP_LINKS.STORES.IOS.RIDER}
+              googlePlayUrl={APP_LINKS.STORES.ANDROID.RIDER}
+            />
           </ul>
         </div>
         <div>

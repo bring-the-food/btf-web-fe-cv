@@ -118,13 +118,28 @@ const OrderCard = ({ storeSlug, data }: { storeSlug: string; data: any }) => {
       <div className="between">
         <p className="inline-grid my-4">
           <span className="text-[#1D2939] text-xs">
-            {data?.combos?.length > 0
-              ? `${data?.combos?.[0]?.count}x ${data?.combos?.[0]?.name}`
-              : data?.groceries?.length > 0
-                ? `${data?.groceries?.[0]?.count}x ${data?.groceries?.[0]?.name}`
-                : data?.packs?.[0]?.[0]?.count
-                  ? `${data?.packs?.[0]?.[0]?.count}x ${data?.packs?.[0]?.[0]?.name}`
-                  : "Order Items"}
+            {(() => {
+              const combos = data?.combos ?? {};
+              const groceries = data?.groceries ?? {};
+              const packs = data?.packs ?? [];
+
+              const firstCombo = Array.isArray(combos)
+                ? combos[0]
+                : Object.values(combos)[0];
+              if (firstCombo)
+                return `${(firstCombo as any).count}x ${(firstCombo as any).name}`;
+
+              const firstGrocery = Array.isArray(groceries)
+                ? groceries[0]
+                : Object.values(groceries)[0];
+              if (firstGrocery)
+                return `${(firstGrocery as any).count}x ${(firstGrocery as any).name}`;
+
+              if (packs?.[0]?.[0]?.count)
+                return `${packs[0][0].count}x ${packs[0][0].name}`;
+
+              return "Order Items";
+            })()}
           </span>
           {data?.summary?.items?.count > 1 && (
             <span className="text-[#98A2B3] text-[10px] mt-1">

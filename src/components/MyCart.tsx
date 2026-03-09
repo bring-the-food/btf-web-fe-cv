@@ -23,6 +23,7 @@ const MyCart = ({
   cart?: {
     combos: Record<string, { count: number }>;
     packs: Array<Record<string, { count: number }>>;
+    groceries: Record<string, { count: number }>;
   };
   category?: string;
   onNewPack?: (index: number) => void;
@@ -36,10 +37,17 @@ const MyCart = ({
 
   const comboItems = data?.data?.cart?.combos;
   const packItems = data?.data?.cart?.packs;
+  const groceryItems = data?.data?.cart?.groceries;
+
+  const hasCombos = Array.isArray(comboItems) ? comboItems.length > 0 : Object.keys(comboItems ?? {}).length > 0;
+  const hasPacks = Array.isArray(packItems) ? packItems.length > 0 : Object.keys(packItems ?? {}).length > 0;
+  const hasGroceries = Array.isArray(groceryItems) ? groceryItems.length > 0 : Object.keys(groceryItems ?? {}).length > 0;
+
+  const isCartEmpty = !hasCombos && !hasPacks && !hasGroceries;
 
   const handleStartNewPack = async () => {
     if (!setCart) return;
-    const prev = cart ?? { combos: {}, packs: [] };
+    const prev = cart ?? { combos: {}, packs: [], groceries: {} };
     const newPacks = [
       ...(prev.packs ?? []),
       {} as Record<string, { count: number }>,
@@ -60,7 +68,7 @@ const MyCart = ({
 
   const handleDuplicatePack = async (index: number) => {
     if (!setCart) return;
-    const prev = cart ?? { combos: {}, packs: [] };
+    const prev = cart ?? { combos: {}, packs: [], groceries: {} };
     const packs = [...(prev.packs ?? [])].map((p) => ({ ...p }));
     const packToCopy = packs[index] ? { ...(packs[index] as any) } : {};
     const newPacks = [
@@ -84,7 +92,7 @@ const MyCart = ({
   const handleDeletePack = async (index: number | string) => {
     if (!setCart) return;
     let newCart;
-    const prev = cart ?? { combos: {}, packs: [] };
+    const prev = cart ?? { combos: {}, packs: [], groceries: {} };
 
     if (index === "combo") {
       newCart = { ...prev, combos: {} };
@@ -112,7 +120,7 @@ const MyCart = ({
     delta: number
   ) => {
     if (!setCart) return;
-    const prev = cart ?? { combos: {}, packs: [] };
+    const prev = cart ?? { combos: {}, packs: [], groceries: {} };
     if (packIndex < 0 || packIndex >= (prev.packs ?? []).length) return;
     const packs = (prev.packs ?? []).map((p) => ({ ...p }));
     const pack = { ...(packs[packIndex] ?? {}) };
@@ -139,7 +147,7 @@ const MyCart = ({
 
   const handleChangeComboItem = async (itemId: string, delta: number) => {
     if (!setCart) return;
-    const prev = cart ?? { combos: {}, packs: [] };
+    const prev = cart ?? { combos: {}, packs: [], groceries: {} };
     const combos = { ...(prev.combos ?? {}) };
     const current = combos[itemId]?.count ?? 0;
     const next = Math.max(0, current + delta);
@@ -161,9 +169,49 @@ const MyCart = ({
     }
   };
 
+  const handleChangeGroceryItem = async (itemId: string, delta: number) => {
+    if (!setCart) return;
+    const prev = cart ?? { combos: {}, packs: [], groceries: {} };
+    const groceries = { ...(prev.groceries ?? {}) };
+    const current = groceries[itemId]?.count ?? 0;
+    const next = Math.max(0, current + delta);
+    if (next <= 0) {
+      delete groceries[itemId];
+    } else {
+      groceries[itemId] = { count: next };
+    }
+    const newCart = { ...prev, groceries };
+    setCart(newCart);
+
+    try {
+      await cartFunc.addToCart(storeId, newCart);
+      mutate();
+      onActionsComplete();
+    } catch (err) {
+      console.error("Update grocery failed, reverting", err);
+      setCart(prev);
+    }
+  };
+
+  const handleDeleteGrocery = async () => {
+    if (!setCart) return;
+    const prev = cart ?? { combos: {}, packs: [], groceries: {} };
+    const newCart = { ...prev, groceries: {} };
+    setCart(newCart);
+
+    try {
+      await cartFunc.addToCart(storeId, newCart);
+      mutate();
+      onActionsComplete();
+    } catch (err) {
+      console.error("Delete grocery failed, reverting", err);
+      setCart(prev);
+    }
+  };
+
   return (
     <div className="clamp-[mt,4,8,@sm,@lg] space-y-6 md:space-y-8">
-      {comboItems?.length > 0 && (
+      {hasCombos && (
         <CartContent
           title="Combos"
           data={comboItems}
@@ -174,8 +222,18 @@ const MyCart = ({
         />
       )}
 
-      {Array.isArray(packItems) &&
-        packItems.length > 0 &&
+      {hasGroceries && (
+        <CartContent
+          title="Groceries"
+          data={groceryItems}
+          onItemMinus={(id: string) => handleChangeGroceryItem(id, -1)}
+          onItemPlus={(id: string) => handleChangeGroceryItem(id, 1)}
+          hasNoDuplicate
+          onDelete={() => handleDeleteGrocery()}
+        />
+      )}
+
+      {hasPacks && Array.isArray(packItems) ? (
         packItems.map((pack: any, idx: number) => (
           <CartContent
             key={idx}
@@ -189,27 +247,39 @@ const MyCart = ({
             onItemMinus={(id: string) => handleChangePackItem(idx, id, -1)}
             onItemPlus={(id: string) => handleChangePackItem(idx, id, 1)}
           />
-        ))}
+        ))
+      ) : hasPacks && !Array.isArray(packItems) ? (
+        <CartContent
+          title={`${category === "food" ? "Pack 1" : "Groceries"}`}
+          hasEdit={category === "food"}
+          data={packItems}
+          onEdit={() => onEditPack?.(0)}
+          onDuplicate={() => handleDuplicatePack(0)}
+          hasNoDuplicate={category !== "food"}
+          onDelete={() => handleDeletePack(0)}
+          onItemMinus={(id: string) => handleChangePackItem(0, id, -1)}
+          onItemPlus={(id: string) => handleChangePackItem(0, id, 1)}
+        />
+      ) : null}
 
-      {(comboItems?.length === 0 && packItems?.length === 0) ||
-        (!comboItems && !packItems ? (
-          <div className="col-center my-20">
-            <Icon icon="emptyCart" size={160} />
+      {isCartEmpty ? (
+        <div className="col-center my-20">
+          <Icon icon="emptyCart" size={160} />
 
-            <p className="text-center mt-4 clamp-[text,sm,lg,@sm,@lg]">
-              Your cart is empty
-            </p>
+          <p className="text-center mt-4 clamp-[text,sm,lg,@sm,@lg]">
+            Your cart is empty
+          </p>
 
-            <Button
-              onClick={handleStartNewPack}
-              className="text-[#59201A] hover:bg-[#fdb420] w-full max-w-sm bg-[#FFC247] rounded-xl clamp-[py,1.125rem,1.375rem,@sm,@lg]! clamp-[text,sm,base,@sm,@lg] font-semibold leading-5 clamp-[mt,2.5rem,3.125rem,@sm,@lg]"
-            >
-              Add items to cart
-            </Button>
-          </div>
-        ) : (
-          <div>
-            {category !== "groceries" ? (
+          <Button
+            onClick={handleStartNewPack}
+            className="text-[#59201A] hover:bg-[#fdb420] w-full max-w-sm bg-[#FFC247] rounded-xl clamp-[py,1.125rem,1.375rem,@sm,@lg]! clamp-[text,sm,base,@sm,@lg] font-semibold leading-5 clamp-[mt,2.5rem,3.125rem,@sm,@lg]"
+          >
+            Add items to cart
+          </Button>
+        </div>
+      ) : (
+        <div>
+          {category !== "groceries" ? (
               <Button
                 onClick={handleStartNewPack}
                 className="text-[#59201A] rounded-full clamp-[text,xs,sm,@sm,@lg] font-medium bg-[#FFF9E9] hover:bg-[#fcf2d8] clamp-[py,3,4,@sm,@lg]! clamp-[px,4,6,@sm,@lg]! cursor-pointer space-x-[2.5px] h-auto"
@@ -239,7 +309,7 @@ const MyCart = ({
               </>
             )}
           </div>
-        ))}
+        )}
     </div>
   );
 };

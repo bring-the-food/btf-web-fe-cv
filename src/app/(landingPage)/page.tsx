@@ -4,7 +4,9 @@ import Dialog from "@/components/DialgC";
 import Icon from "@/components/Icon";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
+import { APP_LINKS } from "@/lib/appLinks";
 
 export default function Home() {
   const [underCModal, setUnderCModal] = React.useState(false);
@@ -21,24 +23,26 @@ export default function Home() {
         </p>
 
         <div className="clamp-[gap,4,6] clamp-[mt,8,9] grid md:grid-cols-2 w-fit mx-auto">
-          <Button
-            onClick={() => setUnderCModal(true)}
-            className="clamp-[py,1.125rem,1.375rem,@sm,lg]! clamp-[px,1rem,1.25rem,@sm,lg]! clamp-[text,base,lg] font-medium"
-          >
-            <Icon
-              icon="playstore"
-              h={18.999780654907227}
-              w={17.305557250976562}
-            />
-            Download on Google Play
-          </Button>
-          <Button
-            onClick={() => setUnderCModal(true)}
-            className="clamp-[py,1.125rem,1.375rem,@sm,lg]! clamp-[px,1rem,1.25rem,@sm,lg]! clamp-[text,base,lg] font-medium"
-          >
-            <Icon icon="iphone" h={18.999780654907227} w={17.305557250976562} />
-            Download on App Store
-          </Button>
+          <Link href={APP_LINKS.STORES.GOOGLE_PLAY} target="_blank">
+            <Button className="clamp-[py,1.125rem,1.375rem,@sm,lg]! clamp-[px,1rem,1.25rem,@sm,lg]! clamp-[text,base,lg] font-medium w-full">
+              <Icon
+                icon="playstore"
+                h={18.999780654907227}
+                w={17.305557250976562}
+              />
+              Download on Google Play
+            </Button>
+          </Link>
+          <Link href={APP_LINKS.STORES.IOS.CONSUMER} target="_blank">
+            <Button className="clamp-[py,1.125rem,1.375rem,@sm,lg]! clamp-[px,1rem,1.25rem,@sm,lg]! clamp-[text,base,lg] font-medium w-full">
+              <Icon
+                icon="iphone"
+                h={18.999780654907227}
+                w={17.305557250976562}
+              />
+              Download on App Store
+            </Button>
+          </Link>
         </div>
       </div>
 

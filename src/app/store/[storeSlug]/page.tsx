@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter, useSearchParams } from "next/navigation";
+
 import { DialogC } from "@/components/Dialog";
 import { homeFunc } from "@/components/functions/home";
 import Menu from "@/components/home/Menu";
@@ -17,15 +19,17 @@ import WalletBal from "@/components/WalletBal";
 import { swrfetcher } from "@/lib/swrfetcher";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { parseCookies, setCookie, destroyCookie } from "nookies";
+import { parseCookies, setCookie } from "nookies";
 import { LogOut } from "lucide-react";
+import { logout } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import React, { use } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
 import Icon from "@/components/Icon";
 import { useChatListener } from "@/hooks/useChatListener";
+import { usePlatform } from "@/hooks/usePlatform";
+import { APP_LINKS, handleAppRedirection } from "@/lib/appLinks";
 
 export default function Home({
   params,
@@ -53,6 +57,7 @@ export default function Home({
 
   const userParsed = userDetails ? JSON.parse(userDetails) : null;
   const accessToken = userParsed?.tokens?.tokens?.access;
+  const platform = usePlatform();
 
   const { hasNewMessage, setHasNewMessage, latestData } =
     useChatListener(accessToken);
@@ -131,13 +136,8 @@ export default function Home({
     }
   };
 
-  const handleLogout = () => {
-    destroyCookie(null, "userDetails", { path: "/" });
-    router.push("/");
-  };
-
   return (
-    <div className="col-start-center clamp-[px,5,12,@sm,@lg] clamp-[py,10,20,@sm,@lg] w-full">
+        <div className="col-start-center clamp-[px,5,12,@sm,@lg] clamp-[py,10,20,@sm,@lg] w-full">
       <div className="w-full relative between clamp-[mb,3.5,8,@sm,@lg]">
         {!hasNewMessage && <div />}
 
@@ -152,7 +152,7 @@ export default function Home({
               <div className="size-2.5 bg-[#12B76A] rounded-full animate-pulse absolute -top-1 -right-1" />
             </div>
             <span className="text-primary clamp-[text,xs,sm,@sm,@lg] font-semibold">
-              new message
+              New message
             </span>
           </Button>
         )}
@@ -169,7 +169,7 @@ export default function Home({
         </Link>
         {userDetails && (
           <Button
-            onClick={handleLogout}
+            onClick={logout}
             variant="ghost"
             className="text-[#59201A] hover:bg-[#ffc24733] hover:text-[#59201A] gap-2 px-2 sm:px-4"
           >
@@ -367,6 +367,12 @@ export default function Home({
             onClick={() => {
               setOpenNotificationModal(false);
               setHasNewMessage(false);
+              handleAppRedirection(platform, APP_LINKS.ROUTES.CHAT, {
+                vendorId:
+                  latestData?.chat?.vendor?.store?.id || vendor?.store?.id,
+                storeSlug:
+                  latestData?.chat?.vendor?.store?.slug || vendor?.store?.slug,
+              });
             }}
             className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-xl text-[#59201A] text-sm font-semibold h-auto py-4 shadow-xs"
           >

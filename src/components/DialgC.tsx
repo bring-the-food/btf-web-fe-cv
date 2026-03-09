@@ -19,6 +19,8 @@ type DialogProps = {
   open?: boolean;
   setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
   showCloseButton?: boolean;
+  iosUrl?: string;
+  googlePlayUrl?: string;
 };
 
 const DialogC = ({
@@ -29,6 +31,8 @@ const DialogC = ({
   open,
   setOpen,
   showCloseButton,
+  iosUrl,
+  googlePlayUrl,
 }: DialogProps) => {
   return (
     <>
@@ -49,7 +53,10 @@ const DialogC = ({
 
             {isDownload ? (
               <div className="clamp-[gap,4,6] mt-8 grid lg:grid-cols-2 w-fit mx-auto">
-                <Link href={APP_LINKS.STORES.GOOGLE_PLAY} target="_blank">
+                <Link
+                  href={googlePlayUrl || APP_LINKS.STORES.GOOGLE_PLAY}
+                  target="_blank"
+                >
                   <Button className="py-[18px]! px-4 text-sm lg:text-base font-medium w-full">
                     <Icon
                       icon="playstore"
@@ -59,7 +66,10 @@ const DialogC = ({
                     Download on Google Play
                   </Button>
                 </Link>
-                <Link href={APP_LINKS.STORES.APPLE_APP_STORE} target="_blank">
+                <Link
+                  href={iosUrl || APP_LINKS.STORES.APPLE_APP_STORE}
+                  target="_blank"
+                >
                   <Button className="py-[18px]! px-4 text-sm lg:text-base font-medium w-full">
                     <Icon
                       icon="iphone"

@@ -288,6 +288,24 @@ const TrackOrder = ({ data }: { data: any }) => {
               price={c?.price?.amount}
             />
           ))}
+          {(() => {
+            const groceries = data?.order?.groceries ?? {};
+            const groceryList = Array.isArray(groceries)
+              ? groceries
+              : Object.entries(groceries).map(([id, val]: any) => ({
+                  id,
+                  ...val,
+                }));
+
+            return groceryList.map((g: any, i: number) => (
+              <Pallet
+                key={i}
+                name={g?.name || "Grocery Item"}
+                desc={`${g?.count}x`}
+                price={g?.price?.amount}
+              />
+            ));
+          })()}
         </div>
       </div>
 
