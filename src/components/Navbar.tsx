@@ -8,6 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { Button } from "./ui/button";
+import { APP_LINKS } from "@/lib/appLinks";
 
 const MenuItems = ({
   isDesktop,
@@ -62,6 +63,8 @@ const MenuItems = ({
           header="Set Up, Sell More, Stress Less"
           desc="Focus on making delicious food. We handle the rest!"
           isDownload
+          googlePlayUrl={APP_LINKS.STORES.ANDROID.VENDOR}
+          iosUrl={APP_LINKS.STORES.IOS.VENDOR}
           showCloseButton={false}
         />
       </li>
@@ -71,6 +74,8 @@ const MenuItems = ({
           header="Earn More by Delivering Food"
           desc="Own a bike or bikes? Earn more delivering food!"
           isDownload
+          googlePlayUrl={APP_LINKS.STORES.ANDROID.RIDER}
+          iosUrl={APP_LINKS.STORES.IOS.RIDER}
           showCloseButton={false}
         />
       </li>

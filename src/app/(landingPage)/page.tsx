@@ -62,6 +62,8 @@ export default function Home() {
                 title="Vendors"
                 header="Set Up, Sell More, Stress Less"
                 descD="Grow with every order and reach more customers."
+                googlePlayUrl={APP_LINKS.STORES.ANDROID.VENDOR}
+                iosUrl={APP_LINKS.STORES.IOS.VENDOR}
               />
               <Pallet
                 icon="order"
@@ -69,6 +71,8 @@ export default function Home() {
                 title="Consumers"
                 header="Get your Food and Groceries ASAP"
                 descD="Your order is only few clicks away!"
+                googlePlayUrl={APP_LINKS.STORES.ANDROID.CONSUMER}
+                iosUrl={APP_LINKS.STORES.IOS.CONSUMER}
               />
               <Pallet
                 icon="bike"
@@ -76,6 +80,8 @@ export default function Home() {
                 title="Riders"
                 header="Earn More by Delivering Food"
                 descD="Deliver steady and earn while at it"
+                googlePlayUrl={APP_LINKS.STORES.ANDROID.RIDER}
+                iosUrl={APP_LINKS.STORES.IOS.RIDER}
               />
             </div>
           </div>
@@ -173,12 +179,16 @@ const Pallet = ({
   title,
   header,
   descD,
+  iosUrl,
+  googlePlayUrl,
 }: {
   title: string;
   icon: string;
   desc: string;
   header: string;
   descD: string;
+  iosUrl?: string;
+  googlePlayUrl?: string;
 }) => {
   return (
     <div>
@@ -205,6 +215,8 @@ const Pallet = ({
         header={header}
         desc={descD}
         isDownload
+        iosUrl={iosUrl}
+        googlePlayUrl={googlePlayUrl}
         showCloseButton={false}
       />
       <h5 className="font-caprasimo lg:leading-[37.12px] tracking-[0.32px] clamp-[text,1.5rem,2rem] clamp-[mt,6,8] text-center">
