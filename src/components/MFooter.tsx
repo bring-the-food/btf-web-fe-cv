@@ -1,13 +1,13 @@
 "use client";
 
-import Image from "next/image";
-import React from "react";
-import Icon from "./Icon";
-import FeaturedVendor from "@/components/FeaturedVendor";
-import Link from "next/link";
 import Dialog from "@/components/DialgC";
-import { socialLinks } from "../../data/socialLinks";
+import FeaturedVendor from "@/components/FeaturedVendor";
 import { APP_LINKS } from "@/lib/appLinks";
+import Image from "next/image";
+import Link from "next/link";
+import React from "react";
+import { socialLinks } from "../../data/socialLinks";
+import Icon from "./Icon";
 
 const Li = ({
   label,

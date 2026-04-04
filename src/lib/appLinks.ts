@@ -34,33 +34,49 @@ export const APP_LINKS = {
   },
 };
 
+export type AppPlatform = "ios" | "android" | "desktop";
+export type AppVariant = "consumer" | "vendor" | "rider";
+
+export const getStoreLink = (
+  platform: AppPlatform,
+  appVariant: AppVariant = "consumer",
+) => {
+  const isIos = platform === "ios";
+
+  if (appVariant === "vendor") {
+    return isIos ? APP_LINKS.STORES.IOS.VENDOR : APP_LINKS.STORES.ANDROID.VENDOR;
+  }
+
+  if (appVariant === "rider") {
+    return isIos ? APP_LINKS.STORES.IOS.RIDER : APP_LINKS.STORES.ANDROID.RIDER;
+  }
+
+  return isIos
+    ? APP_LINKS.STORES.IOS.CONSUMER
+    : APP_LINKS.STORES.ANDROID.CONSUMER;
+};
+
 /**
  * Handle redirection to the app with a fallback to the store
  */
 export const handleAppRedirection = (
-  platform: "ios" | "android" | "desktop",
+  platform: AppPlatform,
   route: string,
-  params: Record<string, string | number | undefined> = {},
+  _params: Record<string, string | number | undefined> = {},
 ) => {
-  if (platform === "desktop") {
-    // For desktop, we can just open the store page or a web fallback
-    window.open(APP_LINKS.STORES.GOOGLE_PLAY, "_blank");
-    return;
-  }
+  void _params;
 
-  const deepLink = constructDeepLink(route, params);
-  const storeLink =
-    platform === "ios"
-      ? APP_LINKS.STORES.APPLE_APP_STORE
-      : APP_LINKS.STORES.GOOGLE_PLAY;
+  const appVariant =
+    route === APP_LINKS.ROUTES.REPORT ||
+    route === APP_LINKS.ROUTES.CHAT ||
+    route === APP_LINKS.ROUTES.ORDERS ||
+    route === APP_LINKS.ROUTES.PROFILE
+      ? "consumer"
+      : "consumer";
 
-  // Attempt to open deep link
-  window.location.href = deepLink;
+  const storeLink = getStoreLink(platform, appVariant);
 
-  // Fallback to store after a short delay if the app didn't open
-  setTimeout(() => {
-    window.location.href = storeLink;
-  }, 2500);
+  window.location.href = storeLink;
 };
 
 /**

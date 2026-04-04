@@ -6,10 +6,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { APP_LINKS } from "@/lib/appLinks";
+import Link from "next/link";
 import React from "react";
 import Icon from "./Icon";
-import Link from "next/link";
-import { APP_LINKS } from "@/lib/appLinks";
 
 type DialogProps = {
   trigger?: React.ReactNode;

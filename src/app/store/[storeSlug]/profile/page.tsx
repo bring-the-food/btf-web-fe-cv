@@ -11,7 +11,8 @@ import Image from "next/image";
 import React, { use } from "react";
 import useSWR from "swr";
 
-import { APP_LINKS, constructDeepLink } from "@/lib/appLinks";
+import { APP_LINKS, handleAppRedirection } from "@/lib/appLinks";
+import { usePlatform } from "@/hooks/usePlatform";
 
 const Profile = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   const { storeSlug } = use(params);
@@ -19,6 +20,7 @@ const Profile = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   const [openModal, setOpenModal] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
   const copyTimerRef = React.useRef<number | null>(null);
+  const platform = usePlatform();
 
   const { data, isLoading } = useSWR(
     `/api/profile?storeSlug=${storeSlug}`,
@@ -29,18 +31,10 @@ const Profile = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   const vendorAvailability = vendor?.store?.availability?.weekly;
 
   const handleChatWithVendor = () => {
-    const deepLink = constructDeepLink(APP_LINKS.ROUTES.CHAT, {
+    handleAppRedirection(platform, APP_LINKS.ROUTES.CHAT, {
       vendorId: vendor?.store?.id,
       storeSlug: vendor?.store?.slug,
     });
-
-    // Attempt to redirect to the app
-    window.location.href = deepLink;
-
-    // Optional: Fallback to store if the app isn't installed
-    // setTimeout(() => {
-    //   window.location.href = APP_LINKS.STORES.GOOGLE_PLAY;
-    // }, 2000);
   };
 
   React.useEffect(() => {
