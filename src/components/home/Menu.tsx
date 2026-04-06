@@ -42,6 +42,7 @@ const Menu = ({
     packs: [],
     groceries: {},
   });
+  const [isCartMutating, setIsCartMutating] = React.useState(false);
   const [editPackIndex, setEditPackIndex] = React.useState<number | null>(null);
   const [isEditing, setIsEditing] = React.useState<boolean>(false);
 
@@ -484,6 +485,7 @@ const Menu = ({
             storeSlug={storeSlug}
             editPackIndex={editPackIndex}
             onStartNewPack={async () => {
+              if (isCartMutating) return;
               const prev = cart ?? { combos: {}, packs: [], groceries: {} };
               const newIndex = (prev.packs ?? []).length;
               const newPacks = [
@@ -498,13 +500,17 @@ const Menu = ({
               setIsEditing(false);
 
               try {
+                setIsCartMutating(true);
                 await cartFunc.addToCart(vendor?.store?.id, newCart);
               } catch (err) {
                 console.error("Start new pack (topper) failed, reverting", err);
                 setCart(prev);
                 setEditPackIndex(null);
+              } finally {
+                setIsCartMutating(false);
               }
             }}
+            isMutating={isCartMutating}
             totalItemsLabel={`Proceed to order ${summary?.items?.count} items`}
             totalPriceLabel={
               koboToNaira(summary?.items?.price?.amount ?? 0) ?? "—"

@@ -30,6 +30,7 @@ const MyCart = ({
   onEditPack?: (index: number) => void;
   onActionsComplete: () => void;
 }) => {
+  const [isMutating, setIsMutating] = React.useState(false);
   const { data, mutate } = useSWR(
     `/api/cart/getCarts?storeId=${storeId}`,
     swrfetcher
@@ -46,7 +47,7 @@ const MyCart = ({
   const isCartEmpty = !hasCombos && !hasPacks && !hasGroceries;
 
   const handleStartNewPack = async () => {
-    if (!setCart) return;
+    if (!setCart || isMutating) return;
     const prev = cart ?? { combos: {}, packs: [], groceries: {} };
     const newPacks = [
       ...(prev.packs ?? []),
@@ -59,15 +60,18 @@ const MyCart = ({
     onNewPack?.(newIndex);
 
     try {
+      setIsMutating(true);
       await cartFunc.addToCart(storeId, newCart);
     } catch (err) {
       console.error("Start new pack failed, reverting", err);
       setCart(prev);
+    } finally {
+      setIsMutating(false);
     }
   };
 
   const handleDuplicatePack = async (index: number) => {
-    if (!setCart) return;
+    if (!setCart || isMutating) return;
     const prev = cart ?? { combos: {}, packs: [], groceries: {} };
     const packs = [...(prev.packs ?? [])].map((p) => ({ ...p }));
     const packToCopy = packs[index] ? { ...(packs[index] as any) } : {};
@@ -80,17 +84,20 @@ const MyCart = ({
     setCart(newCart);
 
     try {
+      setIsMutating(true);
       await cartFunc.addToCart(storeId, newCart);
       mutate();
       onActionsComplete();
     } catch (err) {
       console.error("Duplicate pack failed, reverting", err);
       setCart(prev);
+    } finally {
+      setIsMutating(false);
     }
   };
 
   const handleDeletePack = async (index: number | string) => {
-    if (!setCart) return;
+    if (!setCart || isMutating) return;
     let newCart;
     const prev = cart ?? { combos: {}, packs: [], groceries: {} };
 
@@ -104,6 +111,7 @@ const MyCart = ({
     }
 
     try {
+      setIsMutating(true);
       await cartFunc.addToCart(storeId, newCart);
       mutate();
       onActionsComplete();
@@ -111,6 +119,8 @@ const MyCart = ({
       console.error("Delete pack failed, reverting", err);
       toast.error("Delete pack failed, reverting");
       setCart(prev);
+    } finally {
+      setIsMutating(false);
     }
   };
 
@@ -119,7 +129,7 @@ const MyCart = ({
     itemId: string,
     delta: number
   ) => {
-    if (!setCart) return;
+    if (!setCart || isMutating) return;
     const prev = cart ?? { combos: {}, packs: [], groceries: {} };
     if (packIndex < 0 || packIndex >= (prev.packs ?? []).length) return;
     const packs = (prev.packs ?? []).map((p) => ({ ...p }));
@@ -136,17 +146,20 @@ const MyCart = ({
     setCart(newCart);
 
     try {
+      setIsMutating(true);
       await cartFunc.addToCart(storeId, newCart);
       mutate();
       onActionsComplete();
     } catch (err) {
       console.error("Update pack item failed, reverting", err);
       setCart(prev);
+    } finally {
+      setIsMutating(false);
     }
   };
 
   const handleChangeComboItem = async (itemId: string, delta: number) => {
-    if (!setCart) return;
+    if (!setCart || isMutating) return;
     const prev = cart ?? { combos: {}, packs: [], groceries: {} };
     const combos = { ...(prev.combos ?? {}) };
     const current = combos[itemId]?.count ?? 0;
@@ -160,17 +173,20 @@ const MyCart = ({
     setCart(newCart);
 
     try {
+      setIsMutating(true);
       await cartFunc.addToCart(storeId, newCart);
       mutate();
       onActionsComplete();
     } catch (err) {
       console.error("Update combo failed, reverting", err);
       setCart(prev);
+    } finally {
+      setIsMutating(false);
     }
   };
 
   const handleChangeGroceryItem = async (itemId: string, delta: number) => {
-    if (!setCart) return;
+    if (!setCart || isMutating) return;
     const prev = cart ?? { combos: {}, packs: [], groceries: {} };
     const groceries = { ...(prev.groceries ?? {}) };
     const current = groceries[itemId]?.count ?? 0;
@@ -184,28 +200,34 @@ const MyCart = ({
     setCart(newCart);
 
     try {
+      setIsMutating(true);
       await cartFunc.addToCart(storeId, newCart);
       mutate();
       onActionsComplete();
     } catch (err) {
       console.error("Update grocery failed, reverting", err);
       setCart(prev);
+    } finally {
+      setIsMutating(false);
     }
   };
 
   const handleDeleteGrocery = async () => {
-    if (!setCart) return;
+    if (!setCart || isMutating) return;
     const prev = cart ?? { combos: {}, packs: [], groceries: {} };
     const newCart = { ...prev, groceries: {} };
     setCart(newCart);
 
     try {
+      setIsMutating(true);
       await cartFunc.addToCart(storeId, newCart);
       mutate();
       onActionsComplete();
     } catch (err) {
       console.error("Delete grocery failed, reverting", err);
       setCart(prev);
+    } finally {
+      setIsMutating(false);
     }
   };
 
@@ -219,6 +241,7 @@ const MyCart = ({
           onItemPlus={(id: string) => handleChangeComboItem(id, 1)}
           hasNoDuplicate
           onDelete={() => handleDeletePack("combo")}
+          disabled={isMutating}
         />
       )}
 
@@ -230,6 +253,7 @@ const MyCart = ({
           onItemPlus={(id: string) => handleChangeGroceryItem(id, 1)}
           hasNoDuplicate
           onDelete={() => handleDeleteGrocery()}
+          disabled={isMutating}
         />
       )}
 
@@ -246,6 +270,7 @@ const MyCart = ({
             onDelete={() => handleDeletePack(idx)}
             onItemMinus={(id: string) => handleChangePackItem(idx, id, -1)}
             onItemPlus={(id: string) => handleChangePackItem(idx, id, 1)}
+            disabled={isMutating}
           />
         ))
       ) : hasPacks && !Array.isArray(packItems) ? (
@@ -259,6 +284,7 @@ const MyCart = ({
           onDelete={() => handleDeletePack(0)}
           onItemMinus={(id: string) => handleChangePackItem(0, id, -1)}
           onItemPlus={(id: string) => handleChangePackItem(0, id, 1)}
+          disabled={isMutating}
         />
       ) : null}
 
@@ -272,6 +298,7 @@ const MyCart = ({
 
           <Button
             onClick={handleStartNewPack}
+            disabled={isMutating}
             className="text-[#59201A] hover:bg-[#fdb420] w-full max-w-sm bg-[#FFC247] rounded-xl clamp-[py,1.125rem,1.375rem,@sm,@lg]! clamp-[text,sm,base,@sm,@lg] font-semibold leading-5 clamp-[mt,2.5rem,3.125rem,@sm,@lg]"
           >
             Add items to cart
@@ -282,6 +309,7 @@ const MyCart = ({
           {category !== "groceries" ? (
               <Button
                 onClick={handleStartNewPack}
+                disabled={isMutating}
                 className="text-[#59201A] rounded-full clamp-[text,xs,sm,@sm,@lg] font-medium bg-[#FFF9E9] hover:bg-[#fcf2d8] clamp-[py,3,4,@sm,@lg]! clamp-[px,4,6,@sm,@lg]! cursor-pointer space-x-[2.5px] h-auto"
               >
                 <Icon
@@ -326,6 +354,7 @@ type CartContentProps = {
   onItemMinus?: (id: string) => void;
   onItemPlus?: (id: string) => void;
   hasNoDuplicate?: boolean;
+  disabled?: boolean;
 };
 
 const CartContent = ({
@@ -338,6 +367,7 @@ const CartContent = ({
   onItemMinus,
   onItemPlus,
   hasNoDuplicate,
+  disabled,
 }: CartContentProps) => {
   const items: any[] = React.useMemo(() => {
     if (!data) return [];
@@ -365,6 +395,7 @@ const CartContent = ({
           {hasEdit && (
             <button
               onClick={onEdit}
+              disabled={disabled}
               className="rounded-full bg-[#F2F4F7] clamp-[p,1.5,2,@sm,@lg] w-fit"
               aria-label={`Edit ${title}`}
             >
@@ -378,6 +409,7 @@ const CartContent = ({
           {!hasNoDuplicate && (
             <button
               onClick={onDuplicate}
+              disabled={disabled}
               className="rounded-full bg-[#2E896F14] clamp-[p,1.5,2,@sm,@lg] w-fit"
               aria-label={`Duplicate ${title}`}
             >
@@ -390,6 +422,7 @@ const CartContent = ({
           )}
           <button
             onClick={onDelete}
+            disabled={disabled}
             className="rounded-full bg-[#FD88880D] clamp-[p,1.5,2,@sm,@lg] w-fit"
             aria-label={`Delete ${title}`}
           >
@@ -412,6 +445,7 @@ const CartContent = ({
               count={Number(item?.count ?? 0)}
               onMinus={() => onItemMinus?.(item?.id)}
               onPlus={() => onItemPlus?.(item?.id)}
+              disabled={disabled}
             />
           );
         })}
@@ -426,12 +460,14 @@ const Pallet = ({
   count,
   onMinus,
   onPlus,
+  disabled,
 }: {
   name: string;
   price: number;
   count: number;
   onMinus?: () => void;
   onPlus?: () => void;
+  disabled?: boolean;
 }) => {
   return (
     <div className="start-start">
@@ -451,7 +487,7 @@ const Pallet = ({
       </div>
 
       <div className="ml-auto end space-x-3 md:space-x-4 bg-[#F2F4F7] rounded-full clamp-[py,0.375rem,0.625rem,@sm,@lg] clamp-[px,0.75rem,1rem,@sm,@lg]">
-        <button onClick={onMinus} aria-label="minus">
+        <button onClick={onMinus} aria-label="minus" disabled={disabled}>
           <Icon
             icon="minus"
             w={10}
@@ -462,7 +498,7 @@ const Pallet = ({
         <p className="text-[#344054] font-medium clamp-[text,xs,sm,@sm,@lg] leading-normal">
           {count}
         </p>
-        <button onClick={onPlus} aria-label="plus">
+        <button onClick={onPlus} aria-label="plus" disabled={disabled}>
           <Icon
             icon="plus"
             w={10}

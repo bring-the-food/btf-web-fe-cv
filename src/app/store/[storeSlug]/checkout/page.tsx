@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { usePaymentListener } from "@/hooks/usePaymentListener";
 import { koboToNaira } from "@/lib/formatCurrency";
+import { apiFetch } from "@/lib/http";
 import { swrfetcher } from "@/lib/swrfetcher";
 import { Loader2Icon } from "lucide-react";
 import Image from "next/image";
@@ -71,6 +72,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   );
   const [isSuccess, setIsSuccess] = React.useState("false");
   const [loading, setLoading] = React.useState(false);
+  const [shareLoading, setShareLoading] = React.useState(false);
   const [checoutResponse, setChecoutResponse] = React.useState<any>(null);
   const [checoutResponseExternal, setChecoutResponseExternal] =
     React.useState<any>(null);
@@ -170,6 +172,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   };
 
   const handlePayment = async (method?: string) => {
+    if (loading) return;
     // Validation: Check if address is set
     if (!location?.description) {
       toast.error("Please add a delivery address");
@@ -239,6 +242,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
   }, [error]);
 
   const handleCheckPaymentStatus = async () => {
+    if (loading) return;
     const transactionId = checoutResponse?.data?.transaction?.id;
     if (!transactionId) return;
 
@@ -666,11 +670,13 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
 
               <button
                 onClick={async () => {
+                  if (shareLoading) return;
                   const orderId = checoutResponseExternal?.data?.order?.slug;
                   const receiptImageUrl =
                     checoutResponseExternal?.data?.order?.share?.image?.url;
                   try {
-                    const response = await fetch(
+                    setShareLoading(true);
+                    const response = await apiFetch(
                       `/api/orders/downloadImage?url=${encodeURIComponent(receiptImageUrl)}`,
                     );
                     const blob = await response.blob();
@@ -695,8 +701,11 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                     console.error("Share failed:", err);
                     navigator.clipboard.writeText(orderId);
                     toast("Copied to clipboard");
+                  } finally {
+                    setShareLoading(false);
                   }
                 }}
+                disabled={shareLoading}
               >
                 <Icon
                   icon="share-07"
@@ -746,6 +755,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
 
           <Button
             onClick={async () => {
+              if (loading) return;
               try {
                 setLoading(true);
                 const formattedCart = getFormattedCartPayload(
@@ -767,6 +777,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                 setLoading(false);
               }
             }}
+            disabled={loading}
             className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-xl text-[#59201A] text-sm font-semibold leading-5 py-[18px]"
           >
             Update
@@ -806,6 +817,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
 
           <Button
             onClick={async () => {
+              if (loading) return;
               setVendorMessage(vendorMessageDraft);
               try {
                 setLoading(true);
@@ -828,6 +840,7 @@ const Checkout = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                 setLoading(false);
               }
             }}
+            disabled={loading}
             className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer rounded-xl text-[#59201A] text-sm font-semibold leading-5 py-[18px]"
           >
             Save Note

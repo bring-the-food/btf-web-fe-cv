@@ -21,7 +21,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { parseCookies, setCookie } from "nookies";
 import { LogOut } from "lucide-react";
-import { logout } from "@/lib/auth";
+import { AUTH_STATE_CHANGED_EVENT, logout } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import React, { use } from "react";
 import { toast } from "sonner";
@@ -44,6 +44,7 @@ export default function Home({
 
   const { storeSlug } = use(params);
 
+  const [, setAuthTick] = React.useState(0);
   const { userDetails } = parseCookies();
 
   const [openModal, setOpenModal] = React.useState(true);
@@ -77,8 +78,26 @@ export default function Home({
       setOpenModal(false);
     } else {
       setOpenModal(true);
+      setProcess("phoneInput");
+      setOtp("");
     }
   }, [userDetails]);
+
+  React.useEffect(() => {
+    const handleAuthStateChanged = () => {
+      setAuthTick((value) => value + 1);
+      setLoading(false);
+    };
+
+    window.addEventListener(AUTH_STATE_CHANGED_EVENT, handleAuthStateChanged);
+
+    return () => {
+      window.removeEventListener(
+        AUTH_STATE_CHANGED_EVENT,
+        handleAuthStateChanged,
+      );
+    };
+  }, []);
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value || "";
@@ -137,27 +156,27 @@ export default function Home({
   };
 
   return (
-        <div className="col-start-center clamp-[px,5,12,@sm,@lg] clamp-[py,10,20,@sm,@lg] w-full">
-      <div className="w-full relative between clamp-[mb,3.5,8,@sm,@lg]">
-        {!hasNewMessage && <div />}
+    <div className="col-start-center clamp-[px,5,12,@sm,@lg] clamp-[py,10,20,@sm,@lg] w-full">
+      <div className="w-full relative grid grid-cols-3 items-center clamp-[mb,3.5,8,@sm,@lg]">
+        <div className="justify-self-start">
+          {hasNewMessage && (
+            <Button
+              onClick={() => setOpenNotificationModal(true)}
+              variant="ghost"
+              className="hover:bg-gray-100 p-1 relative flex items-center gap-1.5"
+            >
+              <div className="relative">
+                <Icon icon="notification" size={20} />
+                <div className="size-2.5 bg-[#12B76A] rounded-full animate-pulse absolute -top-1 -right-1" />
+              </div>
+              <span className="text-primary clamp-[text,xs,sm,@sm,@lg] font-semibold">
+                New message
+              </span>
+            </Button>
+          )}
+        </div>
 
-        {hasNewMessage && (
-          <Button
-            onClick={() => setOpenNotificationModal(true)}
-            variant="ghost"
-            className="hover:bg-gray-100 p-1 relative flex items-center gap-1.5"
-          >
-            <div className="relative">
-              <Icon icon="notification" size={20} />
-              <div className="size-2.5 bg-[#12B76A] rounded-full animate-pulse absolute -top-1 -right-1" />
-            </div>
-            <span className="text-primary clamp-[text,xs,sm,@sm,@lg] font-semibold">
-              New message
-            </span>
-          </Button>
-        )}
-
-        <Link href={"/"}>
+        <Link href={"/"} className="justify-self-center">
           <Image
             className="clamp-[w,3.8125rem,8rem,@sm,@lg]"
             src="/svg/logo.svg"
@@ -167,16 +186,19 @@ export default function Home({
             priority
           />
         </Link>
-        {userDetails && (
-          <Button
-            onClick={logout}
-            variant="ghost"
-            className="text-[#59201A] hover:bg-[#ffc24733] hover:text-[#59201A] gap-2 px-2 sm:px-4"
-          >
-            <LogOut size={20} />
-            <span className="hidden sm:inline">Logout</span>
-          </Button>
-        )}
+
+        <div className="justify-self-end">
+          {userDetails && (
+            <Button
+              onClick={logout}
+              variant="ghost"
+              className="text-[#59201A] hover:bg-[#ffc24733] hover:text-[#59201A] gap-2 px-2 sm:px-4"
+            >
+              <LogOut size={20} />
+              <span className="hidden sm:inline">Logout</span>
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="w-full">

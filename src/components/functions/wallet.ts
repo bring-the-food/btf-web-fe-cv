@@ -1,4 +1,5 @@
-import axios, { AxiosError } from "axios";
+import type { AxiosError } from "axios";
+import axios from "@/lib/http";
 import { toast } from "sonner";
 
 const fundWallet = async (amount: number) => {

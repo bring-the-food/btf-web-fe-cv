@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
-import axios from "axios";
+import axios from "@/lib/http";
 import { toast } from "sonner";
-import { logout } from "@/lib/auth";
 
 export type CartState = {
   combos: Record<string, { count: number }>;
@@ -170,9 +168,6 @@ const addToCart = async (storeId: string, payload: any) => {
     );
     return { data: response.data, status: response.status };
   } catch (error: any) {
-    if (error.response?.status === 401) {
-      logout();
-    }
     toast.error(error.response.data?.message);
     throw { data: error.response.data, status: error.response.status };
   }

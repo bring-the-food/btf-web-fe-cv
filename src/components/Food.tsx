@@ -42,6 +42,7 @@ const Food = ({
   category,
 }: dataProps) => {
   const [packIndex, setPackIndex] = React.useState<number | null>(null);
+  const [isMutating, setIsMutating] = React.useState(false);
 
   const getTotalPackItemCountFromCart = (c: any, itemId: string) => {
     const packs = c?.packs ?? [];
@@ -101,8 +102,10 @@ const Food = ({
   const isAdd = displayedQuantity === 0;
 
   const handleAdd = async () => {
+    if (isMutating) return;
     const prev = cart;
     try {
+      setIsMutating(true);
       let newCart = { ...prev };
 
       if (type === "combo") {
@@ -169,14 +172,18 @@ const Food = ({
       console.error("Add to cart failed, reverting local state", err);
 
       setCart(prev);
+    } finally {
+      setIsMutating(false);
     }
   };
 
   const handlePlusMinus = async (action: string) => {
+    if (isMutating) return;
     const delta = action === "plus" ? 1 : -1;
     const prev = cart;
 
     try {
+      setIsMutating(true);
       let newCart = { ...prev };
 
       if (type === "combo") {
@@ -259,6 +266,8 @@ const Food = ({
       console.error("Update cart failed, reverting local state", err);
 
       setCart(prev);
+    } finally {
+      setIsMutating(false);
     }
   };
 
@@ -297,6 +306,7 @@ const Food = ({
         {isAdd ? (
           <button
             onClick={handleAdd}
+            disabled={isMutating}
             className="bg-[#FFC247] hover:bg-[#ffc247e5] cursor-pointer transition-colors text-[#59201A] clamp-[text,sm,base,@sm,@lg] font-jakart font-medium leading-normal absolute bottom-0 z-50 w-full clamp-[py,0.4375rem,0.8125rem,@sm,@lg] center space-x-[6.5px]"
           >
             <span>Add</span>
@@ -313,6 +323,7 @@ const Food = ({
             <button
               className="hover:bg-[#f8e3a8]"
               onClick={() => handlePlusMinus("minus")}
+              disabled={isMutating}
             >
               <Icon icon="c_minus" size={16} />
             </button>
@@ -320,6 +331,7 @@ const Food = ({
             <button
               className="hover:bg-[#f8e3a8]"
               onClick={() => handlePlusMinus("plus")}
+              disabled={isMutating}
             >
               <Icon icon="c_plus" size={16} />
             </button>

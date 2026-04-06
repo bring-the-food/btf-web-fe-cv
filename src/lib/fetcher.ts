@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 import { cookies } from "next/headers";
+import { PLATFORM_CLIENT_TYPE } from "./platform-client";
 
 export async function fetchData(url: string, method: string, data?: any) {
   let response;
@@ -14,7 +15,7 @@ export async function fetchData(url: string, method: string, data?: any) {
   const config = {
     headers: {
       Authorization: `Bearer ${token}`,
-      "x-platform-client-type": "web",
+      "x-platform-client-type": PLATFORM_CLIENT_TYPE,
     },
   };
 

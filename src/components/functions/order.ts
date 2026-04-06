@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import axios from "axios";
+import axios from "@/lib/http";
 import { toast } from "sonner";
 
 const updateTel = async (orderId: string, payload: { telephone: string }) => {

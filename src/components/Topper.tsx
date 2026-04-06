@@ -11,6 +11,7 @@ const Topper = ({
   isEditing,
   onEditing,
   category,
+  isMutating = false,
 }: {
   storeSlug: string;
   editPackIndex?: number | null;
@@ -20,6 +21,7 @@ const Topper = ({
   isEditing?: boolean;
   onEditing?: () => void;
   category: string;
+  isMutating?: boolean;
 }) => {
   return (
     <div className="fixed inset-x-0 clamp-[bottom,4,8,@sm,@lg] flex flex-col items-center pointer-events-none w-full z-50 gap-3 px-5">
@@ -63,6 +65,7 @@ const Topper = ({
                   <div className="flex items-center gap-2">
                     <button
                       onClick={onStartNewPack}
+                      disabled={isMutating}
                       className="bg-[#FFFCFB] text-[#310909] rounded-full p-2 text-[10px] font-semibold hover:bg-[#fcf4f2] pointer-events-auto center"
                     >
                       <Icon icon="c_plus" size={12} className="mr-1" />

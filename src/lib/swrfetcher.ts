@@ -1,13 +1,6 @@
-import { parseCookies } from "nookies";
-import { logout } from "./auth";
+import { apiFetch } from "./http";
 
 export const swrfetcher = (url: string) =>
-  fetch(url).then((res) => {
-    if (res.status === 401) {
-      const { userDetails } = parseCookies();
-      if (userDetails) {
-        logout();
-      }
-    }
+  apiFetch(url).then((res) => {
     return res.json();
   });
