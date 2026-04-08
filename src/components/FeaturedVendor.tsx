@@ -31,7 +31,7 @@ const FeaturedVendor = ({ trigger, header, open, setOpen }: DialogProps) => {
         <DialogTrigger asChild>{trigger}</DialogTrigger>
         <DialogContent
           showCloseButton={false}
-          className="bg-[#FFF9E9] md:p-12 w-full sm:max-w-[420px] lg:max-w-[756px] max-h-[min(90vh,1122px)] flex flex-col"
+          className="bg-[#FFF9E9] md:p-12 w-full sm:max-w-[420px] lg:max-w-[756px] max-h-[85vh] lg:max-h-[min(90vh,1122px)] flex flex-col"
         >
           <DialogTitle className="hidden"></DialogTitle>
           <h5 className="font-caprasimo text-2xl lg:text-5xl leading-9 lg:leading-[89.6px] tracking-[0.6px] text-left w-full">
