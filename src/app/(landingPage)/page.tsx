@@ -3,10 +3,10 @@
 import Dialog from "@/components/DialgC";
 import Icon from "@/components/Icon";
 import { Button } from "@/components/ui/button";
+import { APP_LINKS } from "@/lib/appLinks";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import { APP_LINKS } from "@/lib/appLinks";
 
 export default function Home() {
   const [underCModal, setUnderCModal] = React.useState(false);
@@ -48,7 +48,7 @@ export default function Home() {
 
       <div className="bg-[url('/images/mobile_phone.png')] sm:h-[350px] md:h-[400px] clamp-[h,12.5rem,25rem]  xl:h-[650px] max-w-[1560px] xl:mx-auto bg-position-[50%_0.5%]  sm:bg-position-[50%_8.5%] bg-cover" />
 
-      <div className="bg-[#FFF9E9]">
+      {/* <div className="bg-[#FFF9E9]">
         <div className="container_fluid clamp-[py,5.625rem,8.5rem] ">
           <h4 className="font-caprasimo clamp-[text,2rem,4rem] text-center clamp-[leading,2.5rem,4.64rem]">
             Give and Get <br /> What You Love
@@ -86,7 +86,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="bg-[#FFE7B0]">
         <div className="container_fluid clamp-[py,4.625rem,7.75rem] grid lg:grid-cols-2 gap-y-20 lg:gap-x-10 xl:gap-x-[148px]">
