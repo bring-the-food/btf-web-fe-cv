@@ -28,12 +28,13 @@ export const currencyFormatter = (
 };
 
 /** Convert kobo (integer) to naira string with 2 decimals. */
-export function koboToNaira(kobo: number | string): string {
+export function koboToNaira(kobo?: number | string | null): string {
+  if (kobo === undefined || kobo === null) return currencyFormatter(0);
   const k =
     typeof kobo === "string"
       ? parseInt(kobo.replace(/\D/g, ""), 10)
       : Math.round(kobo);
-  if (!Number.isFinite(k)) throw new Error("Invalid kobo value");
+  if (!Number.isFinite(k)) return currencyFormatter(0);
 
   // convert to naira (decimal) then format with currencyFormatter
   const nairaValue = k / 100;
@@ -41,12 +42,13 @@ export function koboToNaira(kobo: number | string): string {
 }
 
 /** Convert naira (can be decimal) to kobo (integer). */
-export function nairaToKobo(naira: number | string): number {
+export function nairaToKobo(naira?: number | string | null): number {
+  if (naira === undefined || naira === null) return 0;
   const n =
     typeof naira === "string"
       ? parseFloat(naira.replace(/,/g, "").trim())
       : Number(naira);
-  if (!Number.isFinite(n)) throw new Error("Invalid naira value");
+  if (!Number.isFinite(n)) return 0;
 
   // Use currencyFormatter to ensure consistent rounding/display for the naira value,
   // but return the integer kobo value as the conversion result.

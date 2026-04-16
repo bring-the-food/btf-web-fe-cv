@@ -194,7 +194,9 @@ const Profile = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                 <p className="col-start clamp-[text,xs,sm,@sm,@lg] font-medium">
                   <span className="text-[#98A2B3] ">Average Meal Price</span>
                   <span className="text-[#1D2939] mt-1">
-                    {koboToNaira(vendor?.store?.items?.averagePrice?.amount)}
+                    {vendor?.store?.items?.averagePrice?.amount !== undefined
+                      ? koboToNaira(vendor.store.items.averagePrice.amount)
+                      : "--"}
                   </span>
                 </p>
                 <div className="bg-[#F2F4F7] clamp-[h,5,6,@sm,@lg] w-px" />
@@ -204,33 +206,19 @@ const Profile = ({ params }: { params: Promise<{ storeSlug: string }> }) => {
                     {/* {koboToNaira(50000)} - {koboToNaira(200000)} */}
                     {vendor?.store?.delivery?.price ? (
                       <>
-                        {koboToNaira(
-                          vendor?.store?.delivery?.price?.min?.amount,
-                        )}{" "}
+                        {vendor?.store?.delivery?.price?.min?.amount !== undefined
+                          ? koboToNaira(vendor.store.delivery.price.min.amount)
+                          : "--"}{" "}
                         -{" "}
-                        {koboToNaira(
-                          vendor?.store?.delivery?.price?.max?.amount,
-                        )}{" "}
+                        {vendor?.store?.delivery?.price?.max?.amount !== undefined
+                          ? koboToNaira(vendor.store.delivery.price.max.amount)
+                          : "--"}{" "}
                       </>
                     ) : (
                       "--"
                     )}
                   </span>
                 </p>
-                {/* <div className="bg-[#F2F4F7] clamp-[h,5,6,@sm,@lg] w-px" />
-                <p className="col-start clamp-[text,xs,sm,@sm,@lg] font-medium">
-                  <span className="text-[#98A2B3] ">Expect In</span>
-                  <span className="text-[#1D2939] mt-1">
-                    {vendor?.store?.delivery?.time ? (
-                      <>
-                        {vendor?.store?.delivery?.time?.min} -{" "}
-                        {vendor?.store?.delivery?.time?.max} min{" "}
-                      </>
-                    ) : (
-                      "--"
-                    )}
-                  </span>
-                </p> */}
               </div>
             </div>
 
